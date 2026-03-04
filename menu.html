@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Меню — TapMenu Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text y='22' x='6' font-size='18' fill='white'>T</text></svg>">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .menu-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .menu-layout { grid-template-columns: 1fr; }
+      .menu-sidebar { order: -1; }
+    }
+
+    .menu-sidebar { position: sticky; top: 84px; }
+
+    .categories-list { display: flex; flex-direction: column; gap: 4px; }
+
+    .cat-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.875rem;
+      border: 1px solid transparent;
+    }
+    .cat-item:hover { background: var(--accent-soft); border-color: var(--db-border); }
+    .cat-item.active { background: var(--gold-soft); border-color: var(--db-border-gold); color: var(--gold); font-weight: 600; }
+    .cat-item .cat-emoji { font-size: 1.1rem; flex-shrink: 0; }
+    .cat-item .cat-name { flex: 1; }
+    .cat-item .cat-count { font-size: 0.75rem; color: var(--text-muted); }
+    .cat-item .cat-actions { display: flex; gap: 4px; opacity: 0; transition: opacity var(--transition); }
+    .cat-item:hover .cat-actions { opacity: 1; }
+    .cat-item .cat-action-btn {
+      background: none; border: none; color: var(--text-muted);
+      font-size: 0.75rem; padding: 2px 4px; cursor: pointer; border-radius: 4px;
+      transition: all var(--transition);
+    }
+    .cat-item .cat-action-btn:hover { color: var(--text); background: var(--db-bg-hover); }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .item-card {
+      background: var(--db-bg-card);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex; gap: 14px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .item-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-accent);
+    }
+    .item-card-img {
+      width: 72px; height: 72px; border-radius: var(--radius-sm);
+      object-fit: cover; background: var(--db-bg-hover);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 2rem; flex-shrink: 0; overflow: hidden;
+    }
+    .item-card-body { flex: 1; min-width: 0; }
+    .item-card-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+    .item-card-desc { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-card-price { font-weight: 700; color: var(--gold); font-size: 0.95rem; }
+    .item-card-actions { display: flex; gap: 4px; }
+
+    .item-toggle-available {
+      width: 10px; height: 10px; border-radius: 50%;
+      display: inline-block; margin-right: 4px;
+    }
+    .item-toggle-available.on  { background: var(--emerald); }
+    .item-toggle-available.off { background: var(--danger); }
+
+    /* Drag handle */
+    .drag-handle { cursor: grab; color: var(--text-muted); font-size: 1rem; padding: 4px; }
+    .drag-handle:active { cursor: grabbing; }
+  </style>
+</head>
+<body>
+<div class="db-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="db-sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🍽️</div>
+      <div class="sidebar-logo-text">Tap<span>Menu</span></div>
+    </div>
+    <div class="sidebar-restaurant">
+      <div class="sidebar-rest-label">Ресторан</div>
+      <div class="sidebar-rest-name" id="sidebar-rest-name">Загрузка...</div>
+      <div class="sidebar-rest-plan" id="sidebar-rest-plan">Pro</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Главное</div>
+      <a href="index.html" class="sidebar-link"><span class="icon">📊</span> Дашборд</a>
+      <a href="menu.html" class="sidebar-link active"><span class="icon">🍜</span> Меню</a>
+      <a href="waiter.html" class="sidebar-link"><span class="icon">🔔</span> Вызовы</a>
+      <a href="analytics.html" class="sidebar-link"><span class="icon">📈</span> Аналитика</a>
+      <div class="sidebar-section-label">Настройки</div>
+      <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Настройки</a>
+      <div class="sidebar-section-label">Сайт</div>
+      <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> На сайт</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="user-avatar">?</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="user-name">Загрузка...</div>
+          <div class="sidebar-user-email" id="user-email">—</div>
+        </div>
+        <span style="color:var(--text-muted); font-size:0.8rem;">⏻</span>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="db-main">
+    <header class="db-topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-breadcrumb">TapMenu / <span>Меню</span></div>
+      </div>
+      <div class="topbar-right">
+        <a href="waiter.html" class="topbar-btn" title="Вызовы">🔔</a>
+        <a href="settings.html" class="topbar-btn" title="Настройки">⚙️</a>
+      </div>
+    </header>
+
+    <main class="db-content">
+
+      <div class="db-page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+        <div>
+          <h1 class="db-page-title">🍜 Меню</h1>
+          <p class="db-page-subtitle">Управление категориями и блюдами</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn-db btn-db-outline" onclick="openCatModal()">+ Категория</button>
+          <button class="btn-db btn-db-primary" onclick="openItemModal()">+ Добавить блюдо</button>
+        </div>
+      </div>
+
+      <!-- Search bar -->
+      <div style="margin-bottom:20px;">
+        <div class="input-group" style="max-width:400px;">
+          <input type="text" class="form-control" id="search-input" placeholder="🔍 Поиск по меню..." oninput="filterItems(this.value)">
+        </div>
+      </div>
+
+      <!-- Menu layout -->
+      <div class="menu-layout">
+
+        <!-- Categories sidebar -->
+        <div class="menu-sidebar">
+          <div class="db-card">
+            <div class="db-card-header">
+              <div class="db-card-title">Категории</div>
+              <button class="btn-db btn-db-outline btn-db-sm" onclick="openCatModal()">+</button>
+            </div>
+            <div class="db-card-body" style="padding:12px;">
+              <div class="categories-list" id="cats-list">
+                <!-- Loaded dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items area -->
+        <div>
+          <div class="db-card-header" style="background:var(--db-bg-card); border:1px solid var(--db-border); border-bottom:none; border-radius:var(--radius) var(--radius) 0 0; padding:16px 20px;">
+            <div>
+              <div class="db-card-title" id="current-cat-title">Все блюда</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);" id="items-count">0 позиций</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn-db btn-db-ghost btn-db-sm" id="view-grid" onclick="setView('grid')" style="color:var(--gold);">⊞</button>
+              <button class="btn-db btn-db-ghost btn-db-sm" id="view-list" onclick="setView('list')">☰</button>
+            </div>
+          </div>
+          <div style="background:var(--db-bg-card); border:1px solid var(--db-border); border-top:none; border-radius:0 0 var(--radius) var(--radius); padding:16px;" id="items-container">
+            <!-- Items loaded dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ===== CATEGORY MODAL ===== -->
+<div class="db-modal-overlay" id="cat-modal">
+  <div class="db-modal">
+    <div class="db-modal-header">
+      <div class="db-modal-title" id="cat-modal-title">Новая категория</div>
+      <button class="db-modal-close" onclick="closeModal('cat-modal')">✕</button>
+    </div>
+    <div class="db-modal-body">
+      <input type="hidden" id="cat-edit-id">
+      <div class="form-group">
+        <label class="form-label required">Название (RU)</label>
+        <input type="text" class="form-control" id="cat-name-ru" placeholder="Горячие блюда">
+      </div>
+      <div class="db-grid-2">
+        <div class="form-group">
+          <label class="form-label">Название (EN)</label>
+          <input type="text" class="form-control" id="cat-name-en" placeholder="Hot dishes">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Название (HY)</label>
+          <input type="text" class="form-control" id="cat-name-hy" placeholder="Տաք ուտեստներ">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Эмодзи / Иконка</label>
+        <input type="text" class="form-control" id="cat-emoji" placeholder="🍖" maxlength="4" style="font-size:1.5rem; text-align:center; max-width:80px;">
+        <div class="form-hint">Одно эмодзи для иконки категории</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Порядок отображения</label>
+        <input type="number" class="form-control" id="cat-order" placeholder="1" min="1" style="max-width:100px;">
+      </div>
+    </div>
+    <div class="db-modal-footer">
+      <button class="btn-db btn-db-outline" onclick="closeModal('cat-modal')">Отмена</button>
+      <button class="btn-db btn-db-primary" onclick="saveCategory()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ITEM MODAL ===== -->
+<div class="db-modal-overlay" id="item-modal">
+  <div class="db-modal" style="max-width:580px;">
+    <div class="db-modal-header">
+      <div class="db-modal-title" id="item-modal-title">Новое блюдо</div>
+      <button class="db-modal-close" onclick="closeModal('item-modal')">✕</button>
+    </div>
+    <div class="db-modal-body">
+      <input type="hidden" id="item-edit-id">
+
+      <div class="db-grid-2">
+        <div class="form-group">
+          <label class="form-label required">Название (RU)</label>
+          <input type="text" class="form-control" id="item-name-ru" placeholder="Шашлык из свинины">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Название (EN)</label>
+          <input type="text" class="form-control" id="item-name-en" placeholder="Pork BBQ">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Название (HY)</label>
+        <input type="text" class="form-control" id="item-name-hy" placeholder="Խոզի շաշլըք">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Описание (RU)</label>
+        <textarea class="form-control" id="item-desc-ru" rows="2" placeholder="Сочный шашлык из свинины на углях..."></textarea>
+      </div>
+
+      <div class="db-grid-2">
+        <div class="form-group">
+          <label class="form-label required">Цена</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="item-price" placeholder="2500" min="0" step="100">
+            <span class="btn-db btn-db-outline" style="cursor:default; white-space:nowrap;">֏</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Старая цена (для скидки)</label>
+          <input type="number" class="form-control" id="item-old-price" placeholder="3000" min="0" step="100">
+        </div>
+      </div>
+
+      <div class="db-grid-2">
+        <div class="form-group">
+          <label class="form-label required">Категория</label>
+          <select class="form-control" id="item-cat">
+            <!-- Loaded dynamically -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Вес / Объём</label>
+          <input type="text" class="form-control" id="item-weight" placeholder="300 г">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Фото (URL)</label>
+        <input type="url" class="form-control" id="item-image" placeholder="https://...jpg">
+        <div class="form-hint">Вставьте ссылку на фото блюда</div>
+      </div>
+
+      <div class="db-grid-2" style="margin-bottom:12px;">
+        <label class="db-switch-row" style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--db-bg); border-radius:var(--radius-sm); border:1px solid var(--db-border);">
+          <span style="font-size:0.875rem;">В наличии</span>
+          <label class="db-switch">
+            <input type="checkbox" id="item-available" checked>
+            <span class="db-switch-slider"></span>
+          </label>
+        </label>
+        <label class="db-switch-row" style="display:flex; align-items:center; justify-content:space-between; padding:12px; background:var(--db-bg); border-radius:var(--radius-sm); border:1px solid var(--db-border);">
+          <span style="font-size:0.875rem;">Популярное 🔥</span>
+          <label class="db-switch">
+            <input type="checkbox" id="item-popular">
+            <span class="db-switch-slider"></span>
+          </label>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Аллергены / теги</label>
+        <input type="text" class="form-control" id="item-tags" placeholder="острое, без глютена, веган">
+        <div class="form-hint">Через запятую</div>
+      </div>
+
+    </div>
+    <div class="db-modal-footer">
+      <button class="btn-db btn-db-danger" id="btn-delete-item" onclick="deleteCurrentItem()" style="display:none; margin-right:auto;">🗑 Удалить</button>
+      <button class="btn-db btn-db-outline" onclick="closeModal('item-modal')">Отмена</button>
+      <button class="btn-db btn-db-primary" onclick="saveItem()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="db-toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+
+<script>
+// ===== STATE =====
+let categories = [];
+let items = [];
+let activeCatId = null;
+let viewMode = 'grid';
+
+// ===== DEMO DATA =====
+const DEMO_CATS = [
+  { id: 'c1', name_ru: 'Холодные закуски', name_en: 'Cold starters', emoji: '🥗', order: 1 },
+  { id: 'c2', name_ru: 'Горячие блюда',    name_en: 'Hot dishes',    emoji: '🍖', order: 2 },
+  { id: 'c3', name_ru: 'Супы',             name_en: 'Soups',         emoji: '🍲', order: 3 },
+  { id: 'c4', name_ru: 'Десерты',          name_en: 'Desserts',      emoji: '🍰', order: 4 },
+  { id: 'c5', name_ru: 'Напитки',          name_en: 'Drinks',        emoji: '🥤', order: 5 },
+  { id: 'c6', name_ru: 'Вино',             name_en: 'Wine',          emoji: '🍷', order: 6 },
+];
+
+const DEMO_ITEMS = [
+  { id: 'i1', cat_id: 'c1', name_ru: 'Долма', name_en: 'Dolma', desc_ru: 'Голубцы в виноградных листьях', price: 1800, weight: '200 г', available: true, popular: true, emoji: '🥢' },
+  { id: 'i2', cat_id: 'c1', name_ru: 'Ашлама-рыба', name_en: 'Ashlama Fish', desc_ru: 'Маринованная рыба по-армянски', price: 2200, weight: '150 г', available: true, popular: false, emoji: '🐟' },
+  { id: 'i3', cat_id: 'c2', name_ru: 'Шашлык из свинины', name_en: 'Pork BBQ', desc_ru: 'Сочный шашлык на углях', price: 3500, weight: '300 г', available: true, popular: true, emoji: '🍖' },
+  { id: 'i4', cat_id: 'c2', name_ru: 'Шашлык из курицы', name_en: 'Chicken BBQ', desc_ru: 'Нежный шашлык из куриного филе', price: 2800, weight: '280 г', available: true, popular: false, emoji: '🍗' },
+  { id: 'i5', cat_id: 'c2', name_ru: 'Хоровац', name_en: 'Khorovats', desc_ru: 'Армянский гриль-микс', price: 4200, weight: '400 г', available: true, popular: true, emoji: '🥩' },
+  { id: 'i6', cat_id: 'c3', name_ru: 'Борщ', name_en: 'Borscht', desc_ru: 'Традиционный борщ со сметаной', price: 1200, weight: '350 мл', available: true, popular: false, emoji: '🥣' },
+  { id: 'i7', cat_id: 'c4', name_ru: 'Пахлава', name_en: 'Baklava', desc_ru: 'Ореховая пахлава с мёдом', price: 800, weight: '150 г', available: true, popular: true, emoji: '🍯' },
+  { id: 'i8', cat_id: 'c5', name_ru: 'Тан', name_en: 'Tan (ayran)', desc_ru: 'Армянский освежающий напиток', price: 500, weight: '300 мл', available: true, popular: false, emoji: '🥛' },
+];
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadUserInfo();
+  loadMenu();
+});
+
+function loadUserInfo() {
+  const name = localStorage.getItem('tm_restaurant_name') || 'Мой ресторан';
+  const plan = localStorage.getItem('tm_user_plan') || 'Pro';
+  const email = localStorage.getItem('tm_user_email') || '';
+  document.getElementById('sidebar-rest-name').textContent = name;
+  document.getElementById('sidebar-rest-plan').textContent = plan;
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+}
+
+async function loadMenu() {
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+
+    if (isDemo) {
+      categories = DEMO_CATS;
+      items = DEMO_ITEMS;
+    } else {
+      const restId = localStorage.getItem('tm_restaurant_id');
+      const { data: cats } = await _supabase.from('menu_categories').select('*').eq('restaurant_id', restId).order('sort_order');
+      const { data: its } = await _supabase.from('menu_items').select('*').eq('restaurant_id', restId).order('sort_order');
+      categories = cats || [];
+      items = its || [];
+    }
+    renderCategories();
+    renderItems(null);
+  } catch(e) {
+    console.error(e);
+    categories = DEMO_CATS; items = DEMO_ITEMS;
+    renderCategories(); renderItems(null);
+  }
+}
+
+// ===== RENDER CATEGORIES =====
+function renderCategories() {
+  const list = document.getElementById('cats-list');
+  const catSelect = document.getElementById('item-cat');
+
+  // All items option
+  let html = `<div class="cat-item ${activeCatId === null ? 'active' : ''}" onclick="filterByCat(null)">
+    <span class="cat-emoji">🍽️</span>
+    <span class="cat-name">Все блюда</span>
+    <span class="cat-count">${items.length}</span>
+  </div>`;
+
+  categories.forEach(cat => {
+    const count = items.filter(i => i.cat_id === cat.id || i.category_id === cat.id).length;
+    html += `
+    <div class="cat-item ${activeCatId === cat.id ? 'active' : ''}" onclick="filterByCat('${cat.id}')">
+      <span class="cat-emoji">${cat.emoji || '📁'}</span>
+      <span class="cat-name">${cat.name_ru}</span>
+      <span class="cat-count">${count}</span>
+      <div class="cat-actions">
+        <button class="cat-action-btn" onclick="event.stopPropagation(); editCat('${cat.id}')" title="Редактировать">✏️</button>
+        <button class="cat-action-btn" onclick="event.stopPropagation(); deleteCat('${cat.id}')" title="Удалить">🗑</button>
+      </div>
+    </div>`;
+  });
+
+  list.innerHTML = html;
+
+  // Update category select in item modal
+  catSelect.innerHTML = `<option value="">— Выберите категорию —</option>` +
+    categories.map(c => `<option value="${c.id}">${c.emoji || '📁'} ${c.name_ru}</option>`).join('');
+}
+
+// ===== RENDER ITEMS =====
+function renderItems(catId) {
+  const filtered = catId ? items.filter(i => i.cat_id === catId || i.category_id === catId) : items;
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const shown = q ? filtered.filter(i => (i.name_ru||'').toLowerCase().includes(q) || (i.name_en||'').toLowerCase().includes(q)) : filtered;
+
+  document.getElementById('items-count').textContent = shown.length + ' позиций';
+  const cat = categories.find(c => c.id === catId);
+  document.getElementById('current-cat-title').textContent = cat ? (cat.emoji + ' ' + cat.name_ru) : 'Все блюда';
+
+  const container = document.getElementById('items-container');
+
+  if (!shown.length) {
+    container.innerHTML = `<div class="db-empty">
+      <div class="db-empty-icon">🍽️</div>
+      <div class="db-empty-title">Нет блюд</div>
+      <div class="db-empty-text">Добавьте первое блюдо в это меню</div>
+      <button class="btn-db btn-db-primary" onclick="openItemModal()">+ Добавить блюдо</button>
+    </div>`;
+    return;
+  }
+
+  if (viewMode === 'grid') {
+    container.innerHTML = `<div class="items-grid">${shown.map(itemCardHTML).join('')}</div>`;
+  } else {
+    container.innerHTML = shown.map(itemListHTML).join('');
+  }
+}
+
+function itemCardHTML(item) {
+  return `
+  <div class="item-card" onclick="editItem('${item.id}')">
+    <div class="item-card-img">${item.image ? `<img src="${item.image}" alt="${item.name_ru}" style="width:100%;height:100%;object-fit:cover;">` : (item.emoji || '🍽️')}</div>
+    <div class="item-card-body">
+      <div class="item-card-name">
+        ${item.popular ? '🔥 ' : ''}<span class="item-toggle-available ${item.available !== false ? 'on' : 'off'}"></span>${item.name_ru}
+      </div>
+      <div class="item-card-desc">${item.desc_ru || '—'}</div>
+      <div class="item-card-footer">
+        <div class="item-card-price">${item.price ? item.price.toLocaleString() + ' ֏' : '—'}</div>
+        <div class="item-card-actions">
+          <button class="btn-db btn-db-ghost btn-db-icon btn-db-sm" onclick="event.stopPropagation(); editItem('${item.id}')" title="Редактировать">✏️</button>
+          <button class="btn-db btn-db-ghost btn-db-icon btn-db-sm" onclick="event.stopPropagation(); quickToggle('${item.id}')" title="Вкл/Выкл">${item.available !== false ? '🟢' : '🔴'}</button>
+        </div>
+      </div>
+      ${item.weight ? `<div style="font-size:0.72rem; color:var(--text-muted); margin-top:3px;">${item.weight}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function itemListHTML(item) {
+  return `
+  <div class="menu-item-card" style="margin-bottom:8px;" onclick="editItem('${item.id}')">
+    <div class="menu-item-img">${item.image ? `<img src="${item.image}" alt="" style="width:100%;height:100%;object-fit:cover;">` : (item.emoji || '🍽️')}</div>
+    <div class="menu-item-info">
+      <div class="menu-item-name">${item.popular ? '🔥 ' : ''}${item.name_ru}</div>
+      <div class="menu-item-desc">${item.desc_ru || '—'}</div>
+    </div>
+    <div class="menu-item-price">${item.price ? item.price.toLocaleString() + ' ֏' : '—'}</div>
+    <div class="menu-item-actions">
+      <button class="btn-db btn-db-ghost btn-db-icon btn-db-sm" onclick="event.stopPropagation(); editItem('${item.id}')">✏️</button>
+      <button class="btn-db btn-db-ghost btn-db-icon btn-db-sm" onclick="event.stopPropagation(); quickToggle('${item.id}')">${item.available !== false ? '🟢' : '🔴'}</button>
+    </div>
+  </div>`;
+}
+
+// ===== FILTER =====
+function filterByCat(catId) {
+  activeCatId = catId;
+  renderCategories();
+  renderItems(catId);
+}
+
+function filterItems(q) { renderItems(activeCatId); }
+
+function setView(mode) {
+  viewMode = mode;
+  document.getElementById('view-grid').style.color = mode === 'grid' ? 'var(--gold)' : '';
+  document.getElementById('view-list').style.color = mode === 'list' ? 'var(--gold)' : '';
+  renderItems(activeCatId);
+}
+
+// ===== CATEGORY MODAL =====
+function openCatModal(cat = null) {
+  document.getElementById('cat-edit-id').value = '';
+  document.getElementById('cat-name-ru').value = '';
+  document.getElementById('cat-name-en').value = '';
+  document.getElementById('cat-name-hy').value = '';
+  document.getElementById('cat-emoji').value = '';
+  document.getElementById('cat-order').value = categories.length + 1;
+  document.getElementById('cat-modal-title').textContent = 'Новая категория';
+  openModal('cat-modal');
+}
+
+function editCat(id) {
+  const cat = categories.find(c => c.id === id);
+  if (!cat) return;
+  document.getElementById('cat-edit-id').value = id;
+  document.getElementById('cat-name-ru').value = cat.name_ru || '';
+  document.getElementById('cat-name-en').value = cat.name_en || '';
+  document.getElementById('cat-name-hy').value = cat.name_hy || '';
+  document.getElementById('cat-emoji').value = cat.emoji || '';
+  document.getElementById('cat-order').value = cat.order || 1;
+  document.getElementById('cat-modal-title').textContent = 'Редактировать категорию';
+  openModal('cat-modal');
+}
+
+async function saveCategory() {
+  const id = document.getElementById('cat-edit-id').value;
+  const data = {
+    name_ru: document.getElementById('cat-name-ru').value.trim(),
+    name_en: document.getElementById('cat-name-en').value.trim(),
+    name_hy: document.getElementById('cat-name-hy').value.trim(),
+    emoji:   document.getElementById('cat-emoji').value.trim(),
+    order:   parseInt(document.getElementById('cat-order').value) || 1,
+  };
+
+  if (!data.name_ru) { showToast('Введите название категории', 'error'); return; }
+
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+
+    if (isDemo) {
+      if (id) {
+        const idx = categories.findIndex(c => c.id === id);
+        if (idx >= 0) categories[idx] = { ...categories[idx], ...data };
+      } else {
+        categories.push({ id: 'c' + Date.now(), ...data });
+      }
+    } else {
+      const restId = localStorage.getItem('tm_restaurant_id');
+      if (id) {
+        await _supabase.from('menu_categories').update({ ...data, sort_order: data.order }).eq('id', id);
+      } else {
+        await _supabase.from('menu_categories').insert({ ...data, sort_order: data.order, restaurant_id: restId });
+        await loadMenu(); // Reload to get new ID
+      }
+    }
+
+    renderCategories();
+    renderItems(activeCatId);
+    closeModal('cat-modal');
+    showToast(id ? 'Категория обновлена' : 'Категория добавлена', 'success');
+  } catch(e) {
+    showToast('Ошибка сохранения', 'error');
+    console.error(e);
+  }
+}
+
+async function deleteCat(id) {
+  if (!confirm('Удалить категорию? Все блюда в ней тоже будут удалены.')) return;
+  categories = categories.filter(c => c.id !== id);
+  items = items.filter(i => i.cat_id !== id);
+  renderCategories();
+  renderItems(null);
+  showToast('Категория удалена', 'success');
+}
+
+// ===== ITEM MODAL =====
+function openItemModal(item = null) {
+  document.getElementById('item-edit-id').value = '';
+  document.getElementById('item-name-ru').value = '';
+  document.getElementById('item-name-en').value = '';
+  document.getElementById('item-name-hy').value = '';
+  document.getElementById('item-desc-ru').value = '';
+  document.getElementById('item-price').value = '';
+  document.getElementById('item-old-price').value = '';
+  document.getElementById('item-weight').value = '';
+  document.getElementById('item-image').value = '';
+  document.getElementById('item-tags').value = '';
+  document.getElementById('item-available').checked = true;
+  document.getElementById('item-popular').checked = false;
+  document.getElementById('item-cat').value = activeCatId || '';
+  document.getElementById('item-modal-title').textContent = 'Новое блюдо';
+  document.getElementById('btn-delete-item').style.display = 'none';
+  openModal('item-modal');
+}
+
+function editItem(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+
+  document.getElementById('item-edit-id').value = id;
+  document.getElementById('item-name-ru').value = item.name_ru || '';
+  document.getElementById('item-name-en').value = item.name_en || '';
+  document.getElementById('item-name-hy').value = item.name_hy || '';
+  document.getElementById('item-desc-ru').value = item.desc_ru || '';
+  document.getElementById('item-price').value = item.price || '';
+  document.getElementById('item-old-price').value = item.old_price || '';
+  document.getElementById('item-weight').value = item.weight || '';
+  document.getElementById('item-image').value = item.image || '';
+  document.getElementById('item-tags').value = (item.tags || []).join(', ');
+  document.getElementById('item-available').checked = item.available !== false;
+  document.getElementById('item-popular').checked = !!item.popular;
+  document.getElementById('item-cat').value = item.cat_id || item.category_id || '';
+  document.getElementById('item-modal-title').textContent = 'Редактировать блюдо';
+  document.getElementById('btn-delete-item').style.display = 'inline-flex';
+  openModal('item-modal');
+}
+
+async function saveItem() {
+  const id = document.getElementById('item-edit-id').value;
+  const catId = document.getElementById('item-cat').value;
+
+  if (!document.getElementById('item-name-ru').value.trim()) {
+    showToast('Введите название блюда', 'error'); return;
+  }
+  if (!catId) { showToast('Выберите категорию', 'error'); return; }
+  if (!document.getElementById('item-price').value) {
+    showToast('Укажите цену', 'error'); return;
+  }
+
+  const tagsRaw = document.getElementById('item-tags').value;
+  const data = {
+    cat_id: catId, category_id: catId,
+    name_ru: document.getElementById('item-name-ru').value.trim(),
+    name_en: document.getElementById('item-name-en').value.trim(),
+    name_hy: document.getElementById('item-name-hy').value.trim(),
+    desc_ru: document.getElementById('item-desc-ru').value.trim(),
+    price: parseFloat(document.getElementById('item-price').value) || 0,
+    old_price: parseFloat(document.getElementById('item-old-price').value) || null,
+    weight: document.getElementById('item-weight').value.trim(),
+    image: document.getElementById('item-image').value.trim(),
+    tags: tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [],
+    available: document.getElementById('item-available').checked,
+    popular: document.getElementById('item-popular').checked,
+  };
+
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+
+    if (isDemo) {
+      if (id) {
+        const idx = items.findIndex(i => i.id === id);
+        if (idx >= 0) items[idx] = { ...items[idx], ...data };
+      } else {
+        items.push({ id: 'i' + Date.now(), ...data });
+      }
+    } else {
+      const restId = localStorage.getItem('tm_restaurant_id');
+      if (id) {
+        await _supabase.from('menu_items').update({ ...data, restaurant_id: restId }).eq('id', id);
+      } else {
+        await _supabase.from('menu_items').insert({ ...data, restaurant_id: restId });
+      }
+    }
+
+    renderCategories();
+    renderItems(activeCatId);
+    closeModal('item-modal');
+    showToast(id ? 'Блюдо обновлено ✓' : 'Блюдо добавлено ✓', 'success');
+  } catch(e) {
+    showToast('Ошибка сохранения', 'error');
+    console.error(e);
+  }
+}
+
+function deleteCurrentItem() {
+  const id = document.getElementById('item-edit-id').value;
+  if (!id || !confirm('Удалить блюдо?')) return;
+  items = items.filter(i => i.id !== id);
+  renderCategories();
+  renderItems(activeCatId);
+  closeModal('item-modal');
+  showToast('Блюдо удалено', 'success');
+}
+
+function quickToggle(id) {
+  const item = items.find(i => i.id === id);
+  if (item) { item.available = !item.available; renderItems(activeCatId); }
+}
+
+// ===== MODALS =====
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.db-modal-overlay').forEach(o => {
+  o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ===== SIDEBAR MOBILE =====
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('visible'); }
+function closeSidebar()  { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('visible'); }
+
+// ===== LOGOUT =====
+async function handleLogout() {
+  if (!confirm('Выйти?')) return;
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+// ===== TOAST =====
+function showToast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'db-toast ' + type;
+  toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3500);
+}
+</script>
+</body>
+</html>

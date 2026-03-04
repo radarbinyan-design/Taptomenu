@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Аналитика — TapMenu Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>◉</text></svg>"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="dash-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">◉</div>TapMenu</div>
+    <div class="sidebar-restaurant">
+      <div class="sidebar-restaurant-name" id="sb-rest-name">Загрузка...</div>
+      <div class="sidebar-restaurant-plan" id="sb-rest-plan">— тариф</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Основное</div>
+      <a href="index.html"><span class="nav-icon">🏠</span> Главная</a>
+      <a href="menu.html"><span class="nav-icon">🍽️</span> Меню</a>
+      <a href="waiter.html"><span class="nav-icon">🔔</span> Вызовы</a>
+      <div class="sidebar-section">Аналитика</div>
+      <a href="analytics.html" class="active"><span class="nav-icon">📊</span> Аналитика</a>
+      <div class="sidebar-section">Настройки</div>
+      <a href="settings.html"><span class="nav-icon">⚙️</span> Настройки</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="#" onclick="doLogout()"><span>🚪</span> Выйти</a>
+    </div>
+  </aside>
+
+  <div class="dash-main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle">☰</button>
+        <div class="topbar-title">📊 Аналитика</div>
+      </div>
+      <div class="topbar-right">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="setPeriod(1, this)">Сегодня</button>
+          <button class="tab-btn" onclick="setPeriod(7, this)">7 дней</button>
+          <button class="tab-btn" onclick="setPeriod(30, this)">30 дней</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- KPI Cards -->
+      <div class="stats-grid" style="margin-bottom:28px;">
+        <div class="stat-card">
+          <div class="stat-icon">👁️</div>
+          <div class="stat-value" id="kpi-views">—</div>
+          <div class="stat-label">Просмотров меню</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🍽️</div>
+          <div class="stat-value" id="kpi-top-item">—</div>
+          <div class="stat-label">Топ блюдо</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔔</div>
+          <div class="stat-value" id="kpi-calls">—</div>
+          <div class="stat-label">Вызовов официанта</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-value" id="kpi-lang">—</div>
+          <div class="stat-label">Топ язык</div>
+        </div>
+      </div>
+
+      <!-- Charts row -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;margin-bottom:24px;">
+
+        <!-- Views over time -->
+        <div class="card">
+          <div class="card-header">
+            <h2>📈 Динамика просмотров</h2>
+          </div>
+          <div class="card-body" style="height:260px;position:relative;">
+            <canvas id="chart-views"></canvas>
+          </div>
+        </div>
+
+        <!-- Languages -->
+        <div class="card">
+          <div class="card-header">
+            <h2>🌍 По языкам</h2>
+          </div>
+          <div class="card-body" style="height:260px;position:relative;">
+            <canvas id="chart-langs"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+
+        <!-- Top dishes -->
+        <div class="card">
+          <div class="card-header"><h2>🏆 Топ-10 блюд</h2></div>
+          <div class="card-body" style="height:280px;position:relative;">
+            <canvas id="chart-items"></canvas>
+          </div>
+        </div>
+
+        <!-- Device types -->
+        <div class="card">
+          <div class="card-header"><h2>📱 Устройства</h2></div>
+          <div class="card-body" style="height:280px;position:relative;display:flex;flex-direction:column;gap:16px;">
+            <canvas id="chart-devices" style="max-height:200px;"></canvas>
+            <div id="device-labels" style="display:flex;justify-content:center;gap:24px;font-size:0.82rem;"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+let restaurant = null
+let days = 7
+let charts = {}
+
+async function init() {
+  const session = await requireAuth()
+  if (!session) return
+  restaurant = await loadRestaurant(session.user.id)
+  if (!restaurant) return
+  document.getElementById('sb-rest-name').textContent = restaurant.name
+  document.getElementById('sb-rest-plan').textContent = restaurant.plan?.toUpperCase() + ' тариф'
+  await loadData()
+}
+
+function setPeriod(d, btn) {
+  days = d
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  Object.values(charts).forEach(c => c.destroy())
+  charts = {}
+  loadData()
+}
+
+async function loadData() {
+  const from = new Date()
+  from.setDate(from.getDate() - days + 1)
+  const fromStr = from.toISOString().split('T')[0]
+
+  const [viewsRes, callsRes] = await Promise.all([
+    _supabase.from('menu_views').select('viewed_at, item_id, user_lang, device_type, menu_items(name_ru)')
+      .eq('restaurant_id', restaurant.id)
+      .gte('viewed_at', fromStr),
+    _supabase.from('waiter_calls').select('id')
+      .eq('restaurant_id', restaurant.id)
+      .gte('created_at', fromStr)
+  ])
+
+  const views = viewsRes.data || []
+  const calls = callsRes.data || []
+
+  // KPIs
+  document.getElementById('kpi-views').textContent = views.length
+  document.getElementById('kpi-calls').textContent = calls.length
+
+  // Top item
+  const itemCounts = {}
+  views.forEach(v => {
+    const n = v.menu_items?.name_ru
+    if (n) itemCounts[n] = (itemCounts[n] || 0) + 1
+  })
+  const topItem = Object.entries(itemCounts).sort(([,a],[,b])=>b-a)[0]
+  document.getElementById('kpi-top-item').textContent = topItem ? topItem[0].substring(0,16) + (topItem[0].length>16?'…':'') : '—'
+
+  // Top lang
+  const langCounts = {}
+  views.forEach(v => { if (v.user_lang) langCounts[v.user_lang] = (langCounts[v.user_lang] || 0) + 1 })
+  const topLang = Object.entries(langCounts).sort(([,a],[,b])=>b-a)[0]
+  const langNames = { ru: '🇷🇺 RU', en: '🇬🇧 EN', hy: '🇦🇲 HY' }
+  document.getElementById('kpi-lang').textContent = topLang ? (langNames[topLang[0]] || topLang[0]) : '—'
+
+  drawViewsChart(views)
+  drawLangsChart(langCounts)
+  drawItemsChart(itemCounts)
+  drawDevicesChart(views)
+}
+
+const CHART_DEFAULTS = {
+  color: '#809076',
+  gridColor: 'rgba(40,65,57,0.3)'
+}
+
+function chartOpts(extra = {}) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: CHART_DEFAULTS.color } },
+      y: { grid: { color: CHART_DEFAULTS.gridColor }, ticks: { color: CHART_DEFAULTS.color } }
+    },
+    ...extra
+  }
+}
+
+function drawViewsChart(views) {
+  const buckets = {}
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i)
+    const key = d.toISOString().split('T')[0]
+    buckets[key] = 0
+  }
+  views.forEach(v => {
+    const k = v.viewed_at?.split('T')[0]
+    if (k && buckets[k] !== undefined) buckets[k]++
+  })
+  const labels = Object.keys(buckets).map(d => new Date(d).toLocaleDateString('ru', {day:'numeric',month:'short'}))
+  const data   = Object.values(buckets)
+  const ctx = document.getElementById('chart-views').getContext('2d')
+  charts.views = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ data, borderColor: '#B86830', backgroundColor: 'rgba(184,104,48,0.08)', fill: true, tension: 0.4, borderWidth: 2, pointBackgroundColor: '#F8D794', pointRadius: 4 }] },
+    options: chartOpts()
+  })
+}
+
+function drawLangsChart(langCounts) {
+  const entries = Object.entries(langCounts).sort(([,a],[,b])=>b-a).slice(0,5)
+  const ctx = document.getElementById('chart-langs').getContext('2d')
+  charts.langs = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: entries.map(([l]) => l.toUpperCase()),
+      datasets: [{ data: entries.map(([,v])=>v), backgroundColor: ['#B86830','#F8D794','#284139','#809076','#4ade80'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#809076', boxWidth: 12 } } } }
+  })
+}
+
+function drawItemsChart(itemCounts) {
+  const top = Object.entries(itemCounts).sort(([,a],[,b])=>b-a).slice(0,8)
+  const ctx = document.getElementById('chart-items').getContext('2d')
+  charts.items = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: top.map(([n]) => n.length > 18 ? n.substring(0,18)+'…' : n),
+      datasets: [{ data: top.map(([,v])=>v), backgroundColor: 'rgba(184,104,48,0.7)', borderColor: '#B86830', borderWidth: 1, borderRadius: 6 }]
+    },
+    options: { ...chartOpts(), indexAxis: 'y' }
+  })
+}
+
+function drawDevicesChart(views) {
+  const dc = { mobile: 0, desktop: 0, tablet: 0 }
+  views.forEach(v => { if (v.device_type) dc[v.device_type] = (dc[v.device_type] || 0) + 1 })
+  const total = Object.values(dc).reduce((a,b)=>a+b,0) || 1
+  const ctx = document.getElementById('chart-devices').getContext('2d')
+  charts.devices = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['📱 Мобильный', '🖥 Десктоп', '📲 Планшет'],
+      datasets: [{ data: [dc.mobile, dc.desktop, dc.tablet], backgroundColor: ['#B86830','#F8D794','#809076'], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#809076', boxWidth: 12 } } } }
+  })
+  document.getElementById('device-labels').innerHTML = [
+    ['📱', 'Мобильный', dc.mobile],
+    ['🖥', 'Десктоп', dc.desktop]
+  ].map(([icon,name,val]) =>
+    `<span style="color:var(--text-muted);">${icon} ${name}: <strong style="color:var(--text);">${Math.round(val/total*100)}%</strong></span>`
+  ).join('')
+}
+
+async function doLogout() {
+  await _supabase.auth.signOut()
+  window.location.href = 'login.html'
+}
+
+init()
+</script>
+</body>
+</html>

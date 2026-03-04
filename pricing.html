@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Тарифы — TapMenu Armenia | Starter, Pro, Premium, LUXE</title>
+  <meta name="description" content="Выберите подходящий тариф TapMenu Armenia. Starter от $15, Pro от $25, Premium от $45, LUXE от $50/мес. Первые 7 дней бесплатно."/>
+  <meta property="og:title" content="Тарифы TapMenu Armenia — от $15/мес"/>
+  <meta property="og:description" content="4 тарифа на любой ресторан. NFC-метки в комплекте. Первые 7 дней бесплатно."/>
+  <meta property="og:url" content="https://tapmenu.am/pricing"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>◉</text></svg>"/>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div class="preloader">
+  <div class="preloader-inner">
+    <div class="logo" style="font-size:1.5rem;font-weight:800;"><div class="logo-icon">◉</div>TapMenu</div>
+    <div class="preloader-dots">
+      <div class="preloader-dot"></div><div class="preloader-dot"></div><div class="preloader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div class="noise-overlay"></div>
+<button class="back-to-top" aria-label="Наверх">↑</button>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon">◉</div>TapMenu
+      </a>
+      <nav>
+        <ul class="nav">
+          <li><a href="index.html" data-i18n="nav_home">Главная</a></li>
+          <li><a href="pricing.html" data-i18n="nav_pricing" class="active">Тарифы</a></li>
+          <li><a href="how-it-works.html" data-i18n="nav_how">Как работает</a></li>
+          <li class="nav-luxe"><a href="luxe.html" data-i18n="nav_luxe">✦ LUXE</a></li>
+          <li><a href="contact.html" data-i18n="nav_contact">Контакты</a></li>
+        </ul>
+      </nav>
+      <div class="header-right">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hy">HY</button>
+        </div>
+        <a href="contact.html" class="btn btn-primary btn-sm" data-i18n="nav_start">Начать</a>
+        <button class="menu-toggle" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <a href="index.html" data-i18n="nav_home">Главная</a>
+  <a href="pricing.html" data-i18n="nav_pricing">Тарифы</a>
+  <a href="how-it-works.html" data-i18n="nav_how">Как работает</a>
+  <a href="luxe.html" style="color:var(--gold)" data-i18n="nav_luxe">✦ LUXE</a>
+  <a href="contact.html" data-i18n="nav_contact">Контакты</a>
+  <div style="padding:16px 0;display:flex;gap:8px">
+    <button class="lang-btn" data-lang="ru">🇷🇺 RU</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+    <button class="lang-btn" data-lang="hy">🇦🇲 HY</button>
+  </div>
+  <a href="contact.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Начать</a>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="grid-bg" style="padding:140px 0 60px;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(184,104,48,0.1) 0%,transparent 70%);pointer-events:none;"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="reveal">
+      <span class="section-label">💳 Тарифы</span>
+      <h1 style="margin:16px 0 20px;">Выберите <span class="gradient-text">свой план</span></h1>
+      <p style="font-size:1.1rem;max-width:520px;margin:0 auto 40px;">Начните с 7-дневного бесплатного периода.<br/>NFC-метки включены в каждый тариф.</p>
+
+      <!-- Billing Toggle -->
+      <div style="display:inline-flex;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:50px;padding:6px;gap:4px;margin-bottom:16px;">
+        <button class="billing-toggle-btn active" data-billing="monthly"
+          style="padding:10px 24px;border-radius:50px;border:none;cursor:pointer;font-weight:600;font-size:0.9rem;transition:all 0.3s;background:var(--accent);color:#fff;">
+          Ежемесячно
+        </button>
+        <button class="billing-toggle-btn" data-billing="yearly"
+          style="padding:10px 24px;border-radius:50px;border:none;cursor:pointer;font-weight:600;font-size:0.9rem;transition:all 0.3s;background:transparent;color:var(--text-secondary);">
+          Ежегодно
+          <span style="background:rgba(72,187,120,0.2);color:#68d391;padding:2px 8px;border-radius:50px;font-size:0.75rem;margin-left:6px;">−20%</span>
+        </button>
+      </div>
+
+      <div style="font-size:0.85rem;color:var(--text-secondary);">
+        <span class="yearly-badge" style="display:none;align-items:center;gap:6px;justify-content:center;color:#68d391;font-weight:600;">
+          ✓ Вы экономите до $108 в год
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING CARDS -->
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+
+    <!-- Desktop Grid -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:80px;" id="pricing-cards-grid">
+
+      <!-- STARTER -->
+      <div class="pricing-card reveal">
+        <div>
+          <div class="plan-icon">🔥</div>
+          <div class="plan-name" style="margin:12px 0 4px;">Starter</div>
+          <div style="font-size:0.85rem;color:var(--accent);">Лучший старт</div>
+        </div>
+        <div>
+          <div class="plan-price"><span data-price="starter">$15</span><span>/мес</span></div>
+          <div class="yearly-badge" style="display:none;font-size:0.8rem;color:#68d391;margin-top:4px;">при оплате за год</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:4px 0;"></div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> 1 меню</li>
+          <li><span class="check">✅</span> До 50 блюд</li>
+          <li><span class="check">✅</span> 3 языка</li>
+          <li><span class="check">✅</span> 4 NFC-метки в комплекте</li>
+          <li><span class="check">✅</span> QR-бэкап</li>
+          <li><span class="check">✅</span> Базовая аналитика</li>
+          <li><span class="cross">❌</span> Кнопка вызова официанта</li>
+          <li><span class="cross">❌</span> AI-аналитика</li>
+          <li><span class="cross">❌</span> Персональный менеджер</li>
+        </ul>
+        <a href="contact.html?plan=starter" class="btn btn-outline" style="width:100%;justify-content:center;">Начать →</a>
+      </div>
+
+      <!-- PRO -->
+      <div class="pricing-card popular reveal reveal-delay-1">
+        <div class="plan-badge plan-badge-popular">⭐ Популярный</div>
+        <div>
+          <div class="plan-icon">⭐</div>
+          <div class="plan-name" style="margin:12px 0 4px;">Pro</div>
+          <div style="font-size:0.85rem;color:var(--accent);">Популярный выбор</div>
+        </div>
+        <div>
+          <div class="plan-price"><span data-price="pro">$25</span><span>/мес</span></div>
+          <div class="yearly-badge" style="display:none;font-size:0.8rem;color:#68d391;margin-top:4px;">при оплате за год</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:4px 0;"></div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> 3 меню</li>
+          <li><span class="check">✅</span> До 150 блюд</li>
+          <li><span class="check">✅</span> 10 языков</li>
+          <li><span class="check">✅</span> 8 NFC-меток в комплекте</li>
+          <li><span class="check">✅</span> QR-бэкап</li>
+          <li><span class="check">✅</span> Расширенная аналитика</li>
+          <li><span class="check">✅</span> Кнопка вызова официанта</li>
+          <li><span class="cross">❌</span> AI-аналитика</li>
+          <li><span class="cross">❌</span> Персональный менеджер</li>
+        </ul>
+        <a href="contact.html?plan=pro" class="btn btn-primary" style="width:100%;justify-content:center;">Начать →</a>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="pricing-card reveal reveal-delay-2">
+        <div>
+          <div class="plan-icon">💎</div>
+          <div class="plan-name" style="margin:12px 0 4px;">Premium</div>
+          <div style="font-size:0.85rem;color:var(--accent);">Максимум возможностей</div>
+        </div>
+        <div>
+          <div class="plan-price"><span data-price="premium">$45</span><span>/мес</span></div>
+          <div class="yearly-badge" style="display:none;font-size:0.8rem;color:#68d391;margin-top:4px;">при оплате за год</div>
+        </div>
+        <div style="height:1px;background:rgba(255,255,255,0.06);margin:4px 0;"></div>
+        <ul class="plan-features">
+          <li><span class="check">✅</span> Безлимит меню</li>
+          <li><span class="check">✅</span> Безлимит блюд</li>
+          <li><span class="check">✅</span> 20+ языков</li>
+          <li><span class="check">✅</span> 12 NFC-меток в комплекте</li>
+          <li><span class="check">✅</span> QR-бэкап</li>
+          <li><span class="check">✅</span> AI-аналитика</li>
+          <li><span class="check">✅</span> Кнопка вызова официанта</li>
+          <li><span class="check">✅</span> Приоритетная поддержка</li>
+          <li><span class="cross">❌</span> Персональный менеджер</li>
+        </ul>
+        <a href="contact.html?plan=premium" class="btn btn-outline" style="width:100%;justify-content:center;">Начать →</a>
+      </div>
+
+      <!-- LUXE -->
+      <div class="pricing-card luxe-card reveal reveal-delay-3">
+        <div class="plan-badge plan-badge-luxe">✦ ЭКСКЛЮЗИВ</div>
+        <div>
+          <div class="plan-icon" style="color:var(--gold);">✦</div>
+          <div class="plan-name" style="margin:12px 0 4px;color:var(--gold);">LUXE</div>
+          <div style="font-size:0.85rem;color:var(--gold);">Для избранных</div>
+        </div>
+        <div>
+          <div class="plan-price" style="color:var(--gold);">от <span data-price="luxe">$50</span><span style="color:rgba(248,215,148,0.6);">/мес</span></div>
+          <div class="yearly-badge" style="display:none;font-size:0.8rem;color:var(--gold);margin-top:4px;">при оплате за год</div>
+        </div>
+        <div style="height:1px;background:rgba(248,215,148,0.15);margin:4px 0;"></div>
+        <ul class="plan-features">
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Всё из Premium</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Эксклюзивный тёмный дизайн</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Кастомный брендинг</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">SaaS-аналитика в реальном времени</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Персональный менеджер</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Металлические NFC-стойки</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Поддержка 24/7</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Аудит и консультация</span></li>
+          <li><span style="color:var(--gold);">✦</span> <span style="color:#ccc;">Индивидуальный дашборд</span></li>
+        </ul>
+        <a href="luxe.html" class="btn btn-gold" style="width:100%;justify-content:center;">✦ Оставить заявку</a>
+      </div>
+    </div>
+
+    <!-- NOTE: First 7 days free -->
+    <div style="text-align:center;margin-bottom:80px;" class="reveal">
+      <div style="display:inline-flex;align-items:center;gap:12px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.2);border-radius:50px;padding:12px 24px;">
+        <span style="color:#68d391;font-size:1rem;">✓</span>
+        <span style="color:#68d391;font-weight:600;">Первые 7 дней бесплатно для всех тарифов</span>
+        <span style="color:var(--text-secondary);font-size:0.85rem;">· Без привязки карты</span>
+      </div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="reveal">
+      <div class="section-header" style="margin-bottom:40px;">
+        <span class="section-label">Сравнение</span>
+        <h2>Подробное сравнение тарифов</h2>
+      </div>
+
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;overflow-x:auto;">
+        <table class="comparison-table" style="min-width:600px;">
+          <thead>
+            <tr>
+              <th style="width:35%;">Функция</th>
+              <th>Starter</th>
+              <th class="col-popular">Pro</th>
+              <th>Premium</th>
+              <th class="col-luxe">LUXE</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="5" style="background:rgba(255,255,255,0.02);font-size:0.75rem;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:10px 24px;">БАЗОВЫЕ ФУНКЦИИ</td></tr>
+            <tr>
+              <td>Количество меню</td>
+              <td>1</td><td class="col-popular">3</td><td>∞</td><td class="col-luxe">∞</td>
+            </tr>
+            <tr>
+              <td>Максимум блюд</td>
+              <td>50</td><td class="col-popular">150</td><td>∞</td><td class="col-luxe">∞</td>
+            </tr>
+            <tr>
+              <td>Языки меню</td>
+              <td>3</td><td class="col-popular">10</td><td>20+</td><td class="col-luxe">∞</td>
+            </tr>
+            <tr>
+              <td>NFC-метки в комплекте</td>
+              <td>4</td><td class="col-popular">8</td><td>12</td><td class="col-luxe">Инд.</td>
+            </tr>
+            <tr>
+              <td>QR-бэкап</td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-popular"><span class="check-icon">✅</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr><td colspan="5" style="background:rgba(255,255,255,0.02);font-size:0.75rem;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:10px 24px;">СЕРВИС</td></tr>
+            <tr>
+              <td>Кнопка вызова официанта</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="check-icon">✅</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Умный вызов с управлением</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr><td colspan="5" style="background:rgba(255,255,255,0.02);font-size:0.75rem;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:10px 24px;">АНАЛИТИКА</td></tr>
+            <tr>
+              <td>Базовая аналитика</td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-popular"><span class="check-icon">✅</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Расширенная аналитика</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="check-icon">✅</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>AI-аналитика</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>SaaS-аналитика в реальном времени</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr><td colspan="5" style="background:rgba(255,255,255,0.02);font-size:0.75rem;color:var(--text-secondary);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:10px 24px;">ПОДДЕРЖКА И ДИЗАЙН</td></tr>
+            <tr>
+              <td>Стандартная поддержка</td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-popular"><span class="check-icon">✅</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Приоритетная поддержка</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="check-icon">✅</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Поддержка 24/7</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Персональный менеджер</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Кастомный брендинг</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Металлические NFC-стойки</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+            <tr>
+              <td>Аудит меню и консультация</td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-popular"><span class="cross-icon">❌</span></td>
+              <td><span class="cross-icon">❌</span></td>
+              <td class="col-luxe"><span class="check-icon">✅</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" style="background:rgba(255,255,255,0.01);">
+  <div class="container" style="max-width:800px;">
+    <div class="section-header reveal">
+      <span class="section-label">FAQ</span>
+      <h2>Часто задаваемые вопросы</h2>
+    </div>
+
+    <div class="reveal">
+      <div class="faq-item">
+        <div class="faq-question">
+          Можно ли отменить подписку?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Да, в любой момент без штрафов и скрытых условий. Вы можете отменить подписку в личном кабинете одним кликом. Доступ к сервису сохраняется до конца оплаченного периода.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Что входит в комплект NFC-меток?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Каждая метка — это водонепроницаемая наклейка с NFC-чипом и QR-кодом. На ней напечатан логотип TapMenu. Метки крепятся на стол, подставку или держатель. При заказе LUXE вы получаете металлические стойки с логотипом вашего ресторана.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Есть ли пробный период?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Да! Первые 7 дней бесплатны для всех тарифов. Привязывать карту не нужно. Вы получаете полный доступ ко всем функциям выбранного тарифа.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Как работает годовая скидка?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            При выборе ежегодной оплаты вы получаете скидку 20% от стоимости месячного тарифа. Оплата списывается единоразово за 12 месяцев. Например, тариф Pro: $25 × 12 = $300/год, при годовой оплате — $240/год (экономия $60).
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Можно ли сменить тариф?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Конечно! Вы можете повысить или понизить тариф в любой момент через личный кабинет. При повышении тарифа разница оплачивается пропорционально оставшемуся времени. При понижении — новый тариф начинается со следующего периода.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section">
+  <div class="container">
+    <div class="reveal" style="text-align:center;padding:64px 32px;background:var(--bg-card);border:1px solid var(--border);border-radius:24px;">
+      <h2 style="margin-bottom:16px;">Остались вопросы?</h2>
+      <p style="max-width:400px;margin:0 auto 32px;">Свяжитесь с нами — мы поможем выбрать подходящий тариф и ответим на все вопросы.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="contact.html" class="btn btn-primary btn-lg">Написать нам</a>
+        <a href="how-it-works.html" class="btn btn-outline btn-lg">Как это работает →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom:16px;display:inline-flex;"><div class="logo-icon">◉</div>TapMenu</a>
+        <p data-i18n="footer_slogan">Одно касание — меню и сервис</p>
+        <div class="footer-social">
+          <a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener" title="Telegram">✈</a>
+          <a href="https://instagram.com/tapmenu.am" target="_blank" rel="noopener" title="Instagram">📷</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_nav">Навигация</h4>
+        <ul>
+          <li><a href="index.html" data-i18n="footer_home">Главная</a></li>
+          <li><a href="pricing.html" data-i18n="footer_pricing">Тарифы</a></li>
+          <li><a href="how-it-works.html" data-i18n="footer_how">Как работает</a></li>
+          <li><a href="luxe.html" class="footer-luxe" data-i18n="footer_luxe">✦ LUXE</a></li>
+          <li><a href="contact.html" data-i18n="footer_contact">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_contacts">Контакты</h4>
+        <ul>
+          <li><a href="mailto:hello@tapmenu.am">📧 hello@tapmenu.am</a></li>
+          <li><a href="tel:+37400000000">📱 +374 XX XXX XXX</a></li>
+          <li><span style="color:var(--text-secondary);font-size:0.9rem;">📍 Ереван, Армения</span></li>
+          <li><a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener">✈ @tapmenu_armenia</a></li>
+          <li><a href="https://instagram.com/tapmenu.am" target="_blank" rel="noopener">📷 @tapmenu.am</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer_rights">© 2025 TapMenu Armenia</p>
+      <a href="#" data-i18n="footer_privacy">Политика конфиденциальности</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+
+<style>
+  .billing-toggle-btn {
+    transition: all 0.3s;
+  }
+  .billing-toggle-btn.active {
+    background: var(--accent) !important;
+    color: #fff !important;
+  }
+  .billing-toggle-btn:not(.active) {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+  }
+  @media (max-width: 1024px) {
+    #pricing-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    #pricing-cards-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</body>
+</html>

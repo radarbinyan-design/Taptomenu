@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Bar Masis — Меню</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231e1b4b'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>🍸</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a14;
+      --card: #12122a;
+      --card2: #18183a;
+      --accent: #7c3aed;
+      --pink: #ec4899;
+      --teal: #06b6d4;
+      --text: #f0f0ff;
+      --muted: #6b7280;
+      --border: rgba(124,58,237,0.2);
+      --r: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* Night glow bg */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(124,58,237,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(236,72,153,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* HEADER */
+    .menu-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,20,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; gap: 12px;
+    }
+    .logo-circle {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--accent), var(--pink));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+    }
+    .restaurant-name { font-size: 1.05rem; font-weight: 800; }
+    .restaurant-sub { font-size: 0.7rem; color: var(--muted); }
+    .lang-pills { display: flex; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 3px; gap: 2px; }
+    .lang-pill { padding: 4px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.2s; }
+    .lang-pill.active { background: linear-gradient(135deg, var(--accent), var(--pink)); color: #fff; }
+
+    .cat-tabs {
+      display: flex; gap: 6px; padding: 10px 16px 12px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0; padding: 7px 16px; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .cat-tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--pink));
+      border-color: transparent; color: #fff;
+      box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+    }
+
+    /* HERO */
+    .menu-hero {
+      background: linear-gradient(135deg, #1a0a2e, #0a0a14);
+      padding: 28px 16px 24px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .menu-hero::before {
+      content: '🍸';
+      position: absolute; right: 16px; top: 16px;
+      font-size: 6rem; opacity: 0.08;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 50px; font-size: 0.72rem; font-weight: 600; color: #a78bfa;
+      margin-bottom: 10px;
+    }
+    .hero-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
+    .hero-sub { font-size: 0.85rem; color: var(--muted); }
+    .hero-stats { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+    .hero-stat {
+      padding: 5px 12px; border-radius: 50px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      font-size: 0.72rem; font-weight: 600;
+    }
+
+    /* AGE GATE */
+    .age-gate {
+      margin: 12px 16px;
+      background: rgba(236,72,153,0.07); border: 1px solid rgba(236,72,153,0.2);
+      border-radius: var(--r); padding: 12px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .age-gate p { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
+    .age-gate strong { color: var(--text); }
+
+    /* SECTION */
+    .section-title {
+      padding: 20px 16px 10px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: #a78bfa;
+    }
+
+    /* MENU ITEMS */
+    .menu-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .menu-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); display: flex; align-items: stretch;
+      overflow: hidden; transition: all 0.25s; cursor: pointer;
+      position: relative;
+    }
+    .menu-item:active { transform: scale(0.985); }
+    .menu-item.signature { border-color: rgba(236,72,153,0.3); }
+
+    .item-img {
+      width: 88px; min-width: 88px; height: 88px;
+      background: var(--card2);
+      display: flex; align-items: center; justify-content: center; font-size: 2.2rem;
+      border-right: 1px solid var(--border);
+    }
+    .item-body { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .item-name { font-size: 0.92rem; font-weight: 700; margin-bottom: 3px; }
+    .item-desc { font-size: 0.73rem; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .item-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .item-tag {
+      font-size: 0.63rem; padding: 2px 7px; border-radius: 50px;
+      background: rgba(124,58,237,0.1); color: #a78bfa;
+      border: 1px solid rgba(124,58,237,0.2);
+    }
+    .item-tag.pink { background: rgba(236,72,153,0.1); color: #f472b6; border-color: rgba(236,72,153,0.2); }
+    .item-tag.green { background: rgba(34,197,94,0.1); color: #4ade80; border-color: rgba(34,197,94,0.2); }
+    .item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-price { font-size: 1rem; font-weight: 800; color: var(--teal); }
+    .item-add {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--pink)); border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff; cursor: pointer;
+      box-shadow: 0 3px 10px rgba(124,58,237,0.4); transition: transform 0.15s;
+    }
+    .item-add:active { transform: scale(0.88); }
+
+    /* COCKTAIL TAG */
+    .cocktail-badge {
+      position: absolute; top: 10px; right: 10px;
+      font-size: 0.62rem; font-weight: 700; padding: 2px 8px;
+      border-radius: 50px;
+    }
+    .cocktail-badge.sig {
+      background: rgba(236,72,153,0.15); color: var(--pink);
+      border: 1px solid rgba(236,72,153,0.3);
+    }
+    .cocktail-badge.alcohol {
+      background: rgba(239,68,68,0.12); color: #f87171;
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    /* WAITER */
+    .waiter-sticky {
+      position: sticky; bottom: 0; z-index: 100;
+      padding: 12px 16px;
+      background: rgba(10,10,20,0.96); backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+    }
+    .waiter-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--pink)); border: none; border-radius: 50px;
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 6px 24px rgba(124,58,237,0.4);
+    }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(0,0,0,0.75); backdrop-filter: blur(8px); align-items: flex-end; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet { width: 100%; max-width: 480px; background: var(--card); border-radius: 24px 24px 0 0; padding: 28px 24px 40px; border: 1px solid var(--border); border-bottom: none; animation: slideUp 0.3s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; margin: 0 auto 20px; }
+    .modal-confirm-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), var(--pink)); border: none; border-radius: 50px; color: #fff; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+    .modal-cancel-btn { width: 100%; padding: 13px; background: transparent; border: 1px solid var(--border); border-radius: 50px; color: var(--muted); font-size: 0.88rem; cursor: pointer; }
+
+    .powered-by { text-align: center; padding: 20px 16px 32px; font-size: 0.72rem; color: rgba(255,255,255,0.15); }
+    .powered-by a { color: rgba(124,58,237,0.5); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header class="menu-header">
+  <div class="header-top">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="logo-circle">🍸</div>
+      <div>
+        <div class="restaurant-name">Bar Masis</div>
+        <div class="restaurant-sub">Craft Cocktails · Live Music · Ереван</div>
+      </div>
+    </div>
+    <div class="lang-pills">
+      <button class="lang-pill active" onclick="setLang('ru')">RU</button>
+      <button class="lang-pill" onclick="setLang('en')">EN</button>
+      <button class="lang-pill" onclick="setLang('hy')">HY</button>
+    </div>
+  </div>
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="goTo('signature',this)">✨ Сигнатуры</button>
+    <button class="cat-tab" onclick="goTo('classics',this)">🍹 Классика</button>
+    <button class="cat-tab" onclick="goTo('mocktails',this)">🍊 Мокктейли</button>
+    <button class="cat-tab" onclick="goTo('beer',this)">🍺 Пиво</button>
+    <button class="cat-tab" onclick="goTo('wine',this)">🍷 Вино</button>
+    <button class="cat-tab" onclick="goTo('snacks',this)">🥜 Снеки</button>
+  </div>
+</header>
+
+<div class="menu-hero">
+  <div class="hero-badge">🌙 Ночное меню</div>
+  <div class="hero-title">Bar Masis</div>
+  <div class="hero-sub">Где каждый коктейль — история</div>
+  <div class="hero-stats">
+    <div class="hero-stat">🕐 20:00–04:00</div>
+    <div class="hero-stat">🎵 Live DJ</div>
+    <div class="hero-stat">📍 Стол №8</div>
+  </div>
+</div>
+
+<div class="age-gate">
+  <div style="font-size:1.5rem;flex-shrink:0;">🔞</div>
+  <p><strong>Предупреждение:</strong> Алкогольные напитки подаются лицам старше 18 лет. При необходимости будет запрошен документ.</p>
+</div>
+
+<!-- SIGNATURE -->
+<div id="signature">
+  <div class="section-title">✨ Сигнатурные коктейли</div>
+  <div class="menu-list">
+
+    <div class="menu-item signature">
+      <div class="cocktail-badge sig">✨ Сигнатур</div>
+      <div class="item-img">🍸</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Арарат Сансет" data-en="Ararat Sunset" data-hy="Արարատ Սանսեթ">Арарат Сансет</div>
+          <div class="item-desc" data-ru="Армянский бренди, гранатовый сок, апельсин, розмарин, тоник. Фирменный рецепт." data-en="Armenian brandy, pomegranate juice, orange, rosemary, tonic." data-hy="Հայկական կոնյակ, նուռ, նարնջի, rosemary">Армянский бренди, гранатовый сок, апельсин, розмарин, тоник.</div>
+          <div class="item-tags">
+            <span class="item-tag pink">🏆 Хит</span>
+            <span class="item-tag alcohol">🔞 18+</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">4 500 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item signature">
+      <div class="cocktail-badge sig">✨ Сигнатур</div>
+      <div class="item-img">🍹</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Sevan Mist" data-en="Sevan Mist" data-hy="Սևան Միստ">Sevan Mist</div>
+          <div class="item-desc" data-ru="Водка, огурец, лайм, мята, голубая кюрасао. Ярко-синий. Инстаграм-идеальный." data-en="Vodka, cucumber, lime, mint, blue curaçao. Instagram perfect." data-hy="Վոдка, վարունգ, կրայ, անանուխ, կյուրасао">Водка, огурец, лайм, мята, голубая кюрасао. Ярко-синий.</div>
+          <div class="item-tags">
+            <span class="item-tag pink">📸 Instagram</span>
+            <span class="item-tag alcohol">🔞 18+</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">4 200 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item signature">
+      <div class="cocktail-badge sig">✨ Сигнатур</div>
+      <div class="item-img">🧉</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Yeravan Espresso Martini" data-en="Yeravan Espresso Martini" data-hy="Երևան Էսպրեսո Մարтіні">Yeravan Espresso Martini</div>
+          <div class="item-desc" data-ru="Армянский кофейный ликёр, эспрессо, водка, сливочный пенный верх." data-en="Armenian coffee liqueur, espresso, vodka, creamy foam top." data-hy="Հայկական կafé ликёр, эспрессо, vodka">Армянский кофейный ликёр, эспрессо, водка, сливочный пенный верх.</div>
+          <div class="item-tags">
+            <span class="item-tag">☕ Кофейный</span>
+            <span class="item-tag alcohol">🔞 18+</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">3 800 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MOCKTAILS -->
+<div id="mocktails">
+  <div class="section-title">🍊 Мокктейли (без алкоголя)</div>
+  <div class="menu-list">
+
+    <div class="menu-item">
+      <div class="item-img">🌺</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Наири Флорал" data-en="Nairi Floral" data-hy="Նairi Floral">Наири Флорал</div>
+          <div class="item-desc" data-ru="Гранатовый сок, апельсин, гибискус, мёд, газированная вода." data-en="Pomegranate, orange, hibiscus, honey, sparkling water." data-hy="Նռ, նارranj, гибiskus, меd">Гранатовый сок, апельсин, гибискус, мёд, газированная вода.</div>
+          <div class="item-tags">
+            <span class="item-tag green">🌿 Без алкоголя</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 000 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="item-img">🫐</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Blue Sevan" data-en="Blue Sevan" data-hy="Կապтo Sevan">Blue Sevan</div>
+          <div class="item-desc" data-ru="Черника, лайм, имбирь, кокосовая вода. Освежающий и насыщенный." data-en="Blueberry, lime, ginger, coconut water." data-hy="Mejq, krai,姜, kokos jur">Черника, лайм, имбирь, кокосовая вода.</div>
+          <div class="item-tags">
+            <span class="item-tag green">🌿 Без алкоголя</span>
+            <span class="item-tag pink">📸 Instagram</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 800 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- BEER -->
+<div id="beer">
+  <div class="section-title">🍺 Пиво</div>
+  <div class="menu-list">
+    <div class="menu-item">
+      <div class="item-img">🍺</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Киликия светлое (бокал)" data-en="Kilikia Lager (glass)" data-hy="Կիлիkia Айgur (bokal)">Киликия светлое (бокал)</div>
+          <div class="item-desc" data-ru="Армянское пиво. Лёгкое, освежающее. 4.5% алк." data-en="Armenian lager. Light and refreshing. 4.5% alc." data-hy="Հայкакан кgелик. Легкое. 4.5%">Армянское пиво. Лёгкое, освежающее. 4.5% алк.</div>
+          <div class="item-tags">
+            <span class="item-tag alcohol">🔞 18+</span>
+            <span class="item-tag">🇦🇲 Местное</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 200 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SNACKS -->
+<div id="snacks">
+  <div class="section-title">🥜 Снеки к напиткам</div>
+  <div class="menu-list" style="padding-bottom: 16px;">
+
+    <div class="menu-item">
+      <div class="item-img">🥜</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Ореховый микс с сухофруктами" data-en="Nut Mix with Dried Fruits" data-hy="Ядрового Микс с Сухофруктами">Ореховый микс с сухофруктами</div>
+          <div class="item-desc" data-ru="Грецкий орех, миндаль, кешью, изюм, курага. Армянские ингредиенты." data-en="Walnuts, almonds, cashews, raisins, apricots." data-hy="Enty, nuSh, kaJu, xagog, dzerani">Грецкий орех, миндаль, кешью, изюм, курага.</div>
+          <div class="item-tags">
+            <span class="item-tag green">🌿 Веган</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 500 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="powered-by">
+  Powered by <a href="https://tapmenu.am" target="_blank">TapMenu Armenia</a> · NFC Menu
+</div>
+
+<div class="waiter-sticky">
+  <button class="waiter-btn" onclick="openW()">🔔 Позвать бармена · Стол №8</button>
+</div>
+
+<div class="modal-overlay" id="wm" onclick="closeM(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="mc">
+      <div style="font-size:1.15rem;font-weight:800;text-align:center;margin-bottom:6px;">Позвать бармена</div>
+      <div style="font-size:0.82rem;color:var(--muted);text-align:center;margin-bottom:20px;">Бармен подойдёт к вашему столу</div>
+      <div style="background:rgba(124,58,237,0.1);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center;margin-bottom:20px;">
+        <div style="font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">8</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Стол</div>
+      </div>
+      <button class="modal-confirm-btn" onclick="confirmW()">🔔 Позвать к столу №8</button>
+      <button class="modal-cancel-btn" onclick="closeWM()">Отмена</button>
+    </div>
+    <div id="ms" style="display:none;text-align:center;padding:16px 0;">
+      <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+      <h3 style="margin-bottom:8px;">Бармен идёт!</h3>
+      <p style="color:var(--muted);font-size:0.85rem;">Уведомление отправлено 🍸</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setLang(l) {
+    document.querySelectorAll('.lang-pill').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes("'"+l+"'")));
+    document.querySelectorAll('[data-ru]').forEach(el=>{el.textContent=el.getAttribute('data-'+l)||el.getAttribute('data-ru');});
+  }
+  function goTo(id,btn){
+    document.querySelectorAll('.cat-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+    document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function addItem(btn){btn.textContent='✓';btn.style.background='linear-gradient(135deg,#22c55e,#16a34a)';setTimeout(()=>{btn.textContent='+';btn.style.background='';},1500);}
+  function openW(){document.getElementById('wm').classList.add('open');document.getElementById('mc').style.display='block';document.getElementById('ms').style.display='none';}
+  function closeWM(){document.getElementById('wm').classList.remove('open');}
+  function closeM(e){if(e.target===e.currentTarget)closeWM();}
+  function confirmW(){document.getElementById('mc').style.display='none';document.getElementById('ms').style.display='block';setTimeout(closeWM,3000);}
+</script>
+</body>
+</html>

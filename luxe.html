@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TapMenu LUXE — Премиум цифровое меню для элитных ресторанов</title>
+  <meta name="description" content="TapMenu LUXE — эксклюзивный пакет для лучших ресторанов. Кастомный дизайн, персональный менеджер, металлические NFC-стойки, аналитика в реальном времени."/>
+  <meta property="og:title" content="TapMenu LUXE — Премиум для избранных ресторанов"/>
+  <meta property="og:description" content="Мы не просто оцифровываем меню. Мы поднимаем ваш ресторан на новый уровень."/>
+  <meta property="og:url" content="https://tapmenu.am/luxe"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230d1a10'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='%23F8D794'>✦</text></svg>"/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/luxe.css"/>
+</head>
+<body class="luxe-page">
+
+<!-- PARTICLES CANVAS -->
+<canvas id="luxe-particles"></canvas>
+
+<!-- PRELOADER -->
+<div class="preloader" style="background:#0d1a10;">
+  <div class="preloader-inner">
+    <div class="logo" style="font-size:1.5rem;font-weight:800;color:#F8D794;">
+      <div class="logo-icon" style="background:linear-gradient(135deg,#B86830,#7a3f18);">✦</div>
+      TapMenu
+    </div>
+    <div class="preloader-dots">
+      <div class="preloader-dot" style="background:#F8D794;"></div>
+      <div class="preloader-dot" style="background:#f5d76e;"></div>
+      <div class="preloader-dot" style="background:#F8D794;"></div>
+    </div>
+  </div>
+</div>
+
+<button class="back-to-top" aria-label="Наверх" style="background:var(--luxe-gold);color:#000;">↑</button>
+
+<!-- HEADER -->
+<header class="header luxe-header" id="header" style="background:transparent;border-bottom:1px solid rgba(248,215,148,0.1);">
+  <div class="container">
+    <div class="header-inner">
+      <a href="index.html" class="logo" style="color:#fff;">
+        <div class="logo-icon" style="background:linear-gradient(135deg,var(--luxe-earth),#7a3f18);">✦</div>
+        TapMenu
+      </a>
+      <nav>
+        <ul class="nav">
+          <li><a href="index.html" style="color:#9a9a9a;" data-i18n="nav_home">Главная</a></li>
+          <li><a href="pricing.html" style="color:#9a9a9a;" data-i18n="nav_pricing">Тарифы</a></li>
+          <li><a href="how-it-works.html" style="color:#9a9a9a;" data-i18n="nav_how">Как работает</a></li>
+          <li><a href="luxe.html" style="color:var(--luxe-gold);font-weight:700;" data-i18n="nav_luxe">✦ LUXE</a></li>
+          <li><a href="contact.html" style="color:#9a9a9a;" data-i18n="nav_contact">Контакты</a></li>
+        </ul>
+      </nav>
+      <div class="header-right">
+        <div class="lang-switcher" style="background:rgba(248,215,148,0.08);border:1px solid rgba(248,215,148,0.15);">
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hy">HY</button>
+        </div>
+        <a href="#luxe-contact-form" class="btn btn-gold btn-sm">✦ Заявка</a>
+        <button class="menu-toggle" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" style="background:rgba(10,10,10,0.98);">
+  <a href="index.html" data-i18n="nav_home">Главная</a>
+  <a href="pricing.html" data-i18n="nav_pricing">Тарифы</a>
+  <a href="how-it-works.html" data-i18n="nav_how">Как работает</a>
+  <a href="luxe.html" style="color:var(--gold)" data-i18n="nav_luxe">✦ LUXE</a>
+  <a href="contact.html" data-i18n="nav_contact">Контакты</a>
+  <div style="padding:16px 0;display:flex;gap:8px">
+    <button class="lang-btn" data-lang="ru">🇷🇺 RU</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+    <button class="lang-btn" data-lang="hy">🇦🇲 HY</button>
+  </div>
+  <a href="#luxe-contact-form" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:8px;">✦ Оставить заявку</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="luxe-hero" id="top">
+  <div class="luxe-hero-bg"></div>
+  <div class="luxe-hero-bg-bottom"></div>
+
+  <!-- Decorative stars -->
+  <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
+    <div style="position:absolute;top:15%;left:8%;font-size:1rem;color:rgba(212,175,55,0.15);animation:floating 5s ease-in-out infinite;">✦</div>
+    <div style="position:absolute;top:25%;right:12%;font-size:0.7rem;color:rgba(212,175,55,0.1);animation:floating 7s ease-in-out infinite 1s;">✦</div>
+    <div style="position:absolute;top:60%;left:5%;font-size:0.5rem;color:rgba(212,175,55,0.1);animation:floating 6s ease-in-out infinite 2s;">✦</div>
+    <div style="position:absolute;top:70%;right:8%;font-size:1.2rem;color:rgba(212,175,55,0.08);animation:floating 4s ease-in-out infinite;">✦</div>
+    <div style="position:absolute;top:40%;left:20%;font-size:0.4rem;color:rgba(212,175,55,0.12);animation:floating 8s ease-in-out infinite 0.5s;">✦</div>
+  </div>
+
+  <div class="container" style="position:relative;z-index:2;text-align:center;">
+    <div class="reveal">
+      <div class="luxe-hero-label">✦ ЭКСКЛЮЗИВНЫЙ ТАРИФ</div>
+      <h1>TapMenu LUXE</h1>
+      <div class="luxe-divider" style="margin:28px auto;"></div>
+      <p>Мы не просто оцифровываем меню.<br/>Мы поднимаем ваш ресторан на новый уровень.</p>
+      <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:48px;">
+        <a href="#luxe-contact-form" class="btn btn-gold btn-lg">✦ Оставить заявку</a>
+        <a href="#luxe-features" class="btn btn-outline btn-lg" style="border-color:rgba(248,215,148,0.3);color:#F8D794;">
+          Узнать подробнее ↓
+        </a>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div style="position:absolute;bottom:-60px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0.4;">
+      <div style="width:1px;height:40px;background:linear-gradient(to bottom,var(--luxe-gold),transparent);"></div>
+      <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--luxe-gold);">Scroll</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHAT'S IN LUXE ===== -->
+<section class="luxe-section" id="luxe-features" style="padding-top:140px;">
+  <div class="container">
+    <div class="luxe-section-header reveal">
+      <div class="luxe-section-label">✦ Пакет</div>
+      <h2>Эксклюзивный пакет для лучших</h2>
+      <p>Всё необходимое для ресторана, где важен каждый детаиль</p>
+    </div>
+
+    <div class="luxe-grid-4" style="gap:20px;">
+      <div class="luxe-card reveal">
+        <div class="luxe-card-icon">🎨</div>
+        <h3>Эксклюзивный дизайн</h3>
+        <p>Тёмное меню под бренд вашего ресторана. Уникальный стиль, выделяющий вас среди конкурентов.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-1">
+        <div class="luxe-card-icon">📊</div>
+        <h3>SaaS-дашборд</h3>
+        <p>Аналитика в реальном времени. Конверсия блюд, популярность, доходность по столам.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-2">
+        <div class="luxe-card-icon">👤</div>
+        <h3>Персональный менеджер</h3>
+        <p>Выделенный аккаунт-менеджер. Знает ваш ресторан и всегда на связи.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-3">
+        <div class="luxe-card-icon">🏅</div>
+        <h3>Металлические стойки</h3>
+        <p>NFC-стойки с логотипом вашего ресторана из нержавеющей стали. Стиль на каждом столе.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-1">
+        <div class="luxe-card-icon">🛎️</div>
+        <h3>Умный вызов официанта</h3>
+        <p>Умный вызов с управлением уведомлениями. Приоритизация, история вызовов, статусы.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-2">
+        <div class="luxe-card-icon">🌍</div>
+        <h3>Безлимит языков</h3>
+        <p>Неограниченное количество языков меню. Каждый гость, откуда бы он ни приехал, всё поймёт.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-3">
+        <div class="luxe-card-icon">📈</div>
+        <h3>Глубокие отчёты</h3>
+        <p>Отчёты по конверсии блюд и доходности столов. Оптимизируйте меню на основе данных.</p>
+      </div>
+      <div class="luxe-card reveal reveal-delay-1">
+        <div class="luxe-card-icon">🔧</div>
+        <h3>Поддержка 24/7</h3>
+        <p>Техническая поддержка 24/7 с приоритетным ответом. Мы решаем вопросы раньше, чем вы успеете беспокоиться.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMPARISON: REGULAR vs LUXE ===== -->
+<section class="luxe-section">
+  <div class="container">
+    <div class="luxe-section-header reveal">
+      <div class="luxe-section-label">✦ Разница</div>
+      <h2>Обычное меню vs LUXE</h2>
+      <p>Почувствуйте разницу между стандартом и роскошью</p>
+    </div>
+
+    <div class="comparison-wrapper reveal">
+      <!-- Regular -->
+      <div class="comparison-regular">
+        <div class="comparison-header">
+          <span style="font-size:1.1rem;">😐</span>
+          <span style="font-weight:700;color:#999;">Обычное цифровое меню</span>
+          <span class="tag tag-regular">Стандарт</span>
+        </div>
+        <div class="comparison-body">
+          <div class="comp-item">
+            <div class="comp-icon">🎨</div>
+            <div class="comp-text">Стандартный шаблон дизайна</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon">📊</div>
+            <div class="comp-text">Базовая аналитика просмотров</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon">🏅</div>
+            <div class="comp-text">Обычные пластиковые метки</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon">🌍</div>
+            <div class="comp-text">Ограниченное число языков</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon">🔧</div>
+            <div class="comp-text">Поддержка в рабочее время</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon">👤</div>
+            <div class="comp-text">Общая служба поддержки</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LUXE -->
+      <div class="comparison-luxe">
+        <div class="comparison-header" style="background:rgba(212,175,55,0.05);border-bottom:1px solid rgba(212,175,55,0.15);">
+          <span style="font-size:1.1rem;">✦</span>
+          <span style="font-weight:700;" class="gradient-text-gold">TapMenu LUXE</span>
+          <span class="tag tag-luxe">Эксклюзив</span>
+        </div>
+        <div class="comparison-body">
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">Уникальный тёмный дизайн под бренд</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">SaaS-дашборд, отчёты в реальном времени</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">Металлические стойки с логотипом</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">Безлимит языков для всех гостей</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">Поддержка 24/7 с приоритетным ответом</div>
+          </div>
+          <div class="comp-item">
+            <div class="comp-icon" style="color:var(--luxe-gold);">✦</div>
+            <div style="color:#fff;font-weight:500;">Персональный аккаунт-менеджер</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOR WHOM ===== -->
+<section class="luxe-section">
+  <div class="container">
+    <div class="luxe-section-header reveal">
+      <div class="luxe-section-label">✦ Для кого</div>
+      <h2>LUXE создан для тех, кто выделяется</h2>
+      <p>Для заведений, где каждая деталь имеет значение</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px;">
+      <div class="luxe-for-who-card reveal">
+        <span class="fw-icon">🍷</span>
+        <h3>Рестораны высокой кухни</h3>
+        <p>Fine dining заведения, где опыт гостя — это искусство</p>
+      </div>
+      <div class="luxe-for-who-card reveal reveal-delay-1">
+        <span class="fw-icon">🏨</span>
+        <h3>Отели и премиум-заведения</h3>
+        <p>Гостиничные рестораны и лаунжи, обслуживающие международных гостей</p>
+      </div>
+      <div class="luxe-for-who-card reveal reveal-delay-2">
+        <span class="fw-icon">🌍</span>
+        <h3>Международная аудитория</h3>
+        <p>Рестораны в туристических локациях с гостями со всего мира</p>
+      </div>
+      <div class="luxe-for-who-card reveal reveal-delay-3">
+        <span class="fw-icon">🎯</span>
+        <h3>Рестораны-бренды</h3>
+        <p>Места, где бренд и атмосфера так же важны, как и кухня</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRICE ===== -->
+<section class="luxe-section">
+  <div class="container" style="max-width:700px;text-align:center;">
+    <div class="luxe-divider" style="margin:0 auto 60px;"></div>
+    <div class="reveal">
+      <div class="luxe-section-label" style="margin-bottom:24px;">✦ Стоимость</div>
+      <p style="font-size:1rem;color:#9a9a9a;margin-bottom:8px;">Индивидуальный подход к каждому ресторану</p>
+      <div class="luxe-price-amount">от $50 / мес</div>
+      <p class="luxe-price-subtitle">Индивидуальные условия под ваш ресторан</p>
+      <p class="luxe-price-note">Финальная цена определяется после консультации</p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px;">
+        <div style="background:#111;border:1px solid rgba(212,175,55,0.2);border-radius:12px;padding:20px 16px;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:8px;color:var(--luxe-gold);">⚡</div>
+          <div style="font-size:0.85rem;font-weight:600;color:#fff;margin-bottom:4px;">Быстрый старт</div>
+          <div style="font-size:0.75rem;color:#9a9a9a;">Запуск за 48 часов</div>
+        </div>
+        <div style="background:#111;border:1px solid rgba(212,175,55,0.3);border-radius:12px;padding:20px 16px;text-align:center;box-shadow:0 0 20px rgba(212,175,55,0.1);">
+          <div style="font-size:1.5rem;margin-bottom:8px;color:var(--luxe-gold);">✦</div>
+          <div style="font-size:0.85rem;font-weight:600;color:var(--luxe-gold);margin-bottom:4px;">Персонализация</div>
+          <div style="font-size:0.75rem;color:#9a9a9a;">Под ваш бренд</div>
+        </div>
+        <div style="background:#111;border:1px solid rgba(212,175,55,0.2);border-radius:12px;padding:20px 16px;text-align:center;">
+          <div style="font-size:1.5rem;margin-bottom:8px;color:var(--luxe-gold);">🛡️</div>
+          <div style="font-size:0.85rem;font-weight:600;color:#fff;margin-bottom:4px;">Гарантия</div>
+          <div style="font-size:0.75rem;color:#9a9a9a;">30 дней или возврат</div>
+        </div>
+      </div>
+    </div>
+    <div class="luxe-divider" style="margin:60px auto 0;"></div>
+  </div>
+</section>
+
+<!-- ===== CONTACT FORM ===== -->
+<section class="luxe-section" id="luxe-contact-form">
+  <div class="container" style="max-width:800px;">
+    <div class="luxe-form-section reveal">
+      <div class="luxe-section-label" style="display:block;text-align:center;margin-bottom:16px;">✦ Заявка</div>
+      <h2>Оставьте заявку</h2>
+      <p>Мы свяжемся с вами в течение 24 часов и расскажем, как LUXE изменит ваш ресторан</p>
+
+      <div id="luxe-success" class="luxe-success">
+        ✦ Ваша заявка отправлена! Мы свяжемся с вами в течение 24 часов.
+      </div>
+
+      <form id="luxe-form" novalidate>
+        <div class="luxe-form-grid">
+          <div class="form-group">
+            <label class="form-label" for="luxe-name">Имя <span>*</span></label>
+            <input type="text" id="luxe-name" name="name" class="luxe-form-control"
+              placeholder="Ваше имя" required autocomplete="name"/>
+            <div class="form-error" id="luxe-name-error">Пожалуйста, введите имя</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="luxe-restaurant">Название ресторана <span>*</span></label>
+            <input type="text" id="luxe-restaurant" name="restaurant" class="luxe-form-control"
+              placeholder="Название вашего ресторана" required/>
+            <div class="form-error" id="luxe-restaurant-error">Пожалуйста, введите название ресторана</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="luxe-contact">Телефон или Email <span>*</span></label>
+          <input type="text" id="luxe-contact" name="contact" class="luxe-form-control"
+            placeholder="+374 XX XXX XXX или email@example.com" required/>
+          <div class="form-error" id="luxe-contact-error">Пожалуйста, введите контактные данные</div>
+        </div>
+
+        <div class="luxe-form-grid">
+          <div class="form-group">
+            <label class="form-label" for="luxe-tables">Количество столов</label>
+            <input type="number" id="luxe-tables" name="tables" class="luxe-form-control"
+              placeholder="Например: 20" min="1" max="999"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="luxe-budget">Бюджет</label>
+            <select id="luxe-budget" name="budget" class="luxe-form-control" style="background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.3);color:#fff;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239a9a9a' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;padding-right:44px;appearance:none;">
+              <option value="" style="background:#111;">Выберите бюджет</option>
+              <option value="50-100" style="background:#111;">$50–100 / мес</option>
+              <option value="100-200" style="background:#111;">$100–200 / мес</option>
+              <option value="200+" style="background:#111;">$200+ / мес</option>
+              <option value="discuss" style="background:#111;">Обсудить индивидуально</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="luxe-comment">Комментарий / пожелания</label>
+          <textarea id="luxe-comment" name="comment" class="luxe-form-control"
+            placeholder="Расскажите о вашем ресторане, особых пожеланиях к дизайну или функционалу..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-gold btn-lg" style="width:100%;justify-content:center;font-size:1.05rem;padding:18px;">
+          ✦ Отправить заявку на LUXE
+        </button>
+
+        <p style="text-align:center;font-size:0.8rem;color:#666;margin-top:16px;">
+          Нажимая кнопку, вы соглашаетесь с <a href="#" style="color:var(--luxe-gold);text-decoration:underline;">политикой конфиденциальности</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer luxe-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom:16px;display:inline-flex;">
+          <div class="logo-icon" style="background:linear-gradient(135deg,var(--luxe-earth),#7a3f18);">✦</div>
+          TapMenu
+        </a>
+        <p style="color:#666;" data-i18n="footer_slogan">Одно касание — меню и сервис</p>
+        <div class="footer-social" style="margin-top:20px;">
+          <a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener" style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.15);color:var(--gold);">✈</a>
+          <a href="https://instagram.com/tapmenu.am" target="_blank" rel="noopener" style="background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.15);color:var(--gold);">📷</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 style="color:var(--gold);" data-i18n="footer_nav">Навигация</h4>
+        <ul>
+          <li><a href="index.html" style="color:#666;">Главная</a></li>
+          <li><a href="pricing.html" style="color:#666;">Тарифы</a></li>
+          <li><a href="how-it-works.html" style="color:#666;">Как работает</a></li>
+          <li><a href="luxe.html" style="color:var(--gold);">✦ LUXE</a></li>
+          <li><a href="contact.html" style="color:#666;">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 style="color:var(--gold);" data-i18n="footer_contacts">Контакты</h4>
+        <ul>
+          <li><a href="mailto:hello@tapmenu.am" style="color:#666;">📧 hello@tapmenu.am</a></li>
+          <li><a href="tel:+37400000000" style="color:#666;">📱 +374 XX XXX XXX</a></li>
+          <li><span style="color:#555;font-size:0.9rem;">📍 Ереван, Армения</span></li>
+          <li><a href="https://t.me/tapmenu_armenia" style="color:#666;" target="_blank" rel="noopener">✈ @tapmenu_armenia</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom" style="border-top:1px solid rgba(212,175,55,0.1);">
+      <p style="color:#555;">© 2025 TapMenu Armenia</p>
+      <a href="#" style="color:#555;">Политика конфиденциальности</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+
+<style>
+  @media (max-width: 768px) {
+    .luxe-for-who-card { padding: 28px 20px; }
+  }
+  @media (max-width: 640px) {
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 400px) {
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: 1fr !important; }
+    [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+  }
+</style>
+</body>
+</html>

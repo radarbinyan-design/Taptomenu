@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вызовы официанта — TapMenu</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text y='22' x='6' font-size='18' fill='white'>T</text></svg>">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .waiter-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 1100px) {
+      .waiter-grid { grid-template-columns: 1fr; }
+      .waiter-sidebar { order: -1; }
+    }
+
+    .calls-container { display: flex; flex-direction: column; gap: 12px; }
+
+    /* Big call card */
+    .call-big-card {
+      background: var(--db-bg-card);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: all var(--transition);
+      animation: slideIn 0.3s ease;
+    }
+
+    .call-big-card.new {
+      border-color: var(--accent);
+      background: rgba(184,104,48,0.06);
+      box-shadow: 0 0 20px rgba(184,104,48,0.15);
+    }
+
+    .call-big-card.seen {
+      border-color: rgba(248,215,148,0.2);
+      background: var(--gold-soft);
+    }
+
+    .call-big-card.done {
+      opacity: 0.45;
+      filter: grayscale(30%);
+    }
+
+    @keyframes slideIn {
+      from { opacity:0; transform:translateY(-8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    .call-table-num {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; font-weight: 800; color: #0b1410;
+      flex-shrink: 0;
+    }
+
+    .call-table-num.new  { background: linear-gradient(135deg, var(--accent), #e8974a); }
+    .call-table-num.seen { background: linear-gradient(135deg, var(--gold), #e8c070); }
+    .call-table-num.done { background: var(--db-bg-hover); color: var(--text-muted); }
+
+    .call-info { flex: 1; min-width: 0; }
+    .call-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 3px; }
+    .call-meta  { font-size: 0.82rem; color: var(--text-secondary); }
+    .call-message { font-size: 0.875rem; color: var(--text-secondary); margin-top: 5px; font-style: italic; }
+
+    .call-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+    /* Status tabs */
+    .status-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .status-tab {
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      border: 1px solid var(--db-border);
+      background: var(--db-bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .status-tab:hover { border-color: var(--accent); color: var(--text); }
+    .status-tab.active { background: var(--accent-soft); border-color: var(--accent); color: var(--gold); font-weight: 600; }
+
+    /* Sidebar stat */
+    .waiter-stat {
+      background: var(--db-bg);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .waiter-stat-num  { font-size: 2rem; font-weight: 700; color: var(--gold); }
+    .waiter-stat-text { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Pulse animation for new calls */
+    .pulse-ring {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pulse-ring::before {
+      content: '';
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      animation: pulse 1.5s ease-out infinite;
+    }
+    @keyframes pulse {
+      0%   { opacity:1; transform:scale(0.8); }
+      100% { opacity:0; transform:scale(1.4); }
+    }
+
+    /* Manual call form */
+    .manual-call-form {
+      background: var(--db-bg);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    /* Big sound button */
+    .sound-toggle {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px;
+      background: var(--db-bg);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .sound-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .sound-toggle.on { border-color: var(--emerald); color: var(--emerald); background: var(--emerald-soft); }
+  </style>
+</head>
+<body>
+<div class="db-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="db-sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon">🍽️</div>
+      <div class="sidebar-logo-text">Tap<span>Menu</span></div>
+    </div>
+    <div class="sidebar-restaurant">
+      <div class="sidebar-rest-label">Ресторан</div>
+      <div class="sidebar-rest-name" id="sidebar-rest-name">Загрузка...</div>
+      <div class="sidebar-rest-plan" id="sidebar-rest-plan">Pro</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section-label">Главное</div>
+      <a href="index.html" class="sidebar-link"><span class="icon">📊</span> Дашборд</a>
+      <a href="menu.html" class="sidebar-link"><span class="icon">🍜</span> Меню</a>
+      <a href="waiter.html" class="sidebar-link active">
+        <span class="icon">🔔</span> Вызовы
+        <span class="badge-count" id="nav-new-count" style="display:none">0</span>
+      </a>
+      <a href="analytics.html" class="sidebar-link"><span class="icon">📈</span> Аналитика</a>
+      <div class="sidebar-section-label">Настройки</div>
+      <a href="settings.html" class="sidebar-link"><span class="icon">⚙️</span> Настройки</a>
+      <div class="sidebar-section-label">Сайт</div>
+      <a href="../index.html" class="sidebar-link" target="_blank"><span class="icon">🌐</span> На сайт</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user" onclick="handleLogout()">
+        <div class="sidebar-avatar" id="user-avatar">?</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="user-name">—</div>
+          <div class="sidebar-user-email" id="user-email">—</div>
+        </div>
+        <span style="color:var(--text-muted); font-size:0.8rem;">⏻</span>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="db-main">
+    <header class="db-topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-toggle" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-breadcrumb">TapMenu / <span>Планшет официанта</span></div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" id="topbar-sound-btn" onclick="toggleSound()" title="Звук">🔔</button>
+        <button class="topbar-btn" onclick="clearDone()" title="Очистить завершённые">🗑</button>
+        <button class="topbar-btn" onclick="simulateCall()" title="Тест-вызов">📲</button>
+      </div>
+    </header>
+
+    <main class="db-content">
+
+      <div class="db-page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+        <div>
+          <h1 class="db-page-title">🔔 Планшет официанта</h1>
+          <p class="db-page-subtitle">Вызовы в реальном времени · обновляется автоматически</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="sound-toggle" id="sound-toggle-btn" onclick="toggleSound()">
+            <span id="sound-icon">🔔</span>
+            <span id="sound-label">Звук включён</span>
+          </button>
+          <button class="btn-db btn-db-outline" onclick="clearDone()">Очистить завершённые</button>
+        </div>
+      </div>
+
+      <div class="waiter-grid">
+
+        <!-- CALLS MAIN AREA -->
+        <div>
+          <!-- Status tabs -->
+          <div class="status-tabs">
+            <div class="status-tab active" id="tab-all" onclick="setTab('all')">
+              🍽️ Все <span id="count-all" class="db-badge db-badge-gray" style="padding:1px 7px;">0</span>
+            </div>
+            <div class="status-tab" id="tab-new" onclick="setTab('new')">
+              🔔 Новые <span id="count-new" class="db-badge db-badge-orange" style="padding:1px 7px;">0</span>
+            </div>
+            <div class="status-tab" id="tab-seen" onclick="setTab('seen')">
+              👀 Приняты <span id="count-seen" class="db-badge db-badge-gold" style="padding:1px 7px;">0</span>
+            </div>
+            <div class="status-tab" id="tab-done" onclick="setTab('done')">
+              ✅ Выполнены <span id="count-done" class="db-badge db-badge-green" style="padding:1px 7px;">0</span>
+            </div>
+          </div>
+
+          <!-- Calls list -->
+          <div class="calls-container" id="calls-list">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="waiter-sidebar">
+
+          <!-- Stats -->
+          <div class="db-card" style="margin-bottom:16px;">
+            <div class="db-card-header"><div class="db-card-title">📊 Сегодня</div></div>
+            <div class="db-card-body" style="padding:16px;">
+              <div class="waiter-stat">
+                <div class="waiter-stat-num" id="today-total">0</div>
+                <div class="waiter-stat-text">всего вызовов</div>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="text-align:center; padding:12px; background:var(--db-bg); border-radius:var(--radius-sm); border:1px solid var(--db-border);">
+                  <div style="font-size:1.4rem; font-weight:700; color:var(--accent);" id="today-new">0</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">Ожидают</div>
+                </div>
+                <div style="text-align:center; padding:12px; background:var(--db-bg); border-radius:var(--radius-sm); border:1px solid var(--db-border);">
+                  <div style="font-size:1.4rem; font-weight:700; color:var(--emerald);" id="today-done">0</div>
+                  <div style="font-size:0.72rem; color:var(--text-muted);">Выполнено</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual call -->
+          <div class="db-card" style="margin-bottom:16px;">
+            <div class="db-card-header"><div class="db-card-title">➕ Добавить вызов</div></div>
+            <div class="db-card-body" style="padding:16px;">
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Номер стола</label>
+                <input type="number" class="form-control" id="manual-table" placeholder="5" min="1" max="999">
+              </div>
+              <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label">Комментарий</label>
+                <input type="text" class="form-control" id="manual-msg" placeholder="Принесите счёт...">
+              </div>
+              <button class="btn-db btn-db-primary" style="width:100%;" onclick="addManualCall()">
+                🔔 Добавить
+              </button>
+            </div>
+          </div>
+
+          <!-- Hotkeys help -->
+          <div class="db-card">
+            <div class="db-card-header"><div class="db-card-title">⌨️ Горячие клавиши</div></div>
+            <div class="db-card-body" style="padding:16px; font-size:0.8rem; color:var(--text-secondary);">
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div class="flex-between">
+                  <span><kbd style="background:var(--db-bg); border:1px solid var(--db-border); padding:2px 6px; border-radius:4px;">Esc</kbd></span>
+                  <span>Закрыть уведомление</span>
+                </div>
+                <div class="flex-between">
+                  <span><kbd style="background:var(--db-bg); border:1px solid var(--db-border); padding:2px 6px; border-radius:4px;">R</kbd></span>
+                  <span>Обновить вызовы</span>
+                </div>
+                <div class="flex-between">
+                  <span><kbd style="background:var(--db-bg); border:1px solid var(--db-border); padding:2px 6px; border-radius:4px;">S</kbd></span>
+                  <span>Вкл/выкл звук</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="db-toast-container" id="toast-container"></div>
+
+<!-- Hidden audio element for sound notification -->
+<audio id="call-sound" preload="auto">
+  <source src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" type="audio/wav">
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/supabase-config.js"></script>
+
+<script>
+// ===== STATE =====
+let calls = [];
+let activeTab = 'all';
+let soundEnabled = true;
+let realtimeChannel = null;
+let pollInterval = null;
+
+// ===== DEMO DATA =====
+const DEMO_CALLS = [
+  { id: 'wc1', table_number: '5',  created_at: Date.now() - 2*60*1000,  status: 'new',  message: '' },
+  { id: 'wc2', table_number: '12', created_at: Date.now() - 8*60*1000,  status: 'new',  message: 'Принесите счёт' },
+  { id: 'wc3', table_number: '3',  created_at: Date.now() - 20*60*1000, status: 'seen', message: '' },
+  { id: 'wc4', table_number: '7',  created_at: Date.now() - 45*60*1000, status: 'done', message: '' },
+  { id: 'wc5', table_number: '1',  created_at: Date.now() - 65*60*1000, status: 'done', message: 'Нужна помощь' },
+];
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadUserInfo();
+  loadCalls();
+  setupRealtime();
+  updateSoundUI();
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'r' || e.key === 'R') loadCalls();
+    if (e.key === 's' || e.key === 'S') toggleSound();
+    if (e.key === 'Escape') clearDone();
+  });
+});
+
+function loadUserInfo() {
+  const name = localStorage.getItem('tm_restaurant_name') || 'Мой ресторан';
+  const plan = localStorage.getItem('tm_user_plan') || 'Pro';
+  const email = localStorage.getItem('tm_user_email') || '';
+  document.getElementById('sidebar-rest-name').textContent = name;
+  document.getElementById('sidebar-rest-plan').textContent = plan;
+  document.getElementById('user-name').textContent = name;
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('user-avatar').textContent = name.charAt(0).toUpperCase();
+}
+
+// ===== LOAD CALLS =====
+async function loadCalls() {
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+
+    if (isDemo) {
+      calls = [...DEMO_CALLS];
+    } else {
+      const restId = localStorage.getItem('tm_restaurant_id');
+      if (!restId) return;
+
+      // Load today's calls
+      const today = new Date().toISOString().split('T')[0];
+      const { data } = await _supabase
+        .from('waiter_calls')
+        .select('*')
+        .eq('restaurant_id', restId)
+        .gte('created_at', today)
+        .order('created_at', { ascending: false });
+
+      calls = data || [];
+    }
+
+    renderCalls();
+    updateStats();
+
+  } catch(err) {
+    console.error('Load calls error:', err);
+    calls = [...DEMO_CALLS];
+    renderCalls();
+    updateStats();
+  }
+}
+
+// ===== RENDER =====
+function renderCalls() {
+  const list = document.getElementById('calls-list');
+
+  let filtered = calls;
+  if (activeTab !== 'all') filtered = calls.filter(c => c.status === activeTab);
+
+  // Update tab counts
+  document.getElementById('count-all').textContent  = calls.length;
+  document.getElementById('count-new').textContent  = calls.filter(c => c.status === 'new').length;
+  document.getElementById('count-seen').textContent = calls.filter(c => c.status === 'seen').length;
+  document.getElementById('count-done').textContent = calls.filter(c => c.status === 'done').length;
+
+  const newCount = calls.filter(c => c.status === 'new').length;
+  const navBadge = document.getElementById('nav-new-count');
+  if (navBadge) {
+    navBadge.textContent = newCount;
+    navBadge.style.display = newCount > 0 ? 'inline-block' : 'none';
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = `
+      <div class="db-empty" style="padding:60px 24px;">
+        <div class="db-empty-icon">🔕</div>
+        <div class="db-empty-title">Нет вызовов</div>
+        <div class="db-empty-text">Вызовы от гостей появятся здесь автоматически</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(call => `
+    <div class="call-big-card ${call.status}" id="card-${call.id}">
+      <div class="call-table-num ${call.status} ${call.status === 'new' ? 'pulse-ring' : ''}">
+        ${call.table_number}
+      </div>
+      <div class="call-info">
+        <div class="call-title">Стол №${call.table_number}</div>
+        <div class="call-meta">${timeAgo(new Date(call.created_at))} · ${statusLabel(call.status)}</div>
+        ${call.message ? `<div class="call-message">"${call.message}"</div>` : ''}
+      </div>
+      <div class="call-actions">
+        ${call.status === 'new' ? `
+          <button class="btn-db btn-db-outline btn-db-sm" onclick="updateCall('${call.id}', 'seen')">👀 Принял</button>
+          <button class="btn-db btn-db-primary btn-db-sm" onclick="updateCall('${call.id}', 'done')">✅ Выполнил</button>
+        ` : ''}
+        ${call.status === 'seen' ? `
+          <button class="btn-db btn-db-primary btn-db-sm" onclick="updateCall('${call.id}', 'done')">✅ Выполнил</button>
+        ` : ''}
+        ${call.status === 'done' ? `
+          <span class="db-badge db-badge-green">✓ Выполнено</span>
+        ` : ''}
+        <button class="btn-db btn-db-ghost btn-db-icon btn-db-sm" onclick="deleteCall('${call.id}')" title="Удалить">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function statusLabel(s) {
+  const labels = { new: '🔔 Ожидает', seen: '👀 Принят', done: '✅ Выполнен' };
+  return labels[s] || s;
+}
+
+// ===== UPDATE CALL STATUS =====
+async function updateCall(id, newStatus) {
+  const call = calls.find(c => c.id === id);
+  if (!call) return;
+  call.status = newStatus;
+
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+    if (!isDemo) {
+      await _supabase.from('waiter_calls').update({ status: newStatus }).eq('id', id);
+    }
+  } catch(e) { console.error(e); }
+
+  renderCalls();
+  updateStats();
+
+  if (newStatus === 'done') showToast('✅ Стол ' + call.table_number + ' — выполнено!', 'success');
+}
+
+async function deleteCall(id) {
+  calls = calls.filter(c => c.id !== id);
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+    if (!isDemo) {
+      await _supabase.from('waiter_calls').delete().eq('id', id);
+    }
+  } catch(e) {}
+  renderCalls();
+  updateStats();
+}
+
+function clearDone() {
+  const doneCount = calls.filter(c => c.status === 'done').length;
+  if (!doneCount) return;
+  calls = calls.filter(c => c.status !== 'done');
+  renderCalls();
+  updateStats();
+  showToast('Очищено ' + doneCount + ' записей', 'info');
+}
+
+// ===== STATS =====
+function updateStats() {
+  const total = calls.length;
+  const newC  = calls.filter(c => c.status === 'new').length;
+  const done  = calls.filter(c => c.status === 'done').length;
+  document.getElementById('today-total').textContent = total;
+  document.getElementById('today-new').textContent   = newC;
+  document.getElementById('today-done').textContent  = done;
+}
+
+// ===== TAB =====
+function setTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  renderCalls();
+}
+
+// ===== MANUAL CALL =====
+async function addManualCall() {
+  const tableNum = document.getElementById('manual-table').value.trim();
+  const msg = document.getElementById('manual-msg').value.trim();
+  if (!tableNum) { showToast('Укажите номер стола', 'error'); return; }
+
+  const newCall = {
+    id: 'wc' + Date.now(),
+    table_number: tableNum,
+    message: msg,
+    status: 'new',
+    created_at: Date.now(),
+  };
+
+  calls.unshift(newCall);
+  document.getElementById('manual-table').value = '';
+  document.getElementById('manual-msg').value = '';
+
+  try {
+    const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+    if (!isDemo) {
+      const restId = localStorage.getItem('tm_restaurant_id');
+      await _supabase.from('waiter_calls').insert({
+        restaurant_id: restId,
+        table_number: tableNum,
+        message: msg,
+        status: 'new'
+      });
+    }
+  } catch(e) {}
+
+  renderCalls();
+  updateStats();
+  playSound();
+  showToast('🔔 Стол ' + tableNum + ' добавлен в очередь', 'warning');
+}
+
+// ===== SIMULATE CALL (for demo/testing) =====
+function simulateCall() {
+  const tables = ['2', '4', '6', '8', '9', '11', '15'];
+  const msgs = ['', '', '', 'Принесите счёт', 'Нужна помощь', 'Долго ждём'];
+  const tableNum = tables[Math.floor(Math.random() * tables.length)];
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+
+  const newCall = {
+    id: 'wc' + Date.now(),
+    table_number: tableNum,
+    message: msg,
+    status: 'new',
+    created_at: Date.now(),
+  };
+
+  calls.unshift(newCall);
+  renderCalls();
+  updateStats();
+  playSound();
+  showToast('🔔 Новый вызов! Стол №' + tableNum, 'warning');
+}
+
+// ===== REALTIME =====
+function setupRealtime() {
+  const isDemo = !_supabase || SUPABASE_URL.includes('ВАШ-ПРОЕКТ') || localStorage.getItem('tm_demo_mode') === 'true';
+
+  if (isDemo) {
+    // Poll every 10 seconds in demo mode — just re-render with same data
+    pollInterval = setInterval(() => {
+      updateStats();
+    }, 10000);
+    return;
+  }
+
+  const restId = localStorage.getItem('tm_restaurant_id');
+  if (!restId) return;
+
+  realtimeChannel = _supabase.channel('waiter-calls-' + restId)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'waiter_calls',
+      filter: `restaurant_id=eq.${restId}`
+    }, (payload) => {
+      if (payload.eventType === 'INSERT') {
+        calls.unshift(payload.new);
+        playSound();
+        showToast('🔔 Стол №' + payload.new.table_number + ' вызывает!', 'warning');
+      } else if (payload.eventType === 'UPDATE') {
+        const idx = calls.findIndex(c => c.id === payload.new.id);
+        if (idx >= 0) calls[idx] = payload.new;
+      } else if (payload.eventType === 'DELETE') {
+        calls = calls.filter(c => c.id !== payload.old.id);
+      }
+      renderCalls();
+      updateStats();
+    })
+    .subscribe();
+}
+
+// ===== SOUND =====
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  updateSoundUI();
+  showToast(soundEnabled ? '🔔 Звук включён' : '🔕 Звук выключен', 'info');
+}
+
+function updateSoundUI() {
+  const btn = document.getElementById('sound-toggle-btn');
+  const toggleBtn = document.getElementById('sound-toggle-btn');
+  const icon = document.getElementById('sound-icon');
+  const label = document.getElementById('sound-label');
+  const stBtn = document.getElementById('sound-toggle-btn');
+
+  if (icon) icon.textContent = soundEnabled ? '🔔' : '🔕';
+  if (label) label.textContent = soundEnabled ? 'Звук включён' : 'Звук выключен';
+
+  const soundToggle = document.querySelector('.sound-toggle');
+  if (soundToggle) soundToggle.classList.toggle('on', soundEnabled);
+}
+
+function playSound() {
+  if (!soundEnabled) return;
+  try {
+    // Create an AudioContext beep
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.4);
+  } catch(e) {}
+}
+
+// ===== UTILS =====
+function timeAgo(date) {
+  const diff = Math.floor((Date.now() - date) / 1000);
+  if (diff < 60) return diff + ' сек назад';
+  if (diff < 3600) return Math.floor(diff / 60) + ' мин назад';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' ч назад';
+  return 'Вчера';
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebar-overlay').classList.toggle('visible'); }
+function closeSidebar()  { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('visible'); }
+
+async function handleLogout() {
+  if (!confirm('Выйти?')) return;
+  if (realtimeChannel) _supabase.removeChannel(realtimeChannel);
+  if (pollInterval) clearInterval(pollInterval);
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+function showToast(msg, type = 'info') {
+  const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'db-toast ' + type;
+  toast.innerHTML = `<span>${icons[type]}</span><span>${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+</script>
+</body>
+</html>

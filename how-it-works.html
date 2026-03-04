@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Как работает TapMenu Armenia — NFC меню для ресторанов</title>
+  <meta name="description" content="Узнайте как работает TapMenu Armenia. 6 простых шагов от регистрации до первого гостя. NFC-метки, загрузка меню, аналитика."/>
+  <meta property="og:title" content="Как работает TapMenu Armenia — 6 простых шагов"/>
+  <meta property="og:description" content="Настройка за 1 день. Без технических знаний. Гость касается — меню открывается."/>
+  <meta property="og:url" content="https://tapmenu.am/how-it-works"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>◉</text></svg>"/>
+  <link rel="stylesheet" href="css/main.css"/>
+</head>
+<body>
+
+<div class="preloader">
+  <div class="preloader-inner">
+    <div class="logo" style="font-size:1.5rem;font-weight:800;"><div class="logo-icon">◉</div>TapMenu</div>
+    <div class="preloader-dots">
+      <div class="preloader-dot"></div><div class="preloader-dot"></div><div class="preloader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div class="noise-overlay"></div>
+<button class="back-to-top" aria-label="Наверх">↑</button>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="index.html" class="logo"><div class="logo-icon">◉</div>TapMenu</a>
+      <nav>
+        <ul class="nav">
+          <li><a href="index.html" data-i18n="nav_home">Главная</a></li>
+          <li><a href="pricing.html" data-i18n="nav_pricing">Тарифы</a></li>
+          <li><a href="how-it-works.html" class="active" data-i18n="nav_how">Как работает</a></li>
+          <li class="nav-luxe"><a href="luxe.html" data-i18n="nav_luxe">✦ LUXE</a></li>
+          <li><a href="contact.html" data-i18n="nav_contact">Контакты</a></li>
+        </ul>
+      </nav>
+      <div class="header-right">
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="ru">RU</button>
+          <button class="lang-btn" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hy">HY</button>
+        </div>
+        <a href="contact.html" class="btn btn-primary btn-sm" data-i18n="nav_start">Начать</a>
+        <button class="menu-toggle" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <a href="index.html" data-i18n="nav_home">Главная</a>
+  <a href="pricing.html" data-i18n="nav_pricing">Тарифы</a>
+  <a href="how-it-works.html" data-i18n="nav_how">Как работает</a>
+  <a href="luxe.html" style="color:var(--gold)" data-i18n="nav_luxe">✦ LUXE</a>
+  <a href="contact.html" data-i18n="nav_contact">Контакты</a>
+  <div style="padding:16px 0;display:flex;gap:8px">
+    <button class="lang-btn" data-lang="ru">🇷🇺 RU</button>
+    <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+    <button class="lang-btn" data-lang="hy">🇦🇲 HY</button>
+  </div>
+  <a href="contact.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Начать</a>
+</nav>
+
+<!-- PAGE HERO -->
+<section class="grid-bg" style="padding:140px 0 60px;text-align:center;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(184,104,48,0.1) 0%,transparent 70%);pointer-events:none;"></div>
+  <div class="container" style="position:relative;z-index:1;">
+    <div class="reveal">
+      <span class="section-label">⚙️ Процесс</span>
+      <h1 style="margin:16px 0 20px;">Как это <span class="gradient-text">работает?</span></h1>
+      <p style="font-size:1.1rem;max-width:520px;margin:0 auto 32px;">
+        6 простых шагов от регистрации до первого гостя.<br/>
+        Настройка занимает 1 день. Без технических знаний.
+      </p>
+      <div style="display:inline-flex;align-items:center;gap:16px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.2);border-radius:50px;padding:12px 24px;">
+        <span style="color:#68d391;">⚡</span>
+        <span style="color:#68d391;font-weight:600;">Среднее время запуска — 1 рабочий день</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 6 STEPS TIMELINE ===== -->
+<section class="section" style="padding-top:40px;">
+  <div class="container" style="max-width:900px;">
+    <div class="timeline">
+
+      <!-- Step 1 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-num">1</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 1</div>
+              <h3>Выберите тариф и зарегистрируйтесь</h3>
+              <p style="margin-top:10px;">Перейдите на страницу тарифов, выберите подходящий план и создайте аккаунт. Процесс занимает 3 минуты. Никаких технических навыков не нужно — только имя ресторана, email и пароль.</p>
+              <a href="pricing.html" style="color:var(--accent);font-weight:600;font-size:0.9rem;display:inline-flex;align-items:center;gap:6px;margin-top:12px;">Выбрать тариф →</a>
+            </div>
+            <div style="width:160px;height:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div style="font-size:2rem;">🔗</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary);text-align:center;">Регистрация</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-num">2</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 2</div>
+              <h3>Получите NFC-метки по почте</h3>
+              <p style="margin-top:10px;">После оплаты мы отправляем NFC-метки на ваш адрес. Доставка по Армении — 1–3 рабочих дня. Каждая метка — водонепроницаемая наклейка с NFC-чипом и QR-кодом.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                <span class="badge badge-orange">📦 Starter: 4 метки</span>
+                <span class="badge badge-orange">Pro: 8 меток</span>
+                <span class="badge badge-orange">Premium: 12 меток</span>
+              </div>
+            </div>
+            <div style="width:160px;height:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div style="font-size:2rem;">📦</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary);text-align:center;">1–3 дня</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-num">3</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 3</div>
+              <h3>Загрузите меню в личный кабинет</h3>
+              <p style="margin-top:10px;">Войдите в личный кабинет и добавьте блюда: название, описание, фото, цена, категория. Интерфейс интуитивно понятен — как редактор фотографий. Можно загрузить всё меню за 1–2 часа.</p>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);">
+                  <span style="color:#68d391;">✓</span> Фотографии блюд
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);">
+                  <span style="color:#68d391;">✓</span> Цены
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);">
+                  <span style="color:#68d391;">✓</span> Описания
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:var(--text-secondary);">
+                  <span style="color:#68d391;">✓</span> Аллергены
+                </div>
+              </div>
+            </div>
+            <div style="width:160px;height:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div style="font-size:2rem;">🍽️</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary);text-align:center;">Личный кабинет</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-num">4</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 4</div>
+              <h3>Установите NFC-метки на столах</h3>
+              <p style="margin-top:10px;">Каждая NFC-метка имеет уникальную ссылку, привязанную к конкретному столу. Просто наклейте метку на стол, подставку или держатель меню. Установка — 5 минут на весь ресторан.</p>
+              <div style="background:rgba(184,104,48,0.08);border:1px solid rgba(184,104,48,0.2);border-radius:10px;padding:12px;margin-top:12px;">
+                <div style="font-size:0.85rem;color:var(--text);">💡 <strong>Совет:</strong> Пронумеруйте столы в кабинете, чтобы система вызова официанта работала правильно.</div>
+              </div>
+            </div>
+            <div style="width:160px;height:100px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div style="font-size:2rem;">🏷️</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary);text-align:center;">5 минут</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="timeline-item reveal">
+        <div class="timeline-num" style="background:linear-gradient(135deg,var(--accent),#8b4a20);color:#fff;border-color:transparent;">5</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:var(--accent);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 5 — ГЛАВНОЕ!</div>
+              <h3>Гость касается телефоном → меню открывается</h3>
+              <p style="margin-top:10px;">Гость подносит смартфон к NFC-метке на столе. Через 0,5 секунды в браузере открывается ваше меню — с фотографиями, ценами и описаниями. Никаких приложений, никакого сканирования, никаких задержек.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+                <span class="badge badge-green">📱 iPhone с 2018 г.</span>
+                <span class="badge badge-green">🤖 Android с 2018 г.</span>
+                <span class="badge badge-orange">⚡ 0.5 сек</span>
+              </div>
+            </div>
+            <div style="width:160px;height:100px;background:linear-gradient(135deg,rgba(184,104,48,0.15),rgba(184,104,48,0.05));border:1px solid rgba(184,104,48,0.3);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div class="nfc-pulse" style="transform:scale(0.5);">
+                <div class="nfc-pulse-ring"></div>
+                <div class="nfc-pulse-ring"></div>
+                <div style="width:60px;height:60px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;z-index:1;position:relative;">📲</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="timeline-item reveal" style="padding-bottom:0;">
+        <div class="timeline-num" style="background:linear-gradient(135deg,#68d391,#48bb78);color:#fff;border-color:transparent;">6</div>
+        <div class="timeline-content">
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div style="font-size:0.7rem;color:#68d391;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">ШАГ 6 — РЕЗУЛЬТАТ</div>
+              <h3>Смотрите аналитику и растите</h3>
+              <p style="margin-top:10px;">В личном кабинете вы видите: какие блюда просматривают чаще, в какое время больше всего касаний, какие позиции заказывают. Оптимизируйте меню на основе реальных данных.</p>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;">
+                <div style="background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.15);border-radius:8px;padding:10px;text-align:center;">
+                  <div style="font-size:1.2rem;margin-bottom:4px;">👁️</div>
+                  <div style="font-size:0.75rem;color:#68d391;font-weight:600;">Просмотры</div>
+                </div>
+                <div style="background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.15);border-radius:8px;padding:10px;text-align:center;">
+                  <div style="font-size:1.2rem;margin-bottom:4px;">📊</div>
+                  <div style="font-size:0.75rem;color:#68d391;font-weight:600;">Тренды блюд</div>
+                </div>
+                <div style="background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.15);border-radius:8px;padding:10px;text-align:center;">
+                  <div style="font-size:1.2rem;margin-bottom:4px;">🕐</div>
+                  <div style="font-size:0.75rem;color:#68d391;font-weight:600;">Пиковые часы</div>
+                </div>
+                <div style="background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.15);border-radius:8px;padding:10px;text-align:center;">
+                  <div style="font-size:1.2rem;margin-bottom:4px;">🔔</div>
+                  <div style="font-size:0.75rem;color:#68d391;font-weight:600;">Вызовы</div>
+                </div>
+              </div>
+            </div>
+            <div style="width:160px;height:100px;background:rgba(72,187,120,0.08);border:1px solid rgba(72,187,120,0.2);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;flex-shrink:0;">
+              <div style="font-size:2rem;">📊</div>
+              <div style="font-size:0.7rem;color:#68d391;text-align:center;">Аналитика</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW NFC WORKS (mini section) ===== -->
+<section class="section" style="background:rgba(255,255,255,0.01);">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">📡 Технология</span>
+      <h2>Как работает NFC?</h2>
+      <p>Никакого сканирования, никакого интернета. Просто физический контакт.</p>
+    </div>
+
+    <div class="grid-3" style="gap:24px;margin-bottom:56px;">
+      <div class="card reveal" style="padding:32px;text-align:center;">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📡</div>
+        <h3 style="margin-bottom:10px;">Радиочастотный чип</h3>
+        <p>NFC-метка — это пассивный чип размером с монету. Не требует батарейки. Считывается при поднесении телефона.</p>
+      </div>
+      <div class="card reveal reveal-delay-1" style="padding:32px;text-align:center;">
+        <div style="font-size:2.5rem;margin-bottom:16px;">📱</div>
+        <h3 style="margin-bottom:10px;">Телефон читает ссылку</h3>
+        <p>Смартфон считывает уникальную ссылку с чипа. Это занимает меньше секунды. Ссылка открывается прямо в браузере.</p>
+      </div>
+      <div class="card reveal reveal-delay-2" style="padding:32px;text-align:center;">
+        <div style="font-size:2.5rem;margin-bottom:16px;">🌐</div>
+        <h3 style="margin-bottom:10px;">Меню в браузере</h3>
+        <p>Браузер загружает ваше цифровое меню. Гость видит блюда, фото, цены и может позвать официанта.</p>
+      </div>
+    </div>
+
+    <!-- Compatibility -->
+    <div class="reveal" style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:36px;">
+      <h3 style="margin-bottom:24px;text-align:center;">Совместимость устройств</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center;">
+        <div>
+          <div style="font-size:1.8rem;margin-bottom:8px;">🍎</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">iPhone</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">XS и новее<br/>(с 2018)</div>
+          <div style="margin-top:6px;"><span class="badge badge-green" style="font-size:0.7rem;">✓ NFC</span></div>
+        </div>
+        <div>
+          <div style="font-size:1.8rem;margin-bottom:8px;">🤖</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Android</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">8.0 и выше<br/>(с 2017)</div>
+          <div style="margin-top:6px;"><span class="badge badge-green" style="font-size:0.7rem;">✓ NFC</span></div>
+        </div>
+        <div>
+          <div style="font-size:1.8rem;margin-bottom:8px;">🔲</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">QR-бэкап</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">Любой смартфон<br/>с камерой</div>
+          <div style="margin-top:6px;"><span class="badge badge-orange" style="font-size:0.7rem;">✓ QR</span></div>
+        </div>
+        <div>
+          <div style="font-size:1.8rem;margin-bottom:8px;">🌐</div>
+          <div style="font-weight:600;font-size:0.9rem;margin-bottom:4px;">Браузер</div>
+          <div style="font-size:0.8rem;color:var(--text-secondary);">Chrome, Safari<br/>Firefox и др.</div>
+          <div style="margin-top:6px;"><span class="badge badge-green" style="font-size:0.7rem;">✓ Всё</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="section">
+  <div class="container" style="max-width:800px;">
+    <div class="section-header reveal">
+      <span class="section-label">FAQ</span>
+      <h2>Часто задаваемые вопросы</h2>
+    </div>
+
+    <div class="reveal">
+      <div class="faq-item">
+        <div class="faq-question">
+          Нужно ли гостю скачивать приложение?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Нет. Меню открывается в браузере при касании NFC-меткой. Гостю не нужно ничего скачивать, устанавливать или регистрироваться. Это работает прямо из коробки на любом современном смартфоне.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Работает ли на iPhone и Android?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Да. NFC поддерживают все iPhone с модели XS (2018 год) и выше, а также подавляющее большинство Android-смартфонов начиная с версии 8.0. По данным статистики, это покрывает более 95% используемых смартфонов. Для оставшихся работает QR-код.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Что если кто-то украдёт или потеряет метку?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            На каждой метке записана уникальная ссылка. Если метка потеряна, вы можете деактивировать её в личном кабинете за 30 секунд — ссылка перестанет работать. После этого закажите новую метку. Цена дополнительных меток уточняется у менеджера.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Можно ли самостоятельно изменить меню?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Да! Личный кабинет сделан так, что не нужно быть программистом. Добавить блюдо, изменить цену, загрузить фотографию, создать стоп-лист — всё это делается в несколько кликов. Изменения применяются мгновенно — гости видят обновлённое меню сразу.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Сколько языков поддерживается?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Зависит от тарифа: Starter — 3 языка, Pro — 10 языков, Premium и LUXE — 20+ языков (включая армянский, русский, английский, арабский, китайский, французский, немецкий и другие). Перевод происходит автоматически с помощью AI, но вы можете отредактировать любой перевод вручную.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Что такое QR-бэкап?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            На каждой NFC-метке также напечатан QR-код. Если телефон гостя не поддерживает NFC или NFC выключен — гость может отсканировать QR-код камерой и попасть в то же меню. QR-бэкап включён во все тарифы бесплатно.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Что такое кнопка вызова официанта?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            В меню есть кнопка «Позвать официанта». При нажатии уведомление приходит на телефон или планшет персонала с номером стола и временем вызова. Официант видит: «Стол №5 — вызов в 14:23». Это доступно в тарифах Pro, Premium и LUXE.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Можно ли отменить подписку в любой момент?
+          <div class="faq-icon">+</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">
+            Да. Без штрафов, без скрытых условий, без объяснения причин. Отмена — одной кнопкой в личном кабинете. Доступ к сервису сохраняется до конца оплаченного периода. Если вы отменили и хотите вернуться — всё ваше меню и настройки сохраняются 90 дней.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="reveal" style="background:linear-gradient(135deg,var(--accent),#e85d04);border-radius:24px;padding:72px 48px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-30px;right:-30px;width:200px;height:200px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+      <div style="position:absolute;bottom:-50px;left:-50px;width:250px;height:250px;background:rgba(255,255,255,0.04);border-radius:50%;"></div>
+      <div style="position:relative;z-index:1;">
+        <h2 style="font-size:clamp(1.6rem,3.5vw,2.6rem);color:#fff;margin-bottom:16px;">
+          Готовы начать?
+        </h2>
+        <p style="color:rgba(255,255,255,0.85);font-size:1.05rem;margin-bottom:36px;max-width:420px;margin-left:auto;margin-right:auto;">
+          Первые 7 дней бесплатно. Настройка за 1 день. NFC-метки включены.
+        </p>
+        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+          <a href="pricing.html" class="btn btn-white btn-lg">Выбрать тариф →</a>
+          <a href="contact.html" class="btn btn-outline btn-lg" style="border-color:rgba(255,255,255,0.4);color:#fff;">Задать вопрос</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom:16px;display:inline-flex;"><div class="logo-icon">◉</div>TapMenu</a>
+        <p data-i18n="footer_slogan">Одно касание — меню и сервис</p>
+        <div class="footer-social">
+          <a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener">✈</a>
+          <a href="https://instagram.com/tapmenu.am" target="_blank" rel="noopener">📷</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_nav">Навигация</h4>
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="pricing.html">Тарифы</a></li>
+          <li><a href="how-it-works.html">Как работает</a></li>
+          <li><a href="luxe.html" class="footer-luxe">✦ LUXE</a></li>
+          <li><a href="contact.html">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 data-i18n="footer_contacts">Контакты</h4>
+        <ul>
+          <li><a href="mailto:hello@tapmenu.am">📧 hello@tapmenu.am</a></li>
+          <li><a href="tel:+37400000000">📱 +374 XX XXX XXX</a></li>
+          <li><span style="color:var(--text-secondary);font-size:0.9rem;">📍 Ереван, Армения</span></li>
+          <li><a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener">✈ @tapmenu_armenia</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p data-i18n="footer_rights">© 2025 TapMenu Armenia</p>
+      <a href="#" data-i18n="footer_privacy">Политика конфиденциальности</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+
+<style>
+  @media (max-width: 768px) {
+    .timeline-content [style*="display:flex;align-items:flex-start;gap:24px"] { flex-direction: column; }
+    .timeline-content [style*="width:160px;height:100px"] { width: 100% !important; flex-direction: row !important; justify-content: flex-start !important; padding: 12px 16px !important; height: auto !important; }
+  }
+  @media (max-width: 640px) {
+    [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+</style>
+</body>
+</html>

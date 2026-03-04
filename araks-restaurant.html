@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Ресторан «Аракс» — Меню</title>
+  <meta name="description" content="Цифровое меню ресторана «Аракс». Армянская кухня. Ереван."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>🍽</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0e0e18;
+      --card: #16162a;
+      --card2: #1c1c32;
+      --accent: #6366f1;
+      --teal: #06b6d4;
+      --gold: #f59e0b;
+      --text: #f0f0ff;
+      --muted: #7c85a8;
+      --border: rgba(99,102,241,0.18);
+      --r: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* HEADER */
+    .menu-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(14,14,24,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; gap: 12px;
+    }
+    .restaurant-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-circle {
+      width: 42px; height: 42px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .restaurant-name { font-size: 1.05rem; font-weight: 700; }
+    .restaurant-sub { font-size: 0.7rem; color: var(--muted); }
+
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+
+    .lang-pills {
+      display: flex; background: rgba(255,255,255,0.05);
+      border-radius: 8px; padding: 3px; gap: 2px;
+    }
+    .lang-pill {
+      padding: 4px 8px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .lang-pill.active { background: var(--accent); color: #fff; }
+
+    .search-btn {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 1rem; color: var(--muted);
+    }
+
+    /* HERO BANNER */
+    .menu-hero {
+      background: linear-gradient(135deg, #1a1a30, #0e0e18);
+      padding: 28px 16px 20px;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .menu-hero::before {
+      content: '';
+      position: absolute; top: -40px; right: -40px;
+      width: 160px; height: 160px;
+      background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 50px;
+      font-size: 0.72rem; font-weight: 600; color: #818cf8;
+      margin-bottom: 10px;
+    }
+    .hero-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+    .hero-sub { font-size: 0.85rem; color: var(--muted); }
+    .hero-stats {
+      display: flex; gap: 16px; margin-top: 16px;
+    }
+    .hero-stat { font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+    .hero-stat strong { color: var(--text); font-weight: 600; }
+
+    /* CATEGORY TABS */
+    .cat-tabs {
+      display: flex; gap: 6px; padding: 12px 16px;
+      overflow-x: auto; scrollbar-width: none;
+      background: rgba(255,255,255,0.01);
+      border-bottom: 1px solid var(--border);
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0;
+      padding: 8px 16px; border-radius: 50px;
+      font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .cat-tab.active {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-color: transparent; color: #fff;
+      box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+    }
+    .cat-tab:hover:not(.active) { border-color: rgba(99,102,241,0.35); color: var(--text); }
+
+    /* SECTION TITLE */
+    .section-title {
+      padding: 20px 16px 12px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent); opacity: 0.8;
+    }
+
+    /* MENU ITEMS */
+    .menu-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    .menu-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      display: flex; align-items: stretch;
+      transition: all 0.25s; cursor: pointer;
+      position: relative;
+    }
+    .menu-item:active { transform: scale(0.985); }
+    .menu-item.featured {
+      border-color: rgba(245,158,11,0.35);
+      background: linear-gradient(135deg, #1c1c32, #16162a);
+    }
+    .menu-item.featured::before {
+      content: '⭐ Хит';
+      position: absolute; top: 10px; right: 10px;
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 50px;
+      background: rgba(245,158,11,0.15);
+      color: var(--gold); border: 1px solid rgba(245,158,11,0.3);
+    }
+
+    .item-img {
+      width: 90px; min-width: 90px; height: 90px;
+      background: var(--card2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem;
+      border-right: 1px solid var(--border);
+    }
+
+    .item-body {
+      flex: 1; padding: 12px 14px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .item-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; line-height: 1.3; }
+    .item-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .item-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .item-tag {
+      font-size: 0.65rem; padding: 2px 7px; border-radius: 50px;
+      background: rgba(99,102,241,0.1); color: #818cf8;
+      border: 1px solid rgba(99,102,241,0.2);
+    }
+    .item-tag.spicy { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2); }
+    .item-tag.veg { background: rgba(34,197,94,0.1); color: #4ade80; border-color: rgba(34,197,94,0.2); }
+    .item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-price { font-size: 1rem; font-weight: 800; color: var(--teal); }
+    .item-add {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 50%; border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff; cursor: pointer;
+      box-shadow: 0 3px 10px rgba(99,102,241,0.4);
+      transition: transform 0.15s;
+    }
+    .item-add:active { transform: scale(0.9); }
+
+    /* CALL WAITER BUTTON */
+    .waiter-sticky {
+      position: sticky; bottom: 0; z-index: 100;
+      padding: 14px 16px;
+      background: rgba(14,14,24,0.96);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+    }
+    .waiter-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none; border-radius: 50px;
+      color: #fff; font-size: 1rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 6px 24px rgba(99,102,241,0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .waiter-btn:active { transform: scale(0.97); box-shadow: 0 3px 12px rgba(99,102,241,0.3); }
+    .waiter-table { font-size: 0.72rem; opacity: 0.8; }
+
+    /* WAITER MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      width: 100%; max-width: 480px;
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+      padding: 32px 24px 40px;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 0 auto 24px; }
+    .modal-title { font-size: 1.2rem; font-weight: 800; text-align: center; margin-bottom: 6px; }
+    .modal-sub { font-size: 0.85rem; color: var(--muted); text-align: center; margin-bottom: 28px; }
+    .modal-table-badge {
+      background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 12px; padding: 16px 20px; text-align: center; margin-bottom: 20px;
+    }
+    .modal-table-num { font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+    .modal-table-label { font-size: 0.8rem; color: var(--muted); }
+    .modal-confirm-btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none; border-radius: 50px; color: #fff;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+      margin-bottom: 12px;
+    }
+    .modal-cancel-btn {
+      width: 100%; padding: 14px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 50px; color: var(--muted);
+      font-size: 0.9rem; cursor: pointer;
+    }
+    .modal-success { text-align: center; padding: 20px 0; display: none; }
+    .modal-success .success-icon { font-size: 3rem; margin-bottom: 12px; }
+    .modal-success h3 { margin-bottom: 8px; font-size: 1.2rem; }
+    .modal-success p { color: var(--muted); font-size: 0.85rem; }
+
+    /* POWERED BY */
+    .powered-by {
+      text-align: center; padding: 20px 16px 32px;
+      font-size: 0.72rem; color: rgba(255,255,255,0.2);
+    }
+    .powered-by a { color: rgba(99,102,241,0.5); text-decoration: none; }
+    .powered-by a:hover { color: var(--accent); }
+
+    /* SEARCH BAR */
+    .search-bar {
+      padding: 0 16px 12px;
+      display: none;
+    }
+    .search-bar.open { display: block; }
+    .search-input {
+      width: 100%; padding: 12px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text);
+      font-size: 0.9rem; font-family: inherit; outline: none;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .search-input::placeholder { color: var(--muted); }
+
+    /* SPECIAL PROMO */
+    .promo-banner {
+      margin: 12px 16px;
+      background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(99,102,241,0.08));
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--r);
+      padding: 14px 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .promo-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .promo-text h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; color: var(--gold); }
+    .promo-text p { font-size: 0.75rem; color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="menu-header">
+  <div class="header-top">
+    <div class="restaurant-logo">
+      <div class="logo-circle">🏛️</div>
+      <div>
+        <div class="restaurant-name">Ресторан «Аракс»</div>
+        <div class="restaurant-sub">Армянская кухня · Ереван</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-pills">
+        <button class="lang-pill active" onclick="setLang('ru')">RU</button>
+        <button class="lang-pill" onclick="setLang('hy')">HY</button>
+        <button class="lang-pill" onclick="setLang('en')">EN</button>
+      </div>
+      <div class="search-btn" onclick="toggleSearch()">🔍</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar" id="searchBar">
+    <input type="text" class="search-input" placeholder="Поиск по меню..." id="searchInput" oninput="filterMenu(this.value)"/>
+  </div>
+
+  <!-- Category Tabs -->
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="scrollToSection('zakuski', this)">🥗 Закуски</button>
+    <button class="cat-tab" onclick="scrollToSection('shashlyk', this)">🔥 Шашлык</button>
+    <button class="cat-tab" onclick="scrollToSection('supy', this)">🍲 Супы</button>
+    <button class="cat-tab" onclick="scrollToSection('goryachee', this)">🥩 Горячее</button>
+    <button class="cat-tab" onclick="scrollToSection('khlebny', this)">🫓 Хлебный</button>
+    <button class="cat-tab" onclick="scrollToSection('napitki', this)">🍷 Напитки</button>
+    <button class="cat-tab" onclick="scrollToSection('deserty', this)">🍰 Десерты</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="menu-hero">
+  <div class="hero-badge">🇦🇲 Армянская кухня</div>
+  <div class="hero-title">Добро пожаловать!</div>
+  <div class="hero-sub">Традиционные рецепты с нотками современности</div>
+  <div class="hero-stats">
+    <div class="hero-stat">🕐 <strong>10:00–23:00</strong></div>
+    <div class="hero-stat">📍 <strong>Стол №5</strong></div>
+    <div class="hero-stat">⭐ <strong>4.9</strong> (320 отзывов)</div>
+  </div>
+</div>
+
+<!-- PROMO -->
+<div class="promo-banner">
+  <div class="promo-icon">🎉</div>
+  <div class="promo-text">
+    <h4>Специальное предложение</h4>
+    <p>Хоровац из ягнёнка + бокал вина = скидка 15% · Действует до 23:00</p>
+  </div>
+</div>
+
+<!-- ЗАКУСКИ -->
+<div id="zakuski">
+  <div class="section-title">🥗 Закуски</div>
+  <div class="menu-list" data-section="zakuski">
+
+    <div class="menu-item featured" data-name="Долма армянская">
+      <div class="item-img">🫙</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Долма армянская" data-hy="Հայկական դոլմա" data-en="Armenian Dolma">Долма армянская</div>
+          <div class="item-desc" data-ru="Виноградные листья с рисом, говядиной и специями. Подаётся с мацуном." data-hy="Խաղողի տերևներ բրնձով, տավարի մսով եւ համեմունքներով" data-en="Grape leaves with rice, beef and spices. Served with matzun.">Виноградные листья с рисом, говядиной и специями. Подаётся с мацуном.</div>
+          <div class="item-tags">
+            <span class="item-tag">🏺 Традиционное</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 800 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Хумус с лавашем">
+      <div class="item-img">🫘</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Хумус с лавашем" data-hy="Հումուս լավաշով" data-en="Hummus with lavash">Хумус с лавашем</div>
+          <div class="item-desc" data-ru="Нежный хумус из нута с оливковым маслом и паприкой, свежий лаваш." data-hy="Ճկուն հումուս ձիթապտղի յուղով" data-en="Creamy chickpea hummus with olive oil and paprika, fresh lavash.">Нежный хумус из нута с оливковым маслом и паприкой, свежий лаваш.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🌿 Веган</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 900 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Жаренный сыр чечил">
+      <div class="item-img">🧀</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Жареный сыр чечил" data-hy="Տապակած չեչիլ պանիր" data-en="Fried chechil cheese">Жареный сыр чечил</div>
+          <div class="item-desc" data-ru="Традиционный армянский сыр в хрустящей панировке, соус из граната." data-hy="Ավանդական հայկական պանիր փխրուն կարկանդակով" data-en="Traditional Armenian cheese in crispy batter, pomegranate sauce.">Традиционный армянский сыр в хрустящей панировке, соус из граната.</div>
+          <div class="item-tags">
+            <span class="item-tag">🥚 Вегетарианское</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 200 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ШАШЛЫК -->
+<div id="shashlyk">
+  <div class="section-title">🔥 Шашлык на мангале</div>
+  <div class="menu-list">
+
+    <div class="menu-item featured" data-name="Хоровац из ягнёнка">
+      <div class="item-img">🍖</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Хоровац из ягнёнка" data-hy="Գառան խորոված" data-en="Lamb Khorovats">Хоровац из ягнёнка</div>
+          <div class="item-desc" data-ru="Маринованный ягнёнок на углях. Подаётся с овощами-гриль и лавашем." data-hy="Մարինացված գառ կրակի վրա" data-en="Marinated lamb on charcoal. Served with grilled vegetables and lavash.">Маринованный ягнёнок на углях. Подаётся с овощами-гриль и лавашем.</div>
+          <div class="item-tags">
+            <span class="item-tag">🔥 Хит</span>
+            <span class="item-tag spicy">🌶 Острое</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">5 500 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Лула-кебаб из говядины">
+      <div class="item-img">🥩</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Лула-кебаб из говядины" data-hy="Կովի բաստուրմա" data-en="Beef Lula Kebab">Лула-кебаб из говядины</div>
+          <div class="item-desc" data-ru="Рубленое мясо со специями на шпажке. Подаётся с лавашем и зеленью." data-hy="Կտրատած միս՝ համեմունքներով" data-en="Minced meat with spices on skewer. Served with lavash and greens.">Рубленое мясо со специями на шпажке. Подаётся с лавашем и зеленью.</div>
+          <div class="item-tags">
+            <span class="item-tag">🥩 Говядина</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">4 200 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- СУПЫ -->
+<div id="supy">
+  <div class="section-title">🍲 Супы</div>
+  <div class="menu-list">
+
+    <div class="menu-item featured" data-name="Хаш">
+      <div class="item-img">🍜</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Хаш (утренний)" data-hy="Խաշ (առավոտյան)" data-en="Hash (morning soup)">Хаш (утренний)</div>
+          <div class="item-desc" data-ru="Традиционный армянский суп из говяжьих ножек. Подаётся с чесноком и лавашем. Только по утрам." data-hy="Ավանդական հայկական ապուր" data-en="Traditional Armenian soup from beef trotters. Served with garlic and lavash.">Традиционный армянский суп из говяжьих ножек. Подаётся с чесноком и лавашем.</div>
+          <div class="item-tags">
+            <span class="item-tag">🏺 Традиционное</span>
+            <span class="item-tag">🌅 Только утром</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">3 500 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Спас (кефирный суп)">
+      <div class="item-img">🥣</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Спас (кефирный суп)" data-hy="Սպաս" data-en="Spas (kefir soup)">Спас (кефирный суп)</div>
+          <div class="item-desc" data-ru="Кисломолочный суп с пшеном и мятой. Горячий или холодный." data-hy="Թթու կաթի ապուր կորեկով" data-en="Fermented milk soup with millet and mint. Hot or cold.">Кисломолочный суп с пшеном и мятой. Горячий или холодный.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🌿 Вегетарианское</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 400 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- НАПИТКИ -->
+<div id="napitki">
+  <div class="section-title">🍷 Напитки</div>
+  <div class="menu-list">
+
+    <div class="menu-item featured" data-name="Арени красное">
+      <div class="item-img">🍷</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Арени красное (бокал)" data-hy="Արենի կարմիր (բաժակ)" data-en="Areni Red (glass)">Арени красное (бокал)</div>
+          <div class="item-desc" data-ru="Армянское красное вино из сорта Арени. Насыщенный вкус с нотками граната." data-hy="Հայկական կարմիր գինի" data-en="Armenian red wine from Areni grape. Rich taste with pomegranate notes.">Армянское красное вино из сорта Арени. Насыщенный вкус с нотками граната.</div>
+          <div class="item-tags">
+            <span class="item-tag">🏺 Местное</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 200 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Тан армянский">
+      <div class="item-img">🥛</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Тан армянский" data-hy="Հայկական թան" data-en="Armenian Tan">Тан армянский</div>
+          <div class="item-desc" data-ru="Освежающий кисломолочный напиток с солью. Традиционный рецепт." data-hy="Թարմացնող թթու կաթի ըմպելիք" data-en="Refreshing fermented milk drink with salt.">Освежающий кисломолочный напиток с солью. Традиционный рецепт.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🌿 Без алкоголя</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">800 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item" data-name="Кофе по-армянски">
+      <div class="item-img">☕</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Кофе по-армянски" data-hy="Հայկական սուրճ" data-en="Armenian Coffee">Кофе по-армянски</div>
+          <div class="item-desc" data-ru="Крепкий кофе в медной турке. Без сахара или с сахаром." data-hy="Ուժեղ սուրճ պղնձե թուրքայում" data-en="Strong coffee in copper cezve. With or without sugar.">Крепкий кофе в медной турке. Без сахара или с сахаром.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">☕ Кофе</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">600 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ДЕСЕРТЫ -->
+<div id="deserty">
+  <div class="section-title">🍰 Десерты</div>
+  <div class="menu-list" style="padding-bottom: 16px;">
+
+    <div class="menu-item featured" data-name="Пахлава армянская">
+      <div class="item-img">🍯</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Пахлава армянская" data-hy="Հայկական բաղլավա" data-en="Armenian Baklava">Пахлава армянская</div>
+          <div class="item-desc" data-ru="Хрустящее тесто с ореховой начинкой в медовом сиропе. Домашний рецепт." data-hy="Ընկուզեղ բաղլավա մեղրի օշարակով" data-en="Crispy pastry with walnut filling in honey syrup.">Хрустящее тесто с ореховой начинкой в медовом сиропе. Домашний рецепт.</div>
+          <div class="item-tags">
+            <span class="item-tag">🏺 Домашнее</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 800 ֏</div>
+          <button class="item-add" onclick="addToCart(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- POWERED BY -->
+<div class="powered-by">
+  Powered by <a href="https://tapmenu.am" target="_blank">TapMenu Armenia</a> · Одно касание — меню и сервис
+</div>
+
+<!-- WAITER STICKY -->
+<div class="waiter-sticky">
+  <button class="waiter-btn" onclick="openWaiterModal()">
+    <span>🔔</span>
+    <span>Позвать официанта</span>
+    <span class="waiter-table">Стол №5</span>
+  </button>
+</div>
+
+<!-- WAITER MODAL -->
+<div class="modal-overlay" id="waiterModal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+
+    <div id="modalContent">
+      <div class="modal-title">Вызов официанта</div>
+      <div class="modal-sub">Официант получит уведомление с вашим столом</div>
+      <div class="modal-table-badge">
+        <div class="modal-table-num">5</div>
+        <div class="modal-table-label">Ваш стол</div>
+      </div>
+      <button class="modal-confirm-btn" onclick="confirmWaiter()">
+        🔔 Позвать официанта к столу №5
+      </button>
+      <button class="modal-cancel-btn" onclick="closeWaiterModal()">Отмена</button>
+    </div>
+
+    <div class="modal-success" id="modalSuccess">
+      <div class="success-icon">✅</div>
+      <h3>Официант уже идёт!</h3>
+      <p>Уведомление отправлено. Ожидайте пару минут.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentLang = 'ru';
+
+  function setLang(lang) {
+    currentLang = lang;
+    document.querySelectorAll('.lang-pill').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('onclick').includes("'"+lang+"'"));
+    });
+    document.querySelectorAll('[data-ru]').forEach(el => {
+      el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-ru');
+    });
+  }
+
+  function scrollToSection(id, btn) {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function toggleSearch() {
+    const bar = document.getElementById('searchBar');
+    bar.classList.toggle('open');
+    if (bar.classList.contains('open')) document.getElementById('searchInput').focus();
+  }
+
+  function filterMenu(query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('.menu-item').forEach(item => {
+      const name = item.getAttribute('data-name') || '';
+      item.style.display = name.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+
+  function addToCart(btn) {
+    btn.textContent = '✓';
+    btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+    setTimeout(() => {
+      btn.textContent = '+';
+      btn.style.background = '';
+    }, 1500);
+  }
+
+  function openWaiterModal() {
+    document.getElementById('waiterModal').classList.add('open');
+    document.getElementById('modalContent').style.display = 'block';
+    document.getElementById('modalSuccess').style.display = 'none';
+  }
+
+  function closeWaiterModal() {
+    document.getElementById('waiterModal').classList.remove('open');
+  }
+
+  function closeModal(e) {
+    if (e.target === e.currentTarget) closeWaiterModal();
+  }
+
+  function confirmWaiter() {
+    document.getElementById('modalContent').style.display = 'none';
+    document.getElementById('modalSuccess').style.display = 'block';
+    setTimeout(closeWaiterModal, 3000);
+  }
+</script>
+</body>
+</html>

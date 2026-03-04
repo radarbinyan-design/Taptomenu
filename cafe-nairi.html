@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Café Nairi — Меню</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>☕</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #f7f3ef;
+      --bg2: #ede8e2;
+      --card: #ffffff;
+      --accent: #5b3d2e;
+      --teal: #0891b2;
+      --warm: #d97706;
+      --text: #1c1410;
+      --muted: #7a6a5e;
+      --border: rgba(91,61,46,0.12);
+      --r: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* HEADER — warm cream theme */
+    .menu-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(247,243,239,0.95);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; gap: 12px;
+    }
+
+    .restaurant-logo {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-circle {
+      width: 42px; height: 42px;
+      background: var(--accent);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: #fff;
+    }
+    .restaurant-name { font-size: 1.05rem; font-weight: 800; color: var(--accent); }
+    .restaurant-sub { font-size: 0.7rem; color: var(--muted); }
+
+    .header-actions { display: flex; gap: 8px; }
+    .lang-pills {
+      display: flex; background: var(--bg2);
+      border-radius: 8px; padding: 3px; gap: 2px;
+    }
+    .lang-pill {
+      padding: 4px 8px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; border: none; background: transparent; color: var(--muted);
+    }
+    .lang-pill.active { background: var(--accent); color: #fff; }
+
+    .cat-tabs {
+      display: flex; gap: 6px; padding: 10px 16px 12px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0; padding: 7px 16px; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.2s;
+    }
+    .cat-tab.active {
+      background: var(--accent); border-color: transparent; color: #fff;
+    }
+
+    /* HERO */
+    .menu-hero {
+      background: linear-gradient(135deg, var(--accent) 0%, #8b5e3c 100%);
+      padding: 28px 16px 24px;
+      color: #fff; position: relative; overflow: hidden;
+    }
+    .menu-hero::after {
+      content: '☕';
+      position: absolute; right: 20px; top: 20px;
+      font-size: 5rem; opacity: 0.12;
+    }
+    .day-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.15); border-radius: 50px;
+      padding: 4px 12px; font-size: 0.72rem; font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .hero-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 4px; }
+    .hero-sub { font-size: 0.85rem; opacity: 0.8; }
+    .hero-pills { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .hero-pill {
+      padding: 5px 12px; border-radius: 50px;
+      background: rgba(255,255,255,0.15);
+      font-size: 0.72rem; font-weight: 600;
+    }
+
+    /* MENU OF THE DAY */
+    .day-special {
+      margin: 16px; background: var(--card);
+      border-radius: var(--r); border: 2px solid rgba(217,119,6,0.25);
+      overflow: hidden;
+    }
+    .day-special-header {
+      background: linear-gradient(135deg, rgba(217,119,6,0.08), rgba(217,119,6,0.04));
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid rgba(217,119,6,0.15);
+    }
+    .day-special-header h4 { font-size: 0.8rem; font-weight: 700; color: var(--warm); }
+    .day-special-body { padding: 14px 16px; }
+
+    /* SECTION */
+    .section-title {
+      padding: 20px 16px 10px;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* MENU ITEMS */
+    .menu-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .menu-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      display: flex; align-items: stretch;
+      overflow: hidden; transition: all 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .menu-item:active { transform: scale(0.988); }
+
+    .item-img {
+      width: 84px; min-width: 84px; height: 84px;
+      background: var(--bg2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+    }
+    .item-body { flex: 1; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; }
+    .item-name { font-size: 0.92rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .item-desc { font-size: 0.73rem; color: var(--muted); line-height: 1.5; margin-bottom: 8px; }
+    .item-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+    .item-tag {
+      font-size: 0.63rem; padding: 2px 7px; border-radius: 50px;
+      background: rgba(91,61,46,0.07); color: var(--muted);
+      border: 1px solid rgba(91,61,46,0.12);
+    }
+    .item-tag.new { background: rgba(6,182,212,0.1); color: var(--teal); border-color: rgba(6,182,212,0.25); }
+    .item-tag.veg { background: rgba(34,197,94,0.08); color: #16a34a; border-color: rgba(34,197,94,0.2); }
+    .item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .item-price { font-size: 1rem; font-weight: 800; color: var(--accent); }
+    .item-add {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--accent); border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff; cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .item-add:active { transform: scale(0.88); }
+
+    /* COFFEE CUSTOMIZER */
+    .customizer {
+      margin: 0 16px 16px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px;
+    }
+    .customizer h4 { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; color: var(--accent); }
+    .size-options { display: flex; gap: 8px; }
+    .size-btn {
+      flex: 1; padding: 8px; border: 1px solid var(--border);
+      border-radius: 10px; background: transparent; cursor: pointer;
+      text-align: center; font-family: inherit; transition: all 0.2s;
+    }
+    .size-btn .size-icon { font-size: 1.2rem; display: block; }
+    .size-btn .size-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); display: block; margin-top: 2px; }
+    .size-btn .size-price { font-size: 0.72rem; font-weight: 700; color: var(--accent); display: block; }
+    .size-btn.selected { border-color: var(--accent); background: rgba(91,61,46,0.06); }
+
+    /* WAITER */
+    .waiter-sticky {
+      position: sticky; bottom: 0; z-index: 100;
+      padding: 12px 16px;
+      background: rgba(247,243,239,0.96);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+    }
+    .waiter-btn {
+      width: 100%; padding: 15px;
+      background: var(--accent); border: none; border-radius: 50px;
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(91,61,46,0.3);
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+      align-items: flex-end; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-sheet {
+      width: 100%; max-width: 480px;
+      background: var(--card); border-radius: 24px 24px 0 0;
+      padding: 28px 24px 40px;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--bg2); border-radius: 2px; margin: 0 auto 20px; }
+    .modal-title { font-size: 1.15rem; font-weight: 800; text-align: center; margin-bottom: 6px; color: var(--accent); }
+    .modal-sub { font-size: 0.82rem; color: var(--muted); text-align: center; margin-bottom: 24px; }
+    .modal-table-badge {
+      background: rgba(91,61,46,0.06); border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;
+    }
+    .modal-table-num { font-size: 2.2rem; font-weight: 800; color: var(--accent); }
+    .modal-confirm-btn {
+      width: 100%; padding: 15px;
+      background: var(--accent); border: none; border-radius: 50px;
+      color: #fff; font-size: 0.95rem; font-weight: 700; cursor: pointer;
+      margin-bottom: 10px; box-shadow: 0 4px 16px rgba(91,61,46,0.3);
+    }
+    .modal-cancel-btn {
+      width: 100%; padding: 13px;
+      background: transparent; border: 1px solid var(--border);
+      border-radius: 50px; color: var(--muted); font-size: 0.88rem; cursor: pointer;
+    }
+    .modal-success { text-align: center; padding: 16px 0; display: none; }
+
+    .powered-by {
+      text-align: center; padding: 20px 16px 32px;
+      font-size: 0.72rem; color: var(--muted);
+    }
+    .powered-by a { color: var(--teal); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header class="menu-header">
+  <div class="header-top">
+    <div class="restaurant-logo">
+      <div class="logo-circle">☕</div>
+      <div>
+        <div class="restaurant-name">Café Nairi</div>
+        <div class="restaurant-sub">Авторский кофе · Еревaн</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="lang-pills">
+        <button class="lang-pill active" onclick="setLang('ru')">RU</button>
+        <button class="lang-pill" onclick="setLang('hy')">HY</button>
+        <button class="lang-pill" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+  <div class="cat-tabs">
+    <button class="cat-tab active" onclick="scrollTo('coffee',this)">☕ Кофе</button>
+    <button class="cat-tab" onclick="scrollTo('tea',this)">🍵 Чай</button>
+    <button class="cat-tab" onclick="scrollTo('food',this)">🥐 Еда</button>
+    <button class="cat-tab" onclick="scrollTo('desserts',this)">🍰 Десерты</button>
+    <button class="cat-tab" onclick="scrollTo('cold',this)">🧊 Холодные</button>
+  </div>
+</header>
+
+<div class="menu-hero">
+  <div class="day-badge">☀️ Сегодня</div>
+  <div class="hero-title">Café Nairi</div>
+  <div class="hero-sub">Место, где время замедляется</div>
+  <div class="hero-pills">
+    <div class="hero-pill">🕐 08:00–22:00</div>
+    <div class="hero-pill">📶 Free WiFi</div>
+    <div class="hero-pill">📍 Стол №3</div>
+  </div>
+</div>
+
+<!-- COFFEE SIZE CUSTOMIZER -->
+<div style="padding: 14px 16px 0;">
+  <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 10px;">☕ Выберите объём для кофе</div>
+  <div class="size-options">
+    <div class="size-btn" onclick="selectSize(this,'S')">
+      <span class="size-icon">🟤</span>
+      <span class="size-label">S — 150мл</span>
+      <span class="size-price">×1.0</span>
+    </div>
+    <div class="size-btn selected" onclick="selectSize(this,'M')">
+      <span class="size-icon">🟤</span>
+      <span class="size-label">M — 250мл</span>
+      <span class="size-price">×1.2</span>
+    </div>
+    <div class="size-btn" onclick="selectSize(this,'L')">
+      <span class="size-icon">🟫</span>
+      <span class="size-label">L — 350мл</span>
+      <span class="size-price">×1.4</span>
+    </div>
+  </div>
+</div>
+
+<!-- COFFEE -->
+<div id="coffee">
+  <div class="section-title">☕ Кофе</div>
+  <div class="menu-list">
+
+    <div class="menu-item">
+      <div class="item-img">☕</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Флэт Уайт" data-en="Flat White" data-hy="Ֆլեթ Ուայթ">Флэт Уайт</div>
+          <div class="item-desc" data-ru="Двойной эспрессо с бархатным молоком. Наш фирменный баланс." data-en="Double espresso with velvety milk." data-hy="Կրկնակի էսպրեսո կաթնային կաթով">Двойной эспрессо с бархатным молоком. Наш фирменный баланс.</div>
+          <div class="item-tags">
+            <span class="item-tag new">⭐ Топ</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 200 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="item-img">🫘</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Арабика Эфиопия" data-en="Ethiopian Arabica" data-hy="Եթովպական արաբիկա">Арабика Эфиопия (пуровер)</div>
+          <div class="item-desc" data-ru="Лёгкая обжарка. Цитрусовые ноты, ягоды. Пуровер V60." data-en="Light roast. Citrus notes, berries. V60 pour-over." data-hy="Թեթև տապակ. ցիտրուս, հատապտուղ">Лёгкая обжарка. Цитрусовые ноты, ягоды. Пуровер V60.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🌿 Specialty</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 600 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="item-img">🥛</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Капучино" data-en="Cappuccino" data-hy="Կապուչինո">Капучино</div>
+          <div class="item-desc" data-ru="Классический эспрессо с плотной молочной пеной." data-en="Classic espresso with thick milk foam." data-hy="Կլասիկ էսպրեսո խիտ կաթնային փրփուրով">Классический эспрессо с плотной молочной пеной.</div>
+          <div class="item-tags">
+            <span class="item-tag">🥛 Молоко</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 000 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="item-img">🧋</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Айс Латте" data-en="Iced Latte" data-hy="Սառն Լատտե">Айс Латте</div>
+          <div class="item-desc" data-ru="Эспрессо, лёд, молоко. Идеально в жаркий день." data-en="Espresso, ice, milk. Perfect for hot days." data-hy="Էսպրեսո, սառույց, կաթ">Эспрессо, лёд, молоко. Идеально в жаркий день.</div>
+          <div class="item-tags">
+            <span class="item-tag new">❄️ Летнее</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 300 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOD -->
+<div id="food">
+  <div class="section-title">🥐 Еда</div>
+  <div class="menu-list">
+
+    <div class="menu-item">
+      <div class="item-img">🥐</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Круассан с миндалём" data-en="Almond Croissant" data-hy="Նուշ կրուասան">Круассан с миндалём</div>
+          <div class="item-desc" data-ru="Свежая выпечка утром. Хрустящий, с миндальным кремом." data-en="Fresh morning bake. Crispy with almond cream." data-hy="Թարմ թխվածք. ուժ, նուշ կրեմ">Свежая выпечка утром. Хрустящий, с миндальным кремом.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🥐 Выпечка</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 100 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-item">
+      <div class="item-img">🥪</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Сэндвич с авокадо" data-en="Avocado Toast" data-hy="Ավոկադո-Թոստ">Сэндвич с авокадо</div>
+          <div class="item-desc" data-ru="Ржаной хлеб, авокадо, яйцо пашот, микрозелень." data-en="Rye bread, avocado, poached egg, micro greens." data-hy="Տղամարդ հաց, ավոկадо, ձու">Ржаной хлеб, авокадо, яйцо пашот, микрозелень.</div>
+          <div class="item-tags">
+            <span class="item-tag veg">🌿 Вегетарианское</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">2 400 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DESSERTS -->
+<div id="desserts">
+  <div class="section-title">🍰 Десерты</div>
+  <div class="menu-list" style="padding-bottom: 16px;">
+
+    <div class="menu-item">
+      <div class="item-img">🎂</div>
+      <div class="item-body">
+        <div>
+          <div class="item-name" data-ru="Чизкейк гранатовый" data-en="Pomegranate Cheesecake" data-hy="Նռան չիզ-քեյք">Чизкейк гранатовый</div>
+          <div class="item-desc" data-ru="Авторский чизкейк с армянским гранатом. Без выпечки." data-en="Signature cheesecake with Armenian pomegranate. No-bake." data-hy="Հայկական նռով չիզ-քեյք">Авторский чизкейк с армянским гранатом. Без выпечки.</div>
+          <div class="item-tags">
+            <span class="item-tag new">⭐ Авторское</span>
+          </div>
+        </div>
+        <div class="item-footer">
+          <div class="item-price">1 800 ֏</div>
+          <button class="item-add" onclick="addItem(this)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="powered-by">
+  Powered by <a href="https://tapmenu.am" target="_blank">TapMenu Armenia</a>
+</div>
+
+<div class="waiter-sticky">
+  <button class="waiter-btn" onclick="openModal()">🔔 Позвать баристу · Стол №3</button>
+</div>
+
+<div class="modal-overlay" id="waiterModal" onclick="closeM(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div id="mc">
+      <div class="modal-title">Позвать баристу</div>
+      <div class="modal-sub">Бариста подойдёт к вашему столу</div>
+      <div class="modal-table-badge">
+        <div class="modal-table-num">3</div>
+        <div style="font-size:0.8rem;color:var(--muted);">Стол</div>
+      </div>
+      <button class="modal-confirm-btn" onclick="confirmW()">☕ Позвать к столу №3</button>
+      <button class="modal-cancel-btn" onclick="closeWM()">Отмена</button>
+    </div>
+    <div class="modal-success" id="ms">
+      <div style="font-size:3rem;margin-bottom:12px;">✅</div>
+      <h3 style="color:var(--accent);margin-bottom:8px;">Бариста идёт!</h3>
+      <p style="color:var(--muted);font-size:0.85rem;">Ожидайте — мы уже несём ваш кофе ☕</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function setLang(lang) {
+    document.querySelectorAll('.lang-pill').forEach(b => b.classList.toggle('active', b.getAttribute('onclick').includes("'"+lang+"'")));
+    document.querySelectorAll('[data-ru]').forEach(el => { el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-ru'); });
+  }
+  function scrollTo(id, btn) {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function selectSize(btn, size) {
+    document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+  function addItem(btn) {
+    btn.textContent = '✓'; btn.style.background = '#16a34a';
+    setTimeout(() => { btn.textContent = '+'; btn.style.background = ''; }, 1500);
+  }
+  function openModal() { document.getElementById('waiterModal').classList.add('open'); document.getElementById('mc').style.display='block'; document.getElementById('ms').style.display='none'; }
+  function closeWM() { document.getElementById('waiterModal').classList.remove('open'); }
+  function closeM(e) { if(e.target===e.currentTarget) closeWM(); }
+  function confirmW() { document.getElementById('mc').style.display='none'; document.getElementById('ms').style.display='block'; setTimeout(closeWM, 3000); }
+</script>
+</body>
+</html>
