@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TapMenu Armenia — Анализ конкурентов + Стратегия</title>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #e85d26;
+    --accent2: #f0a500;
+    --bg: #f7f8fa;
+    --white: #ffffff;
+    --text: #2c2c2c;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --sidebar-w: 280px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; color:var(--text); background:var(--bg); display:flex; min-height:100vh; }
+
+  #sidebar {
+    width:var(--sidebar-w); background:var(--primary); color:#fff;
+    position:fixed; top:0; left:0; height:100vh; overflow-y:auto;
+    padding:0 0 40px 0; z-index:100;
+  }
+  #sidebar .logo { padding:28px 24px 20px; border-bottom:1px solid rgba(255,255,255,.1); font-size:1.1rem; font-weight:700; }
+  #sidebar .logo span { color:var(--accent); }
+  #sidebar nav { padding:12px 0; }
+  #sidebar nav a {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 24px; color:rgba(255,255,255,.75); text-decoration:none;
+    font-size:.875rem; transition:.2s; border-left:3px solid transparent;
+  }
+  #sidebar nav a:hover { color:#fff; background:rgba(255,255,255,.07); border-left-color:var(--accent); }
+  #sidebar nav .section-title {
+    padding:16px 24px 6px; font-size:.7rem; text-transform:uppercase;
+    letter-spacing:1.2px; color:rgba(255,255,255,.35); font-weight:600;
+  }
+
+  #main { margin-left:var(--sidebar-w); flex:1; padding:40px 48px; max-width:1100px; }
+
+  .cover {
+    background:linear-gradient(135deg,#1a1a2e 0%,#2d1b4e 100%);
+    color:#fff; border-radius:16px; padding:52px; margin-bottom:48px; position:relative; overflow:hidden;
+  }
+  .cover::after { content:''; position:absolute; right:-60px; top:-60px; width:280px; height:280px; background:rgba(232,93,38,.15); border-radius:50%; }
+  .cover .badge { display:inline-block; background:var(--accent); color:#fff; font-size:.72rem; font-weight:700; padding:4px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:.8px; margin-bottom:16px; }
+  .cover h1 { font-size:2.2rem; font-weight:800; margin-bottom:10px; }
+  .cover p { font-size:1rem; color:rgba(255,255,255,.75); max-width:560px; }
+
+  section { margin-bottom:56px; scroll-margin-top:24px; }
+  h2 { font-size:1.5rem; font-weight:800; color:var(--primary); padding-bottom:12px; margin-bottom:24px; border-bottom:3px solid var(--accent); display:flex; align-items:center; gap:10px; }
+  h2 .num { background:var(--accent); color:#fff; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:800; flex-shrink:0; }
+  h3 { font-size:1.05rem; font-weight:700; color:var(--primary); margin:24px 0 12px; }
+  p { line-height:1.7; margin-bottom:10px; font-size:.95rem; }
+
+  .cards { display:grid; gap:16px; margin:16px 0; }
+  .cards.col2 { grid-template-columns:repeat(2,1fr); }
+  .cards.col3 { grid-template-columns:repeat(3,1fr); }
+  .card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:20px; }
+  .card.accent-top { border-top:4px solid var(--accent); }
+  .card.accent-blue { border-top:4px solid var(--info); }
+  .card.accent-green { border-top:4px solid var(--success); }
+  .card.accent-orange { border-top:4px solid var(--accent2); }
+  .card.accent-red { border-top:4px solid var(--danger); }
+  .card.accent-purple { border-top:4px solid #8b5cf6; }
+  .card .card-title { font-weight:700; color:var(--primary); font-size:.95rem; margin-bottom:8px; }
+
+  .table-wrap { overflow-x:auto; margin:16px 0; border-radius:10px; border:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; font-size:.875rem; }
+  thead th { background:var(--primary); color:#fff; padding:12px 16px; text-align:left; font-weight:600; white-space:nowrap; }
+  tbody td { padding:11px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:nth-child(even) { background:#fafafa; }
+  .check { color:var(--success); font-weight:700; }
+  .cross { color:var(--danger); }
+  .partial { color:var(--warning); font-weight:600; }
+
+  .alert { border-radius:10px; padding:14px 18px; margin:16px 0; font-size:.9rem; border-left:4px solid; display:flex; gap:12px; align-items:flex-start; }
+  .alert.info { background:#eff6ff; border-color:var(--info); color:#1e40af; }
+  .alert.warning { background:#fffbeb; border-color:var(--warning); color:#92400e; }
+  .alert.success { background:#f0fdf4; border-color:var(--success); color:#14532d; }
+  .alert.danger { background:#fef2f2; border-color:var(--danger); color:#7f1d1d; }
+  .alert.purple { background:#f5f3ff; border-color:#8b5cf6; color:#4c1d95; }
+  .alert .icon { font-size:1.1rem; flex-shrink:0; }
+
+  .tag { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:600; margin:2px; }
+  .tag.green { background:#dcfce7; color:#166534; }
+  .tag.blue { background:#dbeafe; color:#1e40af; }
+  .tag.orange { background:#ffedd5; color:#9a3412; }
+  .tag.gray { background:#f3f4f6; color:#374151; }
+  .tag.red { background:#fee2e2; color:#991b1b; }
+  .tag.purple { background:#f3e8ff; color:#6b21a8; }
+
+  .competitor-card {
+    background:var(--white); border:1px solid var(--border); border-radius:14px;
+    padding:24px; margin:16px 0;
+  }
+  .competitor-card .comp-header { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+  .competitor-card .comp-logo { width:48px; height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
+  .competitor-card .comp-name { font-size:1.15rem; font-weight:800; color:var(--primary); }
+  .competitor-card .comp-desc { font-size:.85rem; color:var(--muted); }
+  .competitor-card .comp-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .comp-col h4 { font-size:.78rem; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); font-weight:700; margin-bottom:8px; }
+  .comp-col ul { list-style:none; }
+  .comp-col ul li { font-size:.85rem; padding:3px 0; display:flex; gap:6px; }
+
+  .verdict { border-radius:10px; padding:16px 20px; margin:16px 0; }
+  .verdict.threat { background:#fef2f2; border:2px solid var(--danger); }
+  .verdict.opportunity { background:#f0fdf4; border:2px solid var(--success); }
+  .verdict.neutral { background:#fffbeb; border:2px solid var(--warning); }
+  .verdict h4 { font-weight:800; margin-bottom:6px; font-size:.9rem; }
+
+  .roadmap-idea { background:var(--white); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:14px 18px; margin:10px 0; }
+  .roadmap-idea .idea-tag { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; margin-bottom:6px; }
+  .roadmap-idea h4 { font-size:.95rem; font-weight:700; color:var(--primary); margin-bottom:4px; }
+  .roadmap-idea p { font-size:.85rem; color:var(--muted); margin:0; }
+
+  ul.feature-list { list-style:none; padding:0; }
+  ul.feature-list li { padding:6px 0; border-bottom:1px solid var(--border); font-size:.9rem; display:flex; gap:8px; }
+  ul.feature-list li:last-child { border-bottom:none; }
+
+  @media(max-width:900px) {
+    #sidebar { display:none; }
+    #main { margin-left:0; padding:24px 20px; }
+    .cards.col2,.cards.col3 { grid-template-columns:1fr; }
+    .competitor-card .comp-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div class="logo">Tap<span>Menu</span> Armenia<br><small style="font-weight:400;font-size:.7rem;color:rgba(255,255,255,.4)">Анализ конкурентов v1.0</small></div>
+  <nav>
+    <div class="section-title">Конкуренты</div>
+    <a href="#s1">01 · r_keeper 7</a>
+    <a href="#s2">02 · iiko</a>
+    <a href="#s3">03 · Smartofood</a>
+    <a href="#s4">04 · Poster POS</a>
+    <a href="#s5">05 · MENU TIGER</a>
+    <a href="#s6">06 · Toast / Square</a>
+    <div class="section-title">Стратегия</div>
+    <a href="#s7">07 · Сравнительная таблица</a>
+    <a href="#s8">08 · Идея: интеграция с POS</a>
+    <a href="#s9">09 · Идея: Smart Brain</a>
+    <a href="#s10">10 · Что добавить сейчас</a>
+    <a href="#s11">11 · Выводы</a>
+  </nav>
+</aside>
+
+<main id="main">
+
+<div class="cover">
+  <div class="badge">Конкурентный анализ · Март 2026</div>
+  <h1>Анализ конкурентов<br>TapMenu Armenia</h1>
+  <p>Кто уже на рынке, где окна возможностей, и какие идеи стоит добавить в ТЗ уже сейчас.</p>
+</div>
+
+<!-- ═══ 01 r_keeper ═══ -->
+<section id="s1">
+  <h2><span class="num">01</span> r_keeper 7</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#1a1a2e">🍽</div>
+      <div>
+        <div class="comp-name">r_keeper 7 (UCS)</div>
+        <div class="comp-desc">Российская POS-система #1 в СНГ. Используется в тысячах ресторанов, в т.ч. в Армении.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Что умеет</h4>
+        <ul>
+          <li>🍽 Полная автоматизация ресторана (POS, касса, кухня)</li>
+          <li>📱 QR-меню как дополнительный модуль (партнёры: Carbis, SkyMenu)</li>
+          <li>🔗 XML/JSON API для получения актуального меню</li>
+          <li>🛑 Синхронизация стоп-листов в реальном времени</li>
+          <li>📦 Модификаторы, комбо-блюда, расписания</li>
+          <li>💳 RkPayQR — оплата через QR прямо в системе</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Слабые стороны</h4>
+        <ul>
+          <li>💸 QR-меню — платный модуль, сложная настройка</li>
+          <li>🌍 Нет нормального мультиязычного меню для туристов</li>
+          <li>📊 Аналитика меню слабая (нет "что смотрели", только что заказали)</li>
+          <li>🎨 Шаблоны меню некрасивые, нет кастомизации</li>
+          <li>🇦🇲 Нет локализации под Армению, армянского языка нет</li>
+          <li>🚀 Долгое внедрение, нужен интегратор</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict threat">
+    <h4>⚠️ Угроза: СРЕДНЯЯ</h4>
+    <p>r_keeper — это тяжёлая POS-система, а не лёгкое меню. Рестораны, которые его используют, <strong>уже платят за него ~$100-300/мес</strong> и не будут переходить. Но у них есть боль — некрасивое QR-меню без армянского языка. <strong>Это наш шанс.</strong></p>
+  </div>
+
+  <div class="alert success">
+    <span class="icon">💡</span>
+    <div><strong>Возможность:</strong> Предложить r_keeper-ресторанам TapMenu как красивый "фронтенд для меню" поверх их системы — через интеграцию по API. Им не нужно менять кассу. Им просто нужно красивое армяноязычное меню для туристов.</div>
+  </div>
+</section>
+
+<!-- ═══ 02 iiko ═══ -->
+<section id="s2">
+  <h2><span class="num">02</span> iiko</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#e85d26">🤖</div>
+      <div>
+        <div class="comp-name">iiko (Paloma365)</div>
+        <div class="comp-desc">Второй по популярности POS в СНГ. Активно используется в Армении. Есть собственный App Store для плагинов.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Что умеет</h4>
+        <ul>
+          <li>🍽 Полный POS + управление кухней + склад</li>
+          <li>📱 QR-меню встроенное (iiko Web)</li>
+          <li>🏪 Собственный App Store (iiko.store) — плагины от партнёров</li>
+          <li>🔗 REST API — получение меню, стоп-листы, заказы</li>
+          <li>📲 Smartofood интегрирован — сайт + QR + приложение</li>
+          <li>🌍 Есть мультиязычность (частичная)</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Слабые стороны</h4>
+        <ul>
+          <li>🇦🇲 Армянский язык — не поддерживается нативно</li>
+          <li>💱 Конвертация валют — нет (AMD/USD/EUR)</li>
+          <li>🎨 Визуальные шаблоны стандартные, нет премиум-дизайна</li>
+          <li>💸 Полный стек iiko + QR-меню = дорого ($200+/мес)</li>
+          <li>🏨 Турист-мод: нет Wi-Fi кнопки, нет tourist mode</li>
+          <li>🤖 AI-функций нет вообще</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict threat">
+    <h4>⚠️ Угроза: СРЕДНЯЯ-ВЫСОКАЯ</h4>
+    <p>iiko активно работает в Армении. У них есть API и экосистема плагинов. Но их QR-меню — <strong>функциональное, не красивое</strong>. И у них нет армянского языка, нет tourist mode, нет AI. Наш продукт выигрывает по UX и локализации.</p>
+  </div>
+
+  <div class="alert purple">
+    <span class="icon">🔌</span>
+    <div><strong>Партнёрская идея:</strong> Опубликоваться в <strong>iiko.store</strong> как плагин "TapMenu — красивое мультиязычное меню для гостей". Тогда iiko-рестораны сами найдут нас внутри их системы.</div>
+  </div>
+</section>
+
+<!-- ═══ 03 Smartofood ═══ -->
+<section id="s3">
+  <h2><span class="num">03</span> Smartofood</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#10b981">🛒</div>
+      <div>
+        <div class="comp-name">Smartofood</div>
+        <div class="comp-desc">Российский SaaS: сайт доставки + QR-меню + мобильное приложение. Глубокая интеграция с iiko. ~834₽/мес за QR.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Что умеет</h4>
+        <ul>
+          <li>🔗 Синхронизация с iiko в реальном времени</li>
+          <li>💳 Онлайн-оплата через QR-меню</li>
+          <li>📱 Telegram Mini-App</li>
+          <li>📊 Аналитика заказов</li>
+          <li>🛑 Стоп-лист автоматически</li>
+          <li>💸 Низкая цена ~$9/мес</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Слабые стороны</h4>
+        <ul>
+          <li>🇦🇲 Нет армянского языка, не заточен под Армению</li>
+          <li>🌍 Нет tourist mode / мультивалютности</li>
+          <li>🎨 Шаблоны простые, нет кастомного брендинга</li>
+          <li>🤖 Нет AI-функций</li>
+          <li>🇷🇺 Российский продукт — санкционные риски для армянских банков</li>
+          <li>📡 Только iiko — нет поддержки r_keeper / Poster</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict neutral">
+    <h4>🟡 Угроза: НИЗКАЯ для Армении</h4>
+    <p>Smartofood ориентирован на российский рынок и iiko-экосистему. В Армении работает, но <strong>не локализован</strong>. Плюс — политические и банковские риски использования российских SaaS платформ в Армении. TapMenu — армянский продукт с армянским языком и AMD-ценами.</p>
+  </div>
+</section>
+
+<!-- ═══ 04 Poster ═══ -->
+<section id="s4">
+  <h2><span class="num">04</span> Poster POS + QR</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#f0a500">📋</div>
+      <div>
+        <div class="comp-name">Poster POS (joinposter.com)</div>
+        <div class="comp-desc">Украинский облачный POS. Есть встроенный QR-модуль. Популярен в небольших кафе СНГ.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Что умеет</h4>
+        <ul>
+          <li>☁️ Облачный POS — касса + склад + CRM</li>
+          <li>📱 QR-меню встроенное</li>
+          <li>💳 Онлайн-заказы и оплата</li>
+          <li>💸 Доступные тарифы от $25/мес</li>
+          <li>🔗 Открытый API</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Слабые стороны</h4>
+        <ul>
+          <li>🇦🇲 Нет армянского языка и локализации AMD</li>
+          <li>🌍 Tourist mode — нет</li>
+          <li>🎨 Базовые шаблоны, нет премиум-вида</li>
+          <li>🤖 AI — нет</li>
+          <li>🇺🇦 Украинский продукт — нестабильный доступ к поддержке</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict neutral">
+    <h4>🟡 Угроза: НИЗКАЯ</h4>
+    <p>Poster — хороший продукт, но не адаптирован под Армению. Для малых кафе в Армении он избыточен как POS. TapMenu не конкурирует с POS — мы делаем лучший "фасад меню" для гостей.</p>
+  </div>
+</section>
+
+<!-- ═══ 05 MENU TIGER ═══ -->
+<section id="s5">
+  <h2><span class="num">05</span> MENU TIGER / TableQR</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#3b82f6">🐯</div>
+      <div>
+        <div class="comp-name">MENU TIGER / TableQR / iMenuPro</div>
+        <div class="comp-desc">Западные SaaS QR-меню. Глобальные, без локализации для СНГ/Армении.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Что умеет</h4>
+        <ul>
+          <li>🌍 Мультиязычность (много языков)</li>
+          <li>🎨 Красивые шаблоны меню</li>
+          <li>💳 Некоторые поддерживают онлайн-оплату</li>
+          <li>📊 Базовая аналитика</li>
+          <li>💸 От $10-30/мес</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Слабые стороны</h4>
+        <ul>
+          <li>🇦🇲 Нет армянского языка (HY)</li>
+          <li>💱 Нет AMD валюты</li>
+          <li>🔌 Нет интеграции с r_keeper/iiko</li>
+          <li>💳 Stripe-only — нет IDram</li>
+          <li>🤖 Нет AI-ассистента</li>
+          <li>📞 Поддержка только на английском</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict opportunity">
+    <h4>🟢 Угроза: ОЧЕНЬ НИЗКАЯ — это наша точка отличия</h4>
+    <p>Западные конкуренты физически не могут предложить армянский язык, AMD и локальные платёжные системы. TapMenu — <strong>единственный армяноязычный продукт</strong> с нативной поддержкой всего местного.</p>
+  </div>
+</section>
+
+<!-- ═══ 06 Toast/Square ═══ -->
+<section id="s6">
+  <h2><span class="num">06</span> Toast / Square / Lightspeed</h2>
+
+  <div class="competitor-card">
+    <div class="comp-header">
+      <div class="comp-logo" style="background:#ff6b35">🍞</div>
+      <div>
+        <div class="comp-name">Toast / Square / Lightspeed</div>
+        <div class="comp-desc">Американские POS-гиганты с QR-заказами. Не работают в Армении.</div>
+      </div>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-col">
+        <h4>✅ Возможности</h4>
+        <ul>
+          <li>💳 Полная экосистема POS + QR + платежи</li>
+          <li>📊 Мощная аналитика</li>
+          <li>🤖 AI-рекомендации (Toast AI)</li>
+          <li>🌍 Глобальный продукт</li>
+        </ul>
+      </div>
+      <div class="comp-col">
+        <h4>❌ Почему не угроза</h4>
+        <ul>
+          <li>🇦🇲 Не работают в Армении</li>
+          <li>💳 Visa/MC only — нет IDram, нет AMD</li>
+          <li>💸 $100-500/мес + оборудование</li>
+          <li>📞 Нет армянской поддержки</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict opportunity">
+    <h4>🟢 Угроза: НУЛЕВАЯ в ближайшие 3-5 лет</h4>
+    <p>Toast и Square физически не представлены в Армении. Их не будет здесь ещё долго — слишком маленький рынок для них. <strong>Наше окно возможностей — несколько лет.</strong></p>
+  </div>
+</section>
+
+<!-- ═══ 07 Таблица ═══ -->
+<section id="s7">
+  <h2><span class="num">07</span> Сравнительная таблица</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Функция</th>
+          <th>TapMenu Armenia</th>
+          <th>r_keeper QR</th>
+          <th>iiko QR</th>
+          <th>Smartofood</th>
+          <th>MENU TIGER</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Армянский язык (HY)</strong></td><td class="check">✅ Нативно</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>AMD валюта</strong></td><td class="check">✅</td><td class="partial">⚠️ Частично</td><td class="partial">⚠️ Частично</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>Tourist mode (AMD/USD/EUR)</strong></td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>NFC + QR</strong></td><td class="check">✅</td><td class="partial">⚠️ QR только</td><td class="partial">⚠️ QR только</td><td class="partial">⚠️ QR только</td><td class="partial">⚠️ QR только</td></tr>
+        <tr><td><strong>AI-ассистент</strong></td><td class="check">✅ LUXE</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>Красивые шаблоны</strong></td><td class="check">✅ 4 шаблона</td><td class="cross">❌ Базовые</td><td class="partial">⚠️ Средние</td><td class="partial">⚠️ Средние</td><td class="check">✅</td></tr>
+        <tr><td><strong>Интеграция r_keeper</strong></td><td class="cross">❌ (пока)</td><td class="check">✅ Нативно</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>Интеграция iiko</strong></td><td class="cross">❌ (пока)</td><td class="cross">❌</td><td class="check">✅ Нативно</td><td class="check">✅</td><td class="cross">❌</td></tr>
+        <tr><td><strong>IDram платежи</strong></td><td class="partial">⚠️ Phase 2</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>Wi-Fi кнопка для гостей</strong></td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td><strong>Суперадмин SaaS панель</strong></td><td class="check">✅ Полная</td><td class="cross">❌</td><td class="cross">❌</td><td class="partial">⚠️ Частично</td><td class="check">✅</td></tr>
+        <tr><td><strong>Цена/мес</strong></td><td>$15–$50+</td><td>~$50+ (модуль)</td><td>~$200+ (всё)</td><td>~$9 (только iiko)</td><td>~$15–50</td></tr>
+        <tr><td><strong>Армянская поддержка</strong></td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert success">
+    <span class="icon">🏆</span>
+    <div><strong>Вывод:</strong> TapMenu Armenia — <strong>единственный продукт на рынке</strong>, который даёт армянский язык + AMD + tourist mode + NFC + AI + красивый дизайн. Это не просто конкурентное преимущество — это барьер входа для всех остальных игроков.</div>
+  </div>
+</section>
+
+<!-- ═══ 08 Интеграция POS ═══ -->
+<section id="s8">
+  <h2><span class="num">08</span> Идея: интеграция с POS-системами</h2>
+
+  <div class="alert warning">
+    <span class="icon">🤔</span>
+    <div><strong>Вопрос:</strong> Стоит ли интегрироваться с r_keeper / iiko? Это даст доступ к ресторанам, у которых уже есть POS. Они не будут менять кассу — им нужно только красивое меню поверх.</div>
+  </div>
+
+  <h3>Сценарий А: TapMenu как "красивый фронтенд" поверх POS</h3>
+  <div class="cards col2">
+    <div class="card accent-green">
+      <div class="card-title">✅ Что даёт интеграция</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>🔄 Меню синхронизируется автоматически из r_keeper/iiko</li>
+        <li>🛑 Стоп-лист обновляется в реальном времени</li>
+        <li>📋 Не нужно вводить блюда вручную — всё уже в POS</li>
+        <li>🎯 Большой рынок: все r_keeper/iiko рестораны Армении</li>
+        <li>💰 Более высокая цена — интеграция = ценность</li>
+      </ul>
+    </div>
+    <div class="card accent-red">
+      <div class="card-title">❌ Риски и сложности</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>🔧 Техническая сложность: XML/JSON API r_keeper нестабилен</li>
+        <li>⏰ Долго: минимум 4-8 недель разработки</li>
+        <li>🔒 r_keeper требует платный API-ключ для партнёров</li>
+        <li>🐛 При обновлении POS-системы интеграция может сломаться</li>
+        <li>🎯 Отвлекает от MVP — риск не выпустить вовремя</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <span class="icon">📅</span>
+    <div>
+      <strong>Рекомендация:</strong> Интеграции — <strong>не в MVP, а в Phase 3</strong> (после Phase 2 с платежами).<br><br>
+      <strong>Приоритет интеграций:</strong>
+      <ol style="margin-top:8px;padding-left:20px;font-size:.9rem">
+        <li><strong>iiko API</strong> — более открытый, популярнее в Армении, есть App Store</li>
+        <li><strong>r_keeper API</strong> — сложнее, но охват больше</li>
+        <li><strong>Poster API</strong> — для малых кафе, самый простой API</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>Что добавить в ТЗ уже сейчас (подготовка к интеграции)</h3>
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:var(--accent)">🏗 Архитектурное решение · Добавить в ТЗ</div>
+    <h4>Абстрактный слой источника меню</h4>
+    <p>В схеме БД добавить поле <code>menu_source</code> в таблицу <code>restaurants</code>: <code>'manual'</code> | <code>'iiko'</code> | <code>'rkeeper'</code> | <code>'poster'</code>. Сейчас всегда <code>'manual'</code>, но архитектура готова к интеграции без переписывания.</p>
+  </div>
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:var(--accent)">🏗 Схема БД · Добавить в ТЗ</div>
+    <h4>Поля для POS-интеграции в таблице restaurants</h4>
+    <p>Зарезервировать поля: <code>pos_system</code> VARCHAR, <code>pos_api_key</code> TEXT (encrypted), <code>pos_venue_id</code> VARCHAR, <code>pos_last_sync_at</code> TIMESTAMP. В MVP — NULL, в Phase 3 — заполняются.</p>
+  </div>
+</section>
+
+<!-- ═══ 09 Smart Brain ═══ -->
+<section id="s9">
+  <h2><span class="num">09</span> Идея: Smart Brain ресторана</h2>
+
+  <div class="alert purple">
+    <span class="icon">🧠</span>
+    <div><strong>Концепция:</strong> Вместо просто "цифрового меню" — позиционировать TapMenu как <strong>"умный мозг ресторана"</strong>, который не только показывает меню, но и помогает управлять бизнесом через AI-аналитику.</div>
+  </div>
+
+  <h3>Что уже есть в TapMenu из "Smart Brain"</h3>
+  <ul class="feature-list">
+    <li>✅ Аналитика просмотров по блюдам, времени, языкам</li>
+    <li>✅ AI-ассистент (GPT-4o) для LUXE — советы, описания, фото</li>
+    <li>✅ AI-анализ аналитики: "почему вечером мало гостей?"</li>
+    <li>✅ Стоп-лист в реальном времени</li>
+    <li>✅ Спецпредложения по времени (бизнес-ланч 12:00-15:00)</li>
+  </ul>
+
+  <h3>Что можно добавить для "Smart Brain" (Phase 2-3)</h3>
+  <div class="cards col2">
+    <div class="card accent-purple">
+      <div class="card-title">🧠 AI Insights — умные советы</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>📈 "Хит этой недели — Долма, +40% просмотров"</li>
+        <li>⏰ "Пик в 13:00-14:00 — добавьте бизнес-ланч"</li>
+        <li>🌍 "70% гостей — русскоязычные, добавьте RU-описания"</li>
+        <li>📸 "У 5 блюд нет фото — это снижает клики на 60%"</li>
+        <li>💡 "Ваш стейк не смотрят — попробуйте изменить описание"</li>
+      </ul>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">📊 Предиктивная аналитика</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>📅 Прогноз загруженности по дням недели</li>
+        <li>🌦 Корреляция погоды и посещаемости (API погоды)</li>
+        <li>🎉 Предупреждение о праздниках (армянский календарь)</li>
+        <li>💱 Всплески туристов — предложить перевод на новый язык</li>
+      </ul>
+    </div>
+    <div class="card accent-green">
+      <div class="card-title">📲 WhatsApp / Telegram интеграция</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>📩 Ежедневный отчёт ресторану в WhatsApp</li>
+        <li>🛑 Мгновенное уведомление: "Топ-3 блюда сегодня"</li>
+        <li>⚠️ Алерт: "Подписка истекает через 3 дня"</li>
+        <li>🤖 Telegram-бот для управления стоп-листом</li>
+      </ul>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-title">⭐ Отзывы и репутация</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>⭐ Быстрая оценка блюда прямо в меню (1 клик)</li>
+        <li>📊 Рейтинг блюд по реакциям гостей</li>
+        <li>🔗 Автоматический redirect на Google Maps / TripAdvisor</li>
+        <li>📧 Сбор email/телефона для повторных визитов</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert success">
+    <span class="icon">🚀</span>
+    <div><strong>Позиционирование "Smart Brain":</strong> Конкуренты дают меню. Мы даём <strong>меню + аналитику + советы + автоматизацию</strong>. Это совершенно другой ценностный уровень и другой ценник.</div>
+  </div>
+</section>
+
+<!-- ═══ 10 Что добавить сейчас ═══ -->
+<section id="s10">
+  <h2><span class="num">10</span> Что добавить в ТЗ уже сейчас</h2>
+
+  <p>Небольшие детали, которые стоит внести в основное ТЗ. Они не увеличивают срок разработки, но закрывают очевидные дыры от конкурентного анализа.</p>
+
+  <h3>🏗 Архитектурные заготовки (добавить в схему БД)</h3>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:#3b82f6">📦 Таблица restaurants — 2 новых поля</div>
+    <h4>Заготовка для POS-интеграции</h4>
+    <p>Добавить поля: <code>pos_system VARCHAR(20) DEFAULT 'manual'</code> — значения: 'manual'|'iiko'|'rkeeper'|'poster', и <code>pos_config JSONB DEFAULT NULL</code> — зашифрованные API-ключи для Phase 3. В MVP не используются, но архитектура готова.</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:#3b82f6">📦 Таблица menu_views — расширить</div>
+    <h4>Добавить поле device_type</h4>
+    <p>В таблице <code>menu_views</code> добавить <code>device_type VARCHAR(20)</code>: 'ios'|'android'|'desktop'. Это бесплатная аналитика, которую никто из конкурентов не предлагает: "83% ваших гостей — iPhone пользователи".</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:#10b981">⭐ Новая таблица dish_reactions</div>
+    <h4>Быстрые реакции на блюда</h4>
+    <p>Таблица: <code>dish_reactions(id, dish_id, menu_view_id, reaction VARCHAR(10), created_at)</code>. Реакции: 'like'|'love'|'want'. Гость одним тапом отмечает блюдо. Ресторан видит рейтинг блюд по реакциям.</p>
+  </div>
+
+  <h3>🎯 Продуктовые улучшения (незначительные)</h3>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:var(--accent)">🔥 Добавить в карточку блюда</div>
+    <h4>"Хит" бейдж на основе аналитики</h4>
+    <p>Если блюдо входит в топ-5 по просмотрам за последние 7 дней — автоматически показывать бейдж 🔥 "Популярное". Для Pro/Premium/LUXE. Это создаёт social proof без участия ресторана.</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:var(--accent)">📱 UX улучшение</div>
+    <h4>Последний выбранный язык — в localStorage</h4>
+    <p>Запоминать выбранный гостем язык в localStorage. При повторном визите — автоматически открывать на том же языке. Мелочь, но создаёт ощущение "умного" продукта.</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:var(--accent)">📊 Аналитика суперадмина</div>
+    <h4>Карта Армении с активными ресторанами</h4>
+    <p>В суперадмин-панели добавить простую карту (Mapbox/Leaflet) с точками активных ресторанов. Это красиво и показывает географический охват платформы. Быстро реализуется через координаты в таблице restaurants.</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:#8b5cf6">🌍 Туристический режим</div>
+    <h4>Автоопределение языка по IP-геолокации</h4>
+    <p>Добавить в флоу открытия меню: если IP-адрес иностранный — автоматически переключить на английский (или язык страны посетителя), а не ждать пока турист сам найдёт переключатель.</p>
+  </div>
+
+  <div class="roadmap-idea">
+    <div class="idea-tag" style="color:#10b981">📋 Меню</div>
+    <h4>Поддержка нескольких активных меню по времени</h4>
+    <p>Сейчас: "только одно активное меню". Добавить: <strong>автоматическое переключение по расписанию</strong>. Например: завтрак 08:00-11:00 → меню "Завтраки", обед 12:00-16:00 → "Обеды", вечер 17:00-23:00 → основное меню. Поле <code>active_from</code> и <code>active_until</code> в таблице menus.</p>
+  </div>
+</section>
+
+<!-- ═══ 11 Выводы ═══ -->
+<section id="s11">
+  <h2><span class="num">11</span> Выводы и стратегия</h2>
+
+  <div class="cards col3">
+    <div class="card accent-green">
+      <div class="card-title">🎯 Главное преимущество</div>
+      <p style="font-size:.85rem">Мы — <strong>единственный локальный продукт</strong> с армянским языком, AMD, NFC, tourist mode и AI. Это нельзя скопировать быстро.</p>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-title">⏰ Окно возможностей</div>
+      <p style="font-size:.85rem">3-4 года до того, как западные игроки или r_keeper/iiko закроют армянский рынок. Нужно занять максимум ресторанов за этот период.</p>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">🔌 Следующий шаг</div>
+      <p style="font-size:.85rem">После MVP — интеграции с iiko и r_keeper. Это превратит нас из "альтернативы" в "обязательный слой" поверх любой POS-системы.</p>
+    </div>
+  </div>
+
+  <h3>Приоритетная стратегия по сегментам</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Сегмент</th><th>Ситуация</th><th>Наш подход</th><th>Тариф</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Малые кафе/бары без POS</strong></td>
+          <td>Нет автоматизации, бумажное меню</td>
+          <td>Прямая продажа TapMenu как первый цифровой инструмент</td>
+          <td>Starter / Pro</td>
+        </tr>
+        <tr>
+          <td><strong>Рестораны с iiko/r_keeper</strong></td>
+          <td>Есть POS, некрасивое/без армянского QR-меню</td>
+          <td>"Мы не заменяем вашу кассу — мы делаем красивое меню поверх неё" (Phase 3: интеграция)</td>
+          <td>Pro / Premium</td>
+        </tr>
+        <tr>
+          <td><strong>Туристические рестораны (Ереван)</strong></td>
+          <td>Много иностранцев, нет мультиязычного меню</td>
+          <td>Tourist mode + 100+ языков + валюты = продаёт себя сам</td>
+          <td>Premium / LUXE</td>
+        </tr>
+        <tr>
+          <td><strong>Сетевые рестораны</strong></td>
+          <td>Несколько точек, нужна единая система</td>
+          <td>Мультиресторанный аккаунт + общая библиотека блюд + сводная аналитика</td>
+          <td>LUXE / Enterprise</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert success">
+    <span class="icon">✅</span>
+    <div>
+      <strong>Итоговый вердикт:</strong> Конкурентная среда благоприятная. Главные конкуренты (r_keeper, iiko) — <strong>союзники в будущем, а не враги</strong>. Западные конкуренты не придут в Армению скоро. Российские SaaS имеют санкционные риски. <br><br>
+      <strong>TapMenu Armenia — правильный продукт, в правильном месте, в правильное время.</strong>
+    </div>
+  </div>
+</section>
+
+<footer style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.82rem">
+  TapMenu Armenia · Анализ конкурентов v1.0 · Март 2026
+</footer>
+
+</main>
+</body>
+</html>
