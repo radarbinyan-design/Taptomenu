@@ -286,6 +286,573 @@
   </div>
 </section>
 
+<!-- ===== AI MENU ANALYST ===== -->
+<section class="luxe-section" id="luxe-ai-analyst">
+  <div class="container">
+    <div class="luxe-section-header reveal">
+      <div class="luxe-section-label">🤖 AI · Эксклюзив LUXE</div>
+      <h2>Анализ меню и конкурентов</h2>
+      <p>Искусственный интеллект сравнивает ваше меню с конкурентами и выдаёт точные рекомендации</p>
+    </div>
+
+    <div class="ai-analyst-wrap reveal">
+
+      <!-- TOP: How it works chips -->
+      <div class="ai-how-chips">
+        <div class="ai-chip"><span class="ai-chip-num">1</span> Загружаете своё меню</div>
+        <div class="ai-chip-arrow">→</div>
+        <div class="ai-chip"><span class="ai-chip-num">2</span> AI сканирует конкурентов</div>
+        <div class="ai-chip-arrow">→</div>
+        <div class="ai-chip"><span class="ai-chip-num">3</span> Получаете отчёт за 30 сек</div>
+      </div>
+
+      <!-- MAIN DEMO BLOCK -->
+      <div class="ai-demo-block">
+
+        <!-- LEFT: input panel -->
+        <div class="ai-input-panel">
+          <div class="ai-panel-title">
+            <span style="color:var(--luxe-gold);">✦</span> Параметры анализа
+          </div>
+
+          <div class="ai-field">
+            <label class="ai-label">Ваш ресторан</label>
+            <div class="ai-select-box active">
+              <span class="ai-select-icon">🏺</span>
+              <span>Ресторан «Аракс»</span>
+              <span class="ai-select-check">✓</span>
+            </div>
+          </div>
+
+          <div class="ai-field">
+            <label class="ai-label">Конкуренты для сравнения</label>
+            <div class="ai-competitors">
+              <div class="ai-competitor-item checked" onclick="toggleCompetitor(this)">
+                <div class="ai-comp-check"></div>
+                <span class="ai-comp-icon">🍽️</span>
+                <span class="ai-comp-name">Tavern Yerevan</span>
+              </div>
+              <div class="ai-competitor-item checked" onclick="toggleCompetitor(this)">
+                <div class="ai-comp-check"></div>
+                <span class="ai-comp-icon">🥘</span>
+                <span class="ai-comp-name">Dolmama Restaurant</span>
+              </div>
+              <div class="ai-competitor-item checked" onclick="toggleCompetitor(this)">
+                <div class="ai-comp-check"></div>
+                <span class="ai-comp-icon">🫕</span>
+                <span class="ai-comp-name">Khorovats House</span>
+              </div>
+              <div class="ai-competitor-item" onclick="toggleCompetitor(this)">
+                <div class="ai-comp-check"></div>
+                <span class="ai-comp-icon">🍷</span>
+                <span class="ai-comp-name">Wine Republic</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ai-field">
+            <label class="ai-label">Что анализировать</label>
+            <div class="ai-checkboxes">
+              <label class="ai-checkbox-row">
+                <input type="checkbox" checked> Ценовая политика
+              </label>
+              <label class="ai-checkbox-row">
+                <input type="checkbox" checked> Популярные позиции
+              </label>
+              <label class="ai-checkbox-row">
+                <input type="checkbox" checked> Пробелы в меню
+              </label>
+              <label class="ai-checkbox-row">
+                <input type="checkbox" checked> Рекомендации по ценам
+              </label>
+            </div>
+          </div>
+
+          <button class="ai-run-btn" id="ai-run-btn" onclick="runAIAnalysis()">
+            <span class="ai-run-icon">🤖</span>
+            <span id="ai-btn-text">Запустить AI анализ</span>
+          </button>
+        </div>
+
+        <!-- RIGHT: output panel -->
+        <div class="ai-output-panel" id="ai-output">
+
+          <!-- IDLE state -->
+          <div class="ai-state" id="ai-state-idle">
+            <div class="ai-idle-icon">🤖</div>
+            <div class="ai-idle-title">AI готов к анализу</div>
+            <div class="ai-idle-desc">Настройте параметры слева и нажмите «Запустить» — результат придёт за 30 секунд</div>
+            <div class="ai-idle-features">
+              <span>📊 Цены</span>
+              <span>🍽️ Позиции</span>
+              <span>📈 Тренды</span>
+              <span>💡 Советы</span>
+            </div>
+          </div>
+
+          <!-- LOADING state -->
+          <div class="ai-state" id="ai-state-loading" style="display:none;">
+            <div class="ai-loading-spinner">
+              <div class="ai-spinner-ring"></div>
+              <div class="ai-spinner-ring" style="animation-delay:0.15s;"></div>
+              <div class="ai-spinner-ring" style="animation-delay:0.3s;"></div>
+            </div>
+            <div class="ai-loading-title">Анализирую данные...</div>
+            <div class="ai-loading-steps" id="ai-loading-steps">
+              <div class="ai-step" id="step-1">📋 Загружаю ваше меню...</div>
+              <div class="ai-step" id="step-2" style="opacity:0.3;">🔍 Сканирую конкурентов...</div>
+              <div class="ai-step" id="step-3" style="opacity:0.3;">📊 Сравниваю цены и позиции...</div>
+              <div class="ai-step" id="step-4" style="opacity:0.3;">💡 Формирую рекомендации...</div>
+            </div>
+          </div>
+
+          <!-- RESULT state -->
+          <div class="ai-state" id="ai-state-result" style="display:none;">
+            <div class="ai-result-header">
+              <div class="ai-result-title">✦ Отчёт готов <span class="ai-result-time">30 сек</span></div>
+              <button class="ai-result-rerun" onclick="runAIAnalysis()">🔄 Повторить</button>
+            </div>
+
+            <!-- Score -->
+            <div class="ai-scores">
+              <div class="ai-score-card">
+                <div class="ai-score-val" style="color:#4ade80;">84</div>
+                <div class="ai-score-label">Конкурентность</div>
+                <div class="ai-score-bar"><div class="ai-score-fill" style="width:84%;background:#4ade80;"></div></div>
+              </div>
+              <div class="ai-score-card">
+                <div class="ai-score-val" style="color:var(--luxe-gold);">71</div>
+                <div class="ai-score-label">Ценообразование</div>
+                <div class="ai-score-bar"><div class="ai-score-fill" style="width:71%;background:var(--luxe-gold);"></div></div>
+              </div>
+              <div class="ai-score-card">
+                <div class="ai-score-val" style="color:#ec4899;">92</div>
+                <div class="ai-score-label">Уникальность</div>
+                <div class="ai-score-bar"><div class="ai-score-fill" style="width:92%;background:#ec4899;"></div></div>
+              </div>
+            </div>
+
+            <!-- Key findings -->
+            <div class="ai-findings">
+              <div class="ai-finding good">
+                <div class="ai-finding-icon">✅</div>
+                <div class="ai-finding-body">
+                  <div class="ai-finding-title">Сильная сторона: Долма</div>
+                  <div class="ai-finding-text">Ваша долма на 23% дешевле конкурентов при лучшем описании. Рекомендуем поднять цену на 400–600 ֏ — спрос сохранится.</div>
+                </div>
+              </div>
+              <div class="ai-finding warn">
+                <div class="ai-finding-icon">⚠️</div>
+                <div class="ai-finding-body">
+                  <div class="ai-finding-title">Пробел: нет вегетарианского раздела</div>
+                  <div class="ai-finding-text">У 3 из 3 конкурентов есть выделенные вегетарианские блюда. Добавьте 3–5 позиций — охватите +18% аудитории.</div>
+                </div>
+              </div>
+              <div class="ai-finding info">
+                <div class="ai-finding-icon">💡</div>
+                <div class="ai-finding-body">
+                  <div class="ai-finding-title">Тренд: супы недооценены</div>
+                  <div class="ai-finding-text">Спарас и хаш у конкурентов входят в топ-5 по просмотрам. В вашем меню супы скрыты в общем разделе — выделите в отдельную категорию.</div>
+                </div>
+              </div>
+              <div class="ai-finding good">
+                <div class="ai-finding-icon">📈</div>
+                <div class="ai-finding-body">
+                  <div class="ai-finding-title">Потенциал роста выручки</div>
+                  <div class="ai-finding-text">При реализации 3 рекомендаций — прогнозируемый рост среднего чека на <strong style="color:#4ade80;">+12–15%</strong> за 30 дней.</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="text-align:center;margin-top:16px;">
+              <a href="#luxe-contact-form" class="btn btn-gold" style="font-size:0.85rem;padding:10px 24px;">
+                ✦ Хочу такой анализ для своего ресторана
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- /ai-demo-block -->
+
+      <!-- Bottom note -->
+      <div class="ai-footnote">
+        🔒 Данные вашего меню не передаются третьим лицам · Анализ обновляется еженедельно · Доступно только на LUXE
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ===== AI ANALYST STYLES ===== */
+.ai-analyst-wrap {
+  background: rgba(248,215,148,0.02);
+  border: 1px solid rgba(248,215,148,0.12);
+  border-radius: 20px;
+  padding: 32px;
+  margin-top: 8px;
+}
+
+/* How chips */
+.ai-how-chips {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.ai-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(248,215,148,0.06);
+  border: 1px solid rgba(248,215,148,0.15);
+  border-radius: 50px;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+.ai-chip-num {
+  width: 20px; height: 20px;
+  background: var(--luxe-gold);
+  color: #000;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.ai-chip-arrow { color: rgba(248,215,148,0.3); font-size: 1.1rem; }
+
+/* Main block */
+.ai-demo-block {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .ai-demo-block { grid-template-columns: 1fr; }
+}
+
+/* Input panel */
+.ai-input-panel {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(248,215,148,0.1);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.ai-panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ccc;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(248,215,148,0.08);
+}
+.ai-field { display: flex; flex-direction: column; gap: 7px; }
+.ai-label { font-size: 0.7rem; font-weight: 700; color: rgba(248,215,148,0.5); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.ai-select-box {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(248,215,148,0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #fff;
+}
+.ai-select-box.active { border-color: rgba(248,215,148,0.4); }
+.ai-select-icon { font-size: 1rem; }
+.ai-select-check { margin-left: auto; color: #4ade80; font-weight: 700; }
+
+/* Competitors */
+.ai-competitors { display: flex; flex-direction: column; gap: 6px; }
+.ai-competitor-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+}
+.ai-competitor-item.checked { border-color: rgba(248,215,148,0.2); color: #fff; }
+.ai-comp-check {
+  width: 16px; height: 16px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.ai-competitor-item.checked .ai-comp-check {
+  background: var(--luxe-gold);
+  border-color: var(--luxe-gold);
+  position: relative;
+}
+.ai-competitor-item.checked .ai-comp-check::after {
+  content: '✓';
+  position: absolute;
+  top: -2px; left: 1px;
+  font-size: 0.65rem;
+  color: #000;
+  font-weight: 800;
+}
+.ai-comp-icon { font-size: 0.9rem; }
+.ai-comp-name { flex: 1; }
+
+/* Checkboxes */
+.ai-checkboxes { display: flex; flex-direction: column; gap: 6px; }
+.ai-checkbox-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.78rem; color: #aaa;
+  cursor: pointer;
+}
+.ai-checkbox-row input[type="checkbox"] {
+  accent-color: var(--luxe-gold);
+  width: 14px; height: 14px;
+}
+
+/* Run button */
+.ai-run-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 13px;
+  background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(248,215,148,0.08));
+  border: 1px solid rgba(248,215,148,0.35);
+  border-radius: 10px;
+  color: var(--luxe-gold);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: inherit;
+  margin-top: 4px;
+}
+.ai-run-btn:hover {
+  background: linear-gradient(135deg, rgba(212,175,55,0.25), rgba(248,215,148,0.15));
+  box-shadow: 0 0 20px rgba(248,215,148,0.15);
+  transform: translateY(-1px);
+}
+.ai-run-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.ai-run-icon { font-size: 1.1rem; }
+
+/* Output panel */
+.ai-output-panel {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(248,215,148,0.1);
+  border-radius: 14px;
+  padding: 24px;
+  min-height: 360px;
+  display: flex;
+  align-items: stretch;
+}
+.ai-state { width: 100%; }
+
+/* Idle */
+.ai-state-idle-wrap, #ai-state-idle {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; gap: 12px; height: 100%;
+}
+.ai-idle-icon { font-size: 3rem; opacity: 0.6; }
+.ai-idle-title { font-size: 1rem; font-weight: 700; color: rgba(248,215,148,0.7); }
+.ai-idle-desc { font-size: 0.82rem; color: #666; max-width: 280px; line-height: 1.6; }
+.ai-idle-features {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 8px;
+}
+.ai-idle-features span {
+  padding: 5px 12px;
+  background: rgba(248,215,148,0.05);
+  border: 1px solid rgba(248,215,148,0.1);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  color: rgba(248,215,148,0.5);
+}
+
+/* Loading */
+#ai-state-loading {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 20px; text-align: center;
+}
+.ai-loading-spinner {
+  position: relative; width: 60px; height: 60px;
+}
+.ai-spinner-ring {
+  position: absolute; inset: 0;
+  border: 2px solid transparent;
+  border-top-color: var(--luxe-gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+.ai-spinner-ring:nth-child(2) { inset: 8px; border-top-color: rgba(248,215,148,0.5); animation-duration: 0.8s; }
+.ai-spinner-ring:nth-child(3) { inset: 16px; border-top-color: rgba(248,215,148,0.25); animation-duration: 0.6s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.ai-loading-title { font-size: 0.95rem; font-weight: 700; color: var(--luxe-gold); }
+.ai-loading-steps { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.ai-step { font-size: 0.8rem; color: #888; transition: opacity 0.4s, color 0.4s; }
+.ai-step.done { color: #4ade80; opacity: 1 !important; }
+.ai-step.active { color: var(--luxe-gold); opacity: 1 !important; }
+
+/* Result */
+#ai-state-result { display: flex; flex-direction: column; gap: 14px; }
+.ai-result-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(248,215,148,0.1);
+}
+.ai-result-title { font-size: 0.95rem; font-weight: 700; color: var(--luxe-gold); }
+.ai-result-time {
+  font-size: 0.7rem; padding: 2px 8px;
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 50px;
+  color: #4ade80;
+  margin-left: 8px; font-weight: 600;
+}
+.ai-result-rerun {
+  background: none; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 4px 10px;
+  font-size: 0.72rem; color: #888;
+  cursor: pointer; transition: all 0.2s; font-family: inherit;
+}
+.ai-result-rerun:hover { border-color: rgba(248,215,148,0.3); color: var(--luxe-gold); }
+
+/* Scores */
+.ai-scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.ai-score-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.ai-score-val {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.ai-score-label { font-size: 0.65rem; color: #777; margin-bottom: 8px; }
+.ai-score-bar {
+  height: 3px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
+}
+.ai-score-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* Findings */
+.ai-findings { display: flex; flex-direction: column; gap: 8px; }
+.ai-finding {
+  display: flex; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border-left: 3px solid;
+  font-size: 0.8rem;
+}
+.ai-finding.good { background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.4); }
+.ai-finding.warn { background: rgba(251,191,36,0.05); border-color: rgba(251,191,36,0.4); }
+.ai-finding.info { background: rgba(96,165,250,0.05); border-color: rgba(96,165,250,0.4); }
+.ai-finding-icon { font-size: 1rem; flex-shrink: 0; line-height: 1.4; }
+.ai-finding-body { flex: 1; }
+.ai-finding-title { font-weight: 700; color: #eee; margin-bottom: 2px; font-size: 0.78rem; }
+.ai-finding-text { color: #888; line-height: 1.5; }
+
+/* Footnote */
+.ai-footnote {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(248,215,148,0.25);
+}
+
+@media (max-width: 640px) {
+  .ai-analyst-wrap { padding: 20px; }
+  .ai-how-chips { gap: 8px; }
+  .ai-chip-arrow { display: none; }
+  .ai-scores { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .ai-score-val { font-size: 1.2rem; }
+}
+</style>
+
+<script>
+function toggleCompetitor(el) {
+  el.classList.toggle('checked');
+}
+
+function runAIAnalysis() {
+  const btn = document.getElementById('ai-run-btn');
+  const btnText = document.getElementById('ai-btn-text');
+  btn.disabled = true;
+  btnText.textContent = 'Анализирую...';
+
+  // Show loading
+  showState('loading');
+
+  // Animate steps
+  const steps = ['step-1','step-2','step-3','step-4'];
+  const delays = [0, 900, 1900, 2900];
+
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.opacity = '0.3';
+    el.classList.remove('done','active');
+
+    setTimeout(() => {
+      // Mark previous done
+      if (i > 0) {
+        const prev = document.getElementById(steps[i-1]);
+        if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+      }
+      el.classList.add('active');
+      el.style.opacity = '1';
+    }, delays[i]);
+  });
+
+  // Show results after all steps
+  setTimeout(() => {
+    const last = document.getElementById('step-4');
+    if (last) { last.classList.remove('active'); last.classList.add('done'); }
+
+    setTimeout(() => {
+      showState('result');
+      btn.disabled = false;
+      btnText.textContent = 'Запустить снова';
+      // Animate score bars
+      document.querySelectorAll('.ai-score-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0';
+        setTimeout(() => { bar.style.width = w; }, 100);
+      });
+    }, 400);
+  }, 3800);
+}
+
+function showState(name) {
+  ['idle','loading','result'].forEach(s => {
+    const el = document.getElementById('ai-state-' + s);
+    if (el) el.style.display = s === name ? 'flex' : 'none';
+  });
+  // Fix flex for idle/result
+  const result = document.getElementById('ai-state-result');
+  if (result && name === 'result') result.style.display = 'flex';
+  const idle = document.getElementById('ai-state-idle');
+  if (idle && name === 'idle') idle.style.display = 'flex';
+}
+</script>
+
 <!-- ===== PRICE ===== -->
 <section class="luxe-section">
   <div class="container" style="max-width:700px;text-align:center;">
