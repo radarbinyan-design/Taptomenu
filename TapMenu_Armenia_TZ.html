@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TapMenu Armenia — Техническое Задание v2.0</title>
+<title>TapMenu Armenia — Техническое Задание v2.1</title>
 <style>
   :root {
     --primary: #1a1a2e;
@@ -260,7 +260,7 @@
 
 <!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
 <aside id="sidebar">
-  <div class="logo">Tap<span>Menu</span> Armenia<br><small style="font-weight:400;font-size:.7rem;color:rgba(255,255,255,.4)">Техническое задание v2.0</small></div>
+  <div class="logo">Tap<span>Menu</span> Armenia<br><small style="font-weight:400;font-size:.7rem;color:rgba(255,255,255,.4)">Техническое задание v2.1</small></div>
   <nav>
     <div class="section-title">Проект</div>
     <a href="#s1">01 · Обзор проекта</a>
@@ -295,7 +295,7 @@
   <h1>TapMenu Armenia<br>Техническое задание</h1>
   <p>SaaS-платформа цифровых NFC-меню для ресторанов Армении. Документ для fullstack-разработчика.</p>
   <div class="meta">
-    <div class="meta-item"><span class="label">Версия</span><span class="value">2.0 Final</span></div>
+    <div class="meta-item"><span class="label">Версия</span><span class="value">2.1 — Обновлено</span></div>
     <div class="meta-item"><span class="label">Срок MVP</span><span class="value">8 недель</span></div>
     <div class="meta-item"><span class="label">Команда</span><span class="value">1 Fullstack Dev</span></div>
     <div class="meta-item"><span class="label">Домен</span><span class="value">tapmenu.am</span></div>
@@ -366,17 +366,17 @@
         <li>✦ Next.js API Routes + Server Actions</li>
         <li>✦ Supabase (PostgreSQL + Auth + Storage)</li>
         <li>✦ Supabase Row Level Security (RLS)</li>
-        <li>✦ Prisma ORM</li>
+        <li>✦ Supabase JS Client (типы из схемы БД — вместо Prisma)</li>
         <li>✦ Vercel Cron Jobs (фоновые задачи)</li>
         <li>✦ Resend (email уведомления)</li>
-        <li>✦ Sharp.js (обработка изображений)</li>
+        <li>✦ <strong>Cloudflare Images</strong> — загрузка, трансформация, CDN (замена Sharp.js)</li>
       </ul>
     </div>
     <div class="card">
       <h4>Внешние интеграции — MVP</h4>
       <ul class="feature-list">
-        <li>✦ DeepL API — перевод (Pro/Premium/LUXE)</li>
-        <li>✦ Google Translate API — базовый перевод</li>
+        <li>✦ <strong>Yandex Cloud Translate API</strong> — все тарифы (RU/EN/HY + 100 языков)</li>
+        <li>✦ DeepL API — расширенный перевод (LUXE, fallback для редких языков)</li>
         <li>✦ ЦБ РА API — курсы валют (бесплатно)</li>
         <li>✦ OpenAI GPT-4o + DALL-E 3 — только LUXE</li>
       </ul>
@@ -393,7 +393,12 @@
 
   <div class="alert info">
     <span class="icon">ℹ️</span>
-    <div><strong>Хостинг:</strong> Vercel (автодеплой из GitHub). Изображения — Supabase Storage + Next/Image оптимизация. Не использовать AWS в MVP.</div>
+    <div><strong>Хостинг:</strong> Vercel (автодеплой из GitHub). Изображения — <strong>Cloudflare Images</strong> (загрузка + CDN + трансформация). Не использовать AWS в MVP.</div>
+  </div>
+
+  <div class="alert warning">
+    <span class="icon">⚠️</span>
+    <div><strong>Важно: Supabase JS Client вместо Prisma ORM.</strong> Supabase автоматически генерирует TypeScript-типы из схемы БД (<code>supabase gen types typescript</code>). Использование Prisma обходит Row Level Security — это критическая дыра в безопасности. Все запросы к БД — только через Supabase JS Client с JWT-токеном пользователя.</div>
   </div>
 </section>
 
@@ -542,9 +547,31 @@
       <strong>По умолчанию для всех тарифов:</strong> Русский / Английский / Армянский (RU/EN/HY).<br>
       Гость сам переключает язык меню. Меню <strong>не отображается сразу на всех языках</strong> одновременно — только на выбранном.<br><br>
       <strong>Starter</strong> — 2 языка (EN + HY фиксированно)<br>
-      <strong>Pro / Premium</strong> — любые 3 языка на выбор из 33 языков DeepL (по умолчанию RU/EN/HY)<br>
-      <strong>LUXE</strong> — все 33 языка DeepL
+      <strong>Pro / Premium</strong> — любые 3 языка на выбор из 100+ языков Yandex Cloud Translate (по умолчанию RU/EN/HY)<br>
+      <strong>LUXE</strong> — все 100+ языков Yandex Cloud Translate + DeepL как fallback для редких языков
     </div>
+  </div>
+
+  <div class="alert success">
+    <span class="icon">🔤</span>
+    <div>
+      <strong>Почему Yandex Cloud Translate?</strong> Единственный сервис, который отлично работает сразу с тремя ключевыми языками проекта: <strong>Армянский (HY)</strong> — которого нет в DeepL, <strong>Русский</strong> — лучшее качество среди всех сервисов, <strong>Английский</strong>. Поддерживает 100+ языков. Цена: <strong>~$5 за 1M символов</strong>, есть бесплатный tier.<br><br>
+      <strong>DeepL</strong> остаётся как опциональный fallback только для LUXE тарифа при запросе редких европейских языков.
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Параметр</th><th>Yandex Cloud Translate</th><th>DeepL (fallback LUXE)</th></tr></thead>
+      <tbody>
+        <tr><td>Армянский (HY)</td><td class="check">✅ Полная поддержка</td><td class="cross">❌ Не поддерживается</td></tr>
+        <tr><td>Русский (RU)</td><td class="check">✅ Лучшее качество</td><td class="check">✅ Хорошее качество</td></tr>
+        <tr><td>Английский (EN)</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Количество языков</td><td>100+</td><td>33</td></tr>
+        <tr><td>Цена</td><td>~$5 / 1M символов</td><td>~$25 / 1M символов</td></tr>
+        <tr><td>Бесплатный tier</td><td class="check">✅ Есть</td><td class="check">✅ 500K символов/мес</td></tr>
+      </tbody>
+    </table>
   </div>
 
   <h3>Trial период и годовые тарифы</h3>
@@ -1116,20 +1143,43 @@
 
   <div class="alert success">
     <span class="icon">🖼</span>
-    <div><strong>Концепция:</strong> Принимаем любой формат от ресторана → автоматически обрабатываем на сервере → сохраняем в Supabase Storage в оптимальном формате. Высокое качество + быстрая загрузка.</div>
+    <div><strong>Концепция:</strong> Используем <strong>Cloudflare Images</strong> — надёжнейший партнёр. Он принимает любой формат, автоматически конвертирует в WebP/AVIF, отдаёт через свой глобальный CDN. Никаких нативных бинарников на сервере. Высокая надёжность + быстрая загрузка по всему миру.</div>
   </div>
 
-  <h3>Процесс обработки изображений (Sharp.js)</h3>
+  <div class="cards col2" style="margin:16px 0">
+    <div class="card accent-green">
+      <div class="card-title">💰 Ценообразование</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>Первые 5 000 трансформаций/мес — <strong>бесплатно</strong></li>
+        <li>$5 / 100 000 хранимых изображений</li>
+        <li>$1 / 100 000 доставок</li>
+        <li>$0.50 / 1 000 трансформаций (после free tier)</li>
+        <li>Для MVP с 50 ресторанами — практически <strong>$0</strong></li>
+      </ul>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">⚡ Преимущества</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>Автоконверсия в WebP/AVIF на стороне Cloudflare</li>
+        <li>URL-трансформации (<code>width=300&height=200&fit=cover</code>)</li>
+        <li>Глобальный CDN Cloudflare — быстрее Supabase Storage</li>
+        <li>Без Sharp.js на сервере — нет проблем с Vercel timeout</li>
+        <li>HEIC (iPhone), GIF, SVG — всё принимает нативно</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Процесс обработки изображений (Cloudflare Images)</h3>
   <div class="flow">
-    <div class="flow-step highlight">Загрузка (JPG / PNG / HEIC / WebP)</div>
+    <div class="flow-step highlight">Загрузка (JPG / PNG / HEIC / WebP / GIF)</div>
     <div class="flow-arrow">→</div>
     <div class="flow-step">Проверка: тип файла + макс. 10 MB</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step">Sharp.js: конвертация в WebP</div>
+    <div class="flow-step">Upload через Cloudflare Images API</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step">Создание 3 версий</div>
+    <div class="flow-step">Создание Variants (thumbnail / medium / full)</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step highlight">Supabase Storage</div>
+    <div class="flow-step highlight">Раздача через Cloudflare CDN</div>
   </div>
 
   <h3>3 версии каждого изображения</h3>
@@ -1155,13 +1205,15 @@
     <table>
       <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
       <tbody>
-        <tr><td>Принимаемые форматы</td><td>JPG, PNG, HEIC (iPhone), WebP, GIF (конвертируется в статичный WebP)</td></tr>
+        <tr><td>Принимаемые форматы</td><td>JPG, PNG, HEIC (iPhone), WebP, GIF, SVG — всё принимает нативно</td></tr>
         <tr><td>Максимальный размер загружаемого файла</td><td>10 MB</td></tr>
-        <tr><td>Инструмент обработки</td><td>Sharp.js (Next.js API Route)</td></tr>
+        <tr><td>Инструмент обработки</td><td><strong>Cloudflare Images API</strong> — обработка на стороне Cloudflare, без нагрузки на Vercel</td></tr>
+        <tr><td>Формат выдачи</td><td>WebP или AVIF — автовыбор по браузеру гостя</td></tr>
         <tr><td>Обрезка (crop)</td><td>Предварительный просмотр с drag-обрезкой до нужного соотношения</td></tr>
-        <tr><td>Хранение</td><td>Supabase Storage (CDN-доступ)</td></tr>
-        <tr><td>Оптимизация отображения</td><td>Next/Image с blur placeholder</td></tr>
-        <tr><td>Путь в Storage</td><td><code>/{restaurant_id}/dishes/{dish_id}/{size}.webp</code></td></tr>
+        <tr><td>Хранение</td><td><strong>Cloudflare Images</strong> (глобальный CDN — быстрее Supabase Storage)</td></tr>
+        <tr><td>Оптимизация отображения</td><td>Next/Image с кастомным <code>loader</code> для Cloudflare Images + blur placeholder</td></tr>
+        <tr><td>URL формат</td><td><code>imagedelivery.net/{account}/{image-id}/thumbnail</code></td></tr>
+        <tr><td>Variants (настраиваются в CF dashboard)</td><td>thumbnail (300×200), medium (800×600), full (1200×900)</td></tr>
       </tbody>
     </table>
   </div>
@@ -1221,7 +1273,7 @@
         <tr>
           <td>Генерация описаний блюд</td>
           <td>"Напиши описание для 'Шашлык из баранины'"</td>
-          <td>GPT-4o генерирует на RU → DeepL переводит на EN и HY</td>
+          <td>GPT-4o генерирует на RU → Yandex Cloud Translate переводит на EN и HY</td>
         </tr>
         <tr>
           <td>Генерация фото блюда</td>
@@ -1247,12 +1299,37 @@
     </table>
   </div>
 
-  <h3>Лимиты и гибкие инструменты</h3>
+  <h3>Модель тарификации AI (Pay-as-you-go через OpenAI API)</h3>
+
+  <div class="alert success">
+    <span class="icon">💡</span>
+    <div>
+      <strong>Стратегия:</strong> OpenAI API работает по модели pay-as-you-go — нет фиксированной подписки, платим только за фактическое использование. Это позволяет давать клиентам щедрые лимиты с высокой маржой.<br><br>
+      <strong>Себестоимость:</strong> GPT-4o — $1.25 / 1M input + $5.00 / 1M output токенов. Одно сообщение в чате ≈ $0.004. DALL-E 3 (1024×1024) — $0.04 за изображение.
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Лимит</th><th>Количество</th><th>Себестоимость / мес</th><th>Включено в тариф $50+</th></tr></thead>
+      <tbody>
+        <tr><td>💬 Сообщения GPT-4o</td><td><strong>300 / месяц</strong></td><td>~$1.20</td><td class="check">✅ Маржа &gt;95%</td></tr>
+        <tr><td>🎨 Генерация фото (DALL-E 3)</td><td><strong>30 / месяц</strong></td><td>~$1.20</td><td class="check">✅ Маржа &gt;95%</td></tr>
+        <tr><td>🔄 Пакетный перевод через GPT-4o</td><td>Включён в лимит сообщений</td><td>—</td><td class="check">✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="alert info">
+    <span class="icon">⚙️</span>
+    <div><strong>Суперадмин управляет лимитами гибко:</strong> через таблицу <code>luxe_features</code> можно увеличить лимиты конкретному клиенту (например, 500 сообщений за доп. плату), отключить отдельные функции или включить ранний доступ к новым AI-фичам. Счётчик использования хранится в БД и сбрасывается 1-го числа каждого месяца.</div>
+  </div>
+
   <ul class="feature-list">
-    <li>💬 50 сообщений / месяц (GPT-4o)</li>
-    <li>🎨 10 изображений / месяц (DALL-E 3)</li>
-    <li>⚙️ Суперадмин в панели включает/отключает конкретные функции для каждого LUXE-клиента через таблицу <code>luxe_features</code></li>
+    <li>⚙️ Суперадмин включает/отключает конкретные функции для каждого LUXE-клиента через <code>luxe_features</code></li>
     <li>📜 История чата хранится в таблице <code>ai_conversations</code></li>
+    <li>📊 Счётчик запросов: <code>ai_usage</code> — дата, тип (chat/image), токены, стоимость</li>
+    <li>🔔 При достижении 80% лимита — автоуведомление суперадмину</li>
   </ul>
 </section>
 
@@ -1378,13 +1455,13 @@
       <tbody>
         <tr>
           <td><strong>1</strong></td>
-          <td>Supabase: схема БД + RLS + Auth. Структура Next.js, роутинг, layout, middleware (защита роутов)</td>
-          <td>Рабочая БД + авторизация</td>
+          <td>Supabase: схема БД + RLS + Auth. Структура Next.js, роутинг, layout, middleware (защита роутов). <strong>Лендинг — базовая версия</strong> (/, /pricing, /contact + форма заявки → leads)</td>
+          <td>Рабочая БД + авторизация + лендинг онлайн</td>
         </tr>
         <tr>
           <td><strong>2</strong></td>
-          <td>Суперадмин: создание ресторана, управление подписками, список ресторанов, обработка заявок, email-уведомления (Resend)</td>
-          <td>Суперадмин создаёт аккаунты</td>
+          <td>Суперадмин: создание ресторана, управление подписками, список ресторанов, обработка заявок из leads, email-уведомления (Resend). <strong>Лендинг — страницы /how-it-works + /demo с заглушкой</strong></td>
+          <td>Суперадмин создаёт аккаунты + сайт полностью готов</td>
         </tr>
         <tr>
           <td><strong>3</strong></td>
@@ -1393,13 +1470,13 @@
         </tr>
         <tr>
           <td><strong>4</strong></td>
-          <td>Библиотека блюд (полный CRUD + Sharp.js обработка фото + DeepL/Google автоперевод), привязка блюд к категориям</td>
+          <td>Библиотека блюд (полный CRUD + <strong>Cloudflare Images</strong> обработка фото + <strong>Yandex Cloud Translate</strong> автоперевод), привязка блюд к категориям</td>
           <td>Owner заполняет меню полностью</td>
         </tr>
         <tr>
           <td><strong>5</strong></td>
-          <td>Публичное меню: 3 шаблона (Classic/Modern/Minimal) + переключатель языка + окно блюда с аккордеоном + спецпредложения (слайдер)</td>
-          <td>Гость открывает работающее меню</td>
+          <td>Публичное меню: 3 шаблона (Classic/Modern/Minimal) + переключатель языка + окно блюда с аккордеоном + спецпредложения (слайдер). <strong>Живое демо на /demo</strong></td>
+          <td>Гость открывает работающее меню + лендинг с живым демо</td>
         </tr>
         <tr>
           <td><strong>6</strong></td>
@@ -1408,8 +1485,8 @@
         </tr>
         <tr>
           <td><strong>7</strong></td>
-          <td>Лендинг (все страницы + живое демо + форма заявки), Wi-Fi функция, настройки ресторана</td>
-          <td>Публичный сайт готов</td>
+          <td>Wi-Fi функция, настройки ресторана, полировка кабинета Owner: UX-детали, адаптив, edge-кейсы</td>
+          <td>Полированный кабинет Owner</td>
         </tr>
         <tr>
           <td><strong>8</strong></td>
@@ -1490,7 +1567,7 @@
 </section>
 
 <footer style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.82rem">
-  TapMenu Armenia · Техническое задание v2.0 · Финальная версия · 2026
+  TapMenu Armenia · Техническое задание v2.1 · Обновлено: CF Images · Yandex Translate · AI 300 сообщ · роадмап · 2026
 </footer>
 
 </main>
