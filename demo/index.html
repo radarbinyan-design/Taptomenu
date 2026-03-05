@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Демо-меню — TapMenu Armenia</title>
+  <meta name="description" content="Посмотрите живые примеры цифровых меню TapMenu Armenia. Армянский ресторан, кофейня, бар, fine dining — каждый в своём стиле."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text x='50%' y='55%' font-size='18' text-anchor='middle' dominant-baseline='middle' fill='white'>◉</text></svg>"/>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <style>
+    .demo-hero {
+      padding: 120px 0 60px;
+      text-align: center;
+    }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 48px;
+    }
+    .demo-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all var(--transition);
+      text-decoration: none;
+      display: block;
+    }
+    .demo-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-glow);
+    }
+    .demo-card-cover {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .demo-card-cover .cover-emoji {
+      font-size: 3rem;
+    }
+    .demo-card-cover .cover-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .demo-card-body {
+      padding: 20px;
+    }
+    .demo-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .demo-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .demo-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .demo-badge {
+      font-size: 0.65rem;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .demo-open {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    /* Card themes */
+    .theme-araks   { background: linear-gradient(135deg, #071409, #0c1f12); }
+    .theme-nairi   { background: linear-gradient(135deg, #100d1a, #14101a); }
+    .theme-masis   { background: linear-gradient(135deg, #0a001a, #150030); }
+    .theme-noyan   { background: linear-gradient(135deg, #1a1400, #120f08); }
+
+    .badge-araks   { color: #4ade80; background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.2); }
+    .badge-nairi   { color: var(--gold); background: var(--gold-soft); border: 1px solid var(--border-gold); }
+    .badge-masis   { color: #ec4899; background: rgba(236,72,153,0.1); border: 1px solid rgba(236,72,153,0.2); }
+    .badge-noyan   { color: #F8D794; background: rgba(248,215,148,0.1); border: 1px solid rgba(248,215,148,0.2); }
+
+    .open-araks    { color: #4ade80; }
+    .open-nairi    { color: var(--accent); }
+    .open-masis    { color: #ec4899; }
+    .open-noyan    { color: #F8D794; }
+
+    /* Features list */
+    .features-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 40px 0;
+    }
+    .feature-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* NFC hint */
+    .nfc-hint {
+      background: var(--accent-soft);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .nfc-hint-icon { font-size: 2rem; flex-shrink: 0; }
+    .nfc-hint-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+    .nfc-hint-text strong { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .demo-hero { padding: 100px 0 40px; }
+      .nfc-hint { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div class="preloader">
+  <div class="preloader-inner">
+    <div class="logo" style="font-size:1.5rem;font-weight:800;">
+      <div class="logo-icon">◉</div>TapMenu
+    </div>
+    <div class="preloader-dots">
+      <div class="preloader-dot"></div>
+      <div class="preloader-dot"></div>
+      <div class="preloader-dot"></div>
+    </div>
+  </div>
+</div>
+
+<div class="noise-overlay"></div>
+<button class="back-to-top" aria-label="Наверх">↑</button>
+
+<!-- HEADER -->
+<header class="header" id="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="../index.html" class="logo">
+        <div class="logo-icon">◉</div>TapMenu
+      </a>
+      <nav>
+        <ul class="nav">
+          <li><a href="../index.html">Главная</a></li>
+          <li><a href="../pricing.html">Тарифы</a></li>
+          <li><a href="../how-it-works.html">Как работает</a></li>
+          <li class="nav-luxe"><a href="../luxe.html">✦ LUXE</a></li>
+          <li><a href="../contact.html">Контакты</a></li>
+        </ul>
+      </nav>
+      <div class="header-right">
+        <a href="../contact.html" class="btn btn-primary btn-sm">Начать</a>
+        <button class="menu-toggle" aria-label="Меню"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav">
+  <a href="../index.html">Главная</a>
+  <a href="../pricing.html">Тарифы</a>
+  <a href="../how-it-works.html">Как работает</a>
+  <a href="../luxe.html" style="color:var(--gold)">✦ LUXE</a>
+  <a href="../contact.html">Контакты</a>
+  <a href="../contact.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px">Начать</a>
+</nav>
+
+<!-- HERO -->
+<section class="demo-hero">
+  <div class="container">
+    <div class="section-label" style="margin-bottom:16px;">📱 Живые демо</div>
+    <h1 style="margin-bottom:16px;">Галерея меню</h1>
+    <p style="color:var(--text-secondary);font-size:1.05rem;max-width:560px;margin:0 auto 32px;">
+      Четыре разных заведения — четыре разных стиля.<br/>
+      Именно так видят меню гости вашего ресторана.
+    </p>
+
+    <!-- Фичи -->
+    <div class="features-bar">
+      <div class="feature-chip">📲 Работает без приложения</div>
+      <div class="feature-chip">🌍 3 языка интерфейса</div>
+      <div class="feature-chip">🔔 Вызов официанта</div>
+      <div class="feature-chip">⚡ Мгновенная загрузка</div>
+      <div class="feature-chip">💱 Конвертер валют</div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<section class="section" style="padding-top:0;">
+  <div class="container">
+
+    <!-- NFC подсказка -->
+    <div class="nfc-hint reveal">
+      <div class="nfc-hint-icon">📲</div>
+      <div class="nfc-hint-text">
+        <strong>Так это работает в реальности:</strong> гость подносит телефон к NFC-метке на столе —
+        и сразу видит это меню. Никаких приложений, никаких QR-кодов сканировать вручную.
+        Просто касание.
+      </div>
+    </div>
+
+    <!-- Карточки демо -->
+    <div class="demo-grid">
+
+      <!-- 1. Ресторан Аракс -->
+      <a href="araks-restaurant.html" class="demo-card reveal">
+        <div class="demo-card-cover theme-araks">
+          <div class="cover-emoji">🏺</div>
+          <div class="cover-label" style="color:#4ade80;">Армянский ресторан</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-title">Ресторан «Аракс»</div>
+          <div class="demo-card-desc">
+            ~60 блюд · шашлык, долма, закуски, напитки<br/>
+            Тёмно-зелёный стиль · Армянский колорит
+          </div>
+          <div class="demo-card-footer">
+            <span class="demo-badge badge-araks">⭐ Популярное</span>
+            <span class="demo-open open-araks">Открыть →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 2. Кафе Наири -->
+      <a href="cafe-nairi.html" class="demo-card reveal reveal-delay-1">
+        <div class="demo-card-cover theme-nairi">
+          <div class="cover-emoji">☕</div>
+          <div class="cover-label" style="color:var(--gold);">Кофейня / Кафе</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-title">Кафе «Наири»</div>
+          <div class="demo-card-desc">
+            ~40 позиций · кофе, завтраки, десерты, снеки<br/>
+            Тёмный стиль с золотыми акцентами
+          </div>
+          <div class="demo-card-footer">
+            <span class="demo-badge badge-nairi">✨ Свежий дизайн</span>
+            <span class="demo-open open-nairi">Открыть →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 3. Bar Masis -->
+      <a href="bar-masis.html" class="demo-card reveal reveal-delay-2">
+        <div class="demo-card-cover theme-masis">
+          <div class="cover-emoji">🍸</div>
+          <div class="cover-label" style="color:#ec4899;">Коктейль-бар</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-title">Bar Masis</div>
+          <div class="demo-card-desc">
+            ~50 напитков · коктейли, виски, пиво, закуски<br/>
+            Ночной нео-noir · violet + pink
+          </div>
+          <div class="demo-card-footer">
+            <span class="demo-badge badge-masis">🎵 Ночной бар</span>
+            <span class="demo-open open-masis">Открыть →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- 4. Noyan Tapan -->
+      <a href="noyan-tapan.html" class="demo-card reveal reveal-delay-3">
+        <div class="demo-card-cover theme-noyan">
+          <div class="cover-emoji">✦</div>
+          <div class="cover-label" style="color:#F8D794;font-family:Georgia,serif;">Fine Dining</div>
+        </div>
+        <div class="demo-card-body">
+          <div class="demo-card-title">Noyan Tapan</div>
+          <div class="demo-card-desc">
+            ~35 позиций · авторская кухня, карта вин<br/>
+            Роскошный gold/black · LUXE шаблон
+          </div>
+          <div class="demo-card-footer">
+            <span class="demo-badge badge-noyan">✦ LUXE дизайн</span>
+            <span class="demo-open open-noyan">Открыть →</span>
+          </div>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- CTA -->
+    <div class="reveal" style="background:linear-gradient(135deg,var(--accent),#8b4a20);border-radius:24px;padding:56px 48px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-20px;right:-20px;width:160px;height:160px;background:rgba(255,255,255,0.05);border-radius:50%;"></div>
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.8;margin-bottom:12px;">🚀 Хотите такое же?</div>
+        <h2 style="font-size:clamp(1.6rem,3.5vw,2.4rem);color:#fff;margin-bottom:16px;font-weight:800;">
+          Создайте меню для вашего ресторана
+        </h2>
+        <p style="color:rgba(255,255,255,0.85);margin-bottom:32px;max-width:440px;margin-left:auto;margin-right:auto;">
+          7 дней бесплатно. Настройка за 1 день. Без привязки карты.
+        </p>
+        <a href="../contact.html" class="btn btn-white btn-lg">
+          Начать бесплатный тест →
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="../index.html" class="logo" style="margin-bottom:16px;display:inline-flex;">
+          <div class="logo-icon">◉</div>TapMenu
+        </a>
+        <p>Одно касание — меню и сервис</p>
+        <div class="footer-social">
+          <a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener" title="Telegram">✈</a>
+          <a href="https://instagram.com/tapmenu.am" target="_blank" rel="noopener" title="Instagram">📷</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Навигация</h4>
+        <ul>
+          <li><a href="../index.html">Главная</a></li>
+          <li><a href="../pricing.html">Тарифы</a></li>
+          <li><a href="../how-it-works.html">Как работает</a></li>
+          <li><a href="../luxe.html" class="footer-luxe">✦ LUXE</a></li>
+          <li><a href="../contact.html">Контакты</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Контакты</h4>
+        <ul>
+          <li><a href="mailto:hello@tapmenu.am">📧 hello@tapmenu.am</a></li>
+          <li><span style="color:var(--text-secondary);font-size:0.9rem;">📍 Ереван, Армения</span></li>
+          <li><a href="https://t.me/tapmenu_armenia" target="_blank" rel="noopener">✈ @tapmenu_armenia</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 TapMenu Armenia</p>
+      <a href="#">Политика конфиденциальности</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+
+</body>
+</html>

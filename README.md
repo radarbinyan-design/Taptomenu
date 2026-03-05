@@ -2,7 +2,7 @@
 
 **Website:** https://tapmenu.am  
 **Stack:** HTML5 · CSS3 (custom variables + responsive) · Vanilla JS  
-**Last updated:** 2026-03-03
+**Last updated:** 2026-03-05
 
 ---
 
@@ -16,6 +16,7 @@ TapMenu Armenia — платформа NFC-меню по подписке для
 
 ## ✅ Реализованные страницы
 
+### 🌐 Лендинг (публичные страницы)
 | Файл | URL | Описание |
 |------|-----|----------|
 | `index.html` | `/` | Главная лендинг-страница |
@@ -23,11 +24,30 @@ TapMenu Armenia — платформа NFC-меню по подписке для
 | `luxe.html` | `/luxe` | Премиум лендинг LUXE (золотой стиль) |
 | `how-it-works.html` | `/how-it-works` | Как работает + FAQ |
 | `contact.html` | `/contact` | Форма заявки |
+
+### 📱 Демо-меню
+| Файл | URL | Описание |
+|------|-----|----------|
 | `demo/index.html` | `/demo/` | Галерея всех демо-меню |
-| `demo/araks-restaurant.html` | `/demo/araks-restaurant` | Демо: армянский ресторан |
-| `demo/cafe-nairi.html` | `/demo/cafe-nairi` | Демо: кофейня/кафе |
-| `demo/bar-masis.html` | `/demo/bar-masis` | Демо: коктейль-бар |
-| `demo/noyan-tapan.html` | `/demo/noyan-tapan` | Демо: fine dining ресторан |
+| `demo/araks-restaurant.html` | `/demo/araks-restaurant` | Армянский ресторан |
+| `demo/cafe-nairi.html` | `/demo/cafe-nairi` | Кофейня/кафе |
+| `demo/bar-masis.html` | `/demo/bar-masis` | Коктейль-бар |
+| `demo/noyan-tapan.html` | `/demo/noyan-tapan` | Fine dining (LUXE) |
+
+### 🖥️ Дашборд (мок owner-панели)
+| Файл | URL | Описание |
+|------|-----|----------|
+| `login.html` | `/login` | Форма входа владельца |
+| `menu.html` | `/menu` | Управление меню и блюдами |
+| `analytics.html` | `/analytics` | Аналитика с Chart.js |
+| `waiter.html` | `/waiter` | Панель вызовов официанта |
+| `settings.html` | `/settings` | Настройки ресторана и аккаунта |
+
+### 📄 Документация
+| Файл | Описание |
+|------|----------|
+| `TapMenu_Armenia_TZ.html` | Техническое задание v2.1 |
+| `competitor_analysis.html` | Анализ конкурентов |
 
 ---
 
@@ -40,143 +60,150 @@ TapMenu Armenia — платформа NFC-меню по подписке для
 ├── luxe.html                  — LUXE-лендинг
 ├── how-it-works.html          — Как работает
 ├── contact.html               — Контакты / Заявка
+├── login.html                 — Вход в дашборд
+├── menu.html                  — Управление меню
+├── analytics.html             — Аналитика
+├── waiter.html                — Вызовы официанта
+├── settings.html              — Настройки
 ├── css/
-│   ├── main.css               — Основные стили (все страницы)
-│   └── luxe.css               — Доп. стили для /luxe
+│   ├── main.css               — Основные стили лендинга
+│   ├── luxe.css               — Доп. стили для /luxe
+│   └── dashboard.css          — Стили дашборда
 ├── js/
-│   └── main.js                — Основная логика (i18n, анимации, форма)
+│   ├── main.js                — i18n, анимации, формы
+│   ├── dashboard.js           — helpers дашборда
+│   └── supabase-config.js     — Конфиг Supabase (заполнить!)
 └── demo/
     ├── index.html             — Галерея демо-меню
     ├── araks-restaurant.html  — 🏺 Армянский ресторан
     ├── cafe-nairi.html        — ☕ Кофейня
     ├── bar-masis.html         — 🍸 Коктейль-бар
-    └── noyan-tapan.html       — ✦ Fine Dining (gold design)
+    └── noyan-tapan.html       — ✦ Fine Dining (LUXE дизайн)
 ```
 
 ---
 
 ## 🎨 Цветовая схема
 
-### Основные страницы (index, pricing, how-it-works, contact)
+### Лендинг (Noir de Vigne палитра)
 | Переменная | Значение | Описание |
 |-----------|---------|---------|
-| `--bg` | `#0f0f1a` | Фон — глубокий тёмно-синий |
-| `--bg-card` | `#1a1a2e` | Карточки |
-| `--accent` | `#6366f1` | Акцент — Electric Indigo |
-| `--accent-hover` | `#818cf8` | Hover акцента |
-| `--teal` | `#06b6d4` | Вторичный акцент — Cyan |
-| `--cta` | `#8b5cf6` | CTA-кнопки — Violet |
-| `--text` | `#f0f0ff` | Основной текст |
-| `--text-secondary` | `#8b93b8` | Вторичный текст |
-| `--gold` | `#D4AF37` | Gold (для LUXE и акцентов) |
+| `--bg` | `#111A19` | Noir de Vigne — главный фон |
+| `--bg-card` | `#1E3330` | Карточки — тёплый тёмно-зелёный |
+| `--accent` | `#B86830` | Egyptian Earth |
+| `--gold` | `#F8D794` | Creased Khaki — акценты, цифры |
+| `--text` | `#FFFFFF` | Основной текст |
+| `--text-secondary` | `#809076` | Вторичный текст (Wasabi) |
 
-### LUXE страница (`luxe.html`)
-| Свойство | Значение |
+### Дашборд
+| Переменная | Значение |
 |----------|---------|
-| Фон | `#0a0a0a` / `#080808` |
-| Акцент | `#D4AF37` (gold) |
-| Шрифт заголовков | Playfair Display (serif) |
+| `--db-bg` | `#0b1410` |
+| `--db-bg-card` | `#111e17` |
+| `--accent` | `#B86830` |
+| `--gold` | `#F8D794` |
 
 ---
 
 ## 💳 Тарифные планы
 
-| Тариф | Цена | Описание |
-|-------|------|---------|
-| **Starter** | $15/мес | 1 меню, 50 блюд, 3 языка, 4 NFC-метки |
-| **Pro** | $25/мес | 3 меню, 150 блюд, 10 языков, 8 меток, аналитика |
-| **Premium** | $45/мес | Без лимитов, 20+ языков, 12 меток, AI-аналитика |
-| **LUXE** | от $50/мес | Всё Premium + custom дизайн, персональный менеджер |
+| Тариф | Цена | Меню | Блюда | Языки | NFC |
+|-------|------|------|-------|-------|-----|
+| **Starter** | $15/мес | 1 | 50 | 3 | 4 |
+| **Pro** | $25/мес | 3 | 150 | 3 | 8 |
+| **Premium** | $45/мес | ∞ | ∞ | 20+ | 12 |
+| **LUXE** | от $50/мес | ∞ | ∞ | 33 | ∞ |
 
 ---
 
 ## 📱 Демо-меню
 
-Четыре живых демо-примера, открываемые как NFC-меню:
+Четыре живых демо-примера (самодостаточные HTML-файлы, стили встроены):
 
-### 1. 🏺 Ресторан «Аракс» (`demo/araks-restaurant.html`)
-- Стиль: тёмно-зелёный, армянский колорит
-- Категории: закуски, салаты, шашлык, долма, напитки
-- Функции: поиск, корзина, вызов официанта, 3 языка
+| # | Файл | Стиль | Фичи |
+|---|------|-------|------|
+| 1 | `araks-restaurant.html` | Тёмно-зелёный, армянский | поиск, корзина, вызов, 3 языка |
+| 2 | `cafe-nairi.html` | Тёмный + gold | карточки напитков, корзина |
+| 3 | `bar-masis.html` | Нео-noir violet/pink | ночной стиль, коктейли |
+| 4 | `noyan-tapan.html` | Роскошный gold/black | fine dining, карта вин, LUXE |
 
-### 2. ☕ Кафе «Наири» (`demo/cafe-nairi.html`)
-- Стиль: тёмный с cyan-акцентами
-- Категории: кофе, чай, завтраки, десерты, снеки
-- Функции: карточки напитков, корзина, 3 языка
+---
 
-### 3. 🍸 Bar Masis (`demo/bar-masis.html`)
-- Стиль: ночной нео-noir, violet + pink
-- Категории: коктейли, виски, пиво, закуски, события
-- Функции: нео-карточки напитков, корзина, 3 языка
+## 🖥️ Дашборд (мок Owner Panel)
 
-### 4. ✦ Noyan Tapan Fine Dining (`demo/noyan-tapan.html`)
-- Стиль: роскошный gold/black, Playfair Display
-- Категории: холодные/горячие закуски, супы, основные, десерты, вино
-- Функции: дегустационное меню 7 перемен, карта вин, gold-дизайн
+Демонстрационный прототип владельца ресторана:
+
+| Страница | Функции |
+|----------|---------|
+| `login.html` | Форма входа с Supabase Auth |
+| `menu.html` | CRUD блюд, категории, drag-and-drop, стоп-лист |
+| `analytics.html` | Chart.js графики, просмотры, топ блюд, периоды |
+| `waiter.html` | Real-time вызовы официанта, статусы |
+| `settings.html` | Профиль, языки, NFC-метки, функции, Wi-Fi, подписка |
 
 ---
 
 ## 🌐 Локализация
 
-Все страницы и демо-меню поддерживают 3 языка:
+Все страницы лендинга поддерживают 3 языка:
 - 🇷🇺 RU — Русский (по умолчанию)
 - 🇬🇧 EN — English  
 - 🇦🇲 HY — Հայերեն (Армянский)
 
-Переключение через `js/main.js` (функция `setLanguage()`) и/или встроенный JS в каждом демо.
+Реализовано через `js/main.js` → функция `applyTranslations(lang)` + `localStorage`.
 
 ---
 
 ## 🔧 Технические детали
 
 ### CSS архитектура
-- CSS-переменные (`--accent`, `--bg`, `--gold`, и т.д.) в `:root`
-- Mobile-first responsive (320px / 768px / 1280px / 1920px)
-- Scroll-reveal через IntersectionObserver
+- CSS-переменные в `:root` — единая тема
+- Mobile-first responsive (320px / 768px / 1280px)
+- Scroll-reveal через `IntersectionObserver`
 - Hover-анимации через CSS transitions
 
-### JS функции (`js/main.js`)
-- `setLanguage(lang)` — переключение языка интерфейса
+### JS функции (js/main.js)
+- `applyTranslations(lang)` — i18n переключатель
 - `initScrollReveal()` — анимации при прокрутке
-- `initCounters()` — анимированные счётчики статистики
+- `initCounters()` — анимированные счётчики
 - `toggleFAQ(item)` — аккордеон FAQ
-- `handleContactForm()` — отправка формы (имитация → Telegram Bot в production)
-- `initPricingCarousel()` — карусель тарифов на мобильных
+- `handleContactForm()` — отправка формы (Telegram Bot в prod)
 
-### Форма связи
-В production-версии (Next.js) форма отправляет данные на:
-- `POST /api/contact` — общая форма
-- `POST /api/luxe` — форма LUXE-заявки
-
-Env variables: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-
----
-
-## 🚀 Деплой
-
-### Static HTML (текущая версия)
-Загрузить через **Publish** в TapMenu Admin Panel или на любой статический хостинг (Vercel, Netlify, GitHub Pages).
-
-### Production (Next.js)
-```bash
-npx create-next-app@latest tapmenu-armenia --typescript
-# Добавить компоненты из HTML-прототипа
-# Настроить .env.local
-vercel deploy
+### Supabase (js/supabase-config.js)
+Заполнить перед запуском:
+```js
+const SUPABASE_URL = 'https://ВАШ-ПРОЕКТ.supabase.co'
+const SUPABASE_KEY = 'ВАШ-ANON-KEY'
 ```
 
 ---
 
-## 📋 Что ещё можно добавить
+## 🚀 Запуск локально
 
+```bash
+# Простой статический сервер
+npx serve .
+# или
+python3 -m http.server 3000
+```
+
+Открыть: http://localhost:3000
+
+---
+
+## 📋 Что планируется (следующие шаги)
+
+### Фронтенд мок
+- [ ] Страница `/demo` с живым конструктором меню
 - [ ] Страница `/blog` с SEO-статьями
-- [ ] Онлайн-конструктор меню с превью в реальном времени
-- [ ] Панель аналитики (демо-дашборд)
-- [ ] Интеграция с системами бронирования
-- [ ] Страница с отзывами и кейсами клиентов
 - [ ] Карта ресторанов-партнёров
-- [ ] Видео-демонстрация работы NFC
-- [ ] A/B тестирование тарифных карточек
+
+### Production (Next.js + Supabase)
+- [ ] Перенести HTML-прототипы в Next.js компоненты
+- [ ] Подключить реальный Supabase (схема в TZ v2.1)
+- [ ] Подключить Cloudflare Images для загрузки фото
+- [ ] Подключить Yandex Cloud Translate для авто-перевода
+- [ ] Добавить OpenAI GPT-4o для LUXE-тарифа
 
 ---
 
@@ -184,4 +211,5 @@ vercel deploy
 
 **Site:** https://tapmenu.am  
 **Email:** hello@tapmenu.am  
-**Telegram:** @tapmenu_armenia
+**Telegram:** @tapmenu_armenia  
+**GitHub:** https://github.com/radarbinyan-design/Taptomenu

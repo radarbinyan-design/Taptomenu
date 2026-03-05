@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Настройки — TapMenu Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23B86830'/><text y='22' x='6' font-size='18' fill='white'>T</text></svg>">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <style>
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Settings nav */
+    .settings-nav {
+      background: var(--db-bg-card);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: sticky;
+      top: 84px;
+    }
+    .settings-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--transition);
+      border-bottom: 1px solid var(--db-border);
+      color: var(--text-secondary);
+    }
+    .settings-nav-item:last-child { border-bottom: none; }
+    .settings-nav-item:hover { background: var(--accent-soft); color: var(--text); }
+    .settings-nav-item.active { background: var(--gold-soft); color: var(--gold); font-weight: 600; border-left: 3px solid var(--gold); }
+    .settings-nav-item .nav-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    /* Settings sections */
+    .settings-section {
+      display: none;
+    }
+    .settings-section.active {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Cards */
+    .settings-card {
+      background: var(--db-bg-card);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+    .settings-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .settings-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    /* Form elements */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-row.full { grid-template-columns: 1fr; }
+    @media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-input, .form-select, .form-textarea {
+      background: var(--db-bg);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.875rem;
+      color: var(--text);
+      font-family: var(--font);
+      transition: border-color var(--transition);
+      width: 100%;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    .form-textarea { resize: vertical; min-height: 90px; }
+    .form-select { cursor: pointer; }
+    .form-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* Toggle switch */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--db-border);
+    }
+    .toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .toggle-info { flex: 1; }
+    .toggle-label { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .toggle-desc { font-size: 0.78rem; color: var(--text-secondary); }
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--db-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 18px;
+      height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+    input:checked + .toggle-slider { background: var(--accent); }
+    input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    /* NFC tags list */
+    .nfc-list { display: flex; flex-direction: column; gap: 10px; }
+    .nfc-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--db-bg);
+      border: 1px solid var(--db-border);
+      border-radius: var(--radius-sm);
+    }
+    .nfc-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .nfc-dot.active { background: var(--emerald); }
+    .nfc-dot.inactive { background: var(--text-muted); }
+    .nfc-info { flex: 1; }
+    .nfc-name { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+    .nfc-url { font-size: 0.75rem; color: var(--text-muted); font-family: monospace; }
+    .nfc-status { font-size: 0.72rem; padding: 3px 10px; border-radius: 6px; font-weight: 600; }
+    .nfc-status.active { background: var(--emerald-soft); color: var(--emerald); }
+    .nfc-status.inactive { background: var(--db-border); color: var(--text-muted); }
+
+    /* Language pills */
+    .lang-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang-pill {
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--db-border);
+      background: var(--db-bg);
+      color: var(--text-secondary);
+      transition: all var(--transition);
+    }
+    .lang-pill.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .lang-pill:hover:not(.active) { border-color: var(--text-muted); color: var(--text); }
+
+    /* Plan badge */
+    .plan-info-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--gold-soft);
+      border: 1px solid var(--db-border-gold);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    /* Danger zone */
+    .danger-zone {
+      border-color: rgba(231,76,60,0.3);
+    }
+    .danger-zone .settings-card-title { color: var(--danger); }
+
+    /* Save button row */
+    .save-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--db-border);
+      margin-top: 4px;
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+    .status-badge.active { background: var(--emerald-soft); color: var(--emerald); }
+    .status-badge.trial { background: var(--warning-soft); color: var(--warning); }
+  </style>
+</head>
+<body>
+<div class="dash-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">◉</div>TapMenu</div>
+    <div class="sidebar-restaurant">
+      <div class="sidebar-restaurant-name" id="sb-rest-name">Ресторан «Аракс»</div>
+      <div class="sidebar-restaurant-plan" id="sb-rest-plan">Pro тариф</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Основное</div>
+      <a href="menu.html" class="sidebar-link"><span class="icon">🍜</span> Меню</a>
+      <a href="waiter.html" class="sidebar-link"><span class="icon">🔔</span> Вызовы</a>
+      <a href="analytics.html" class="sidebar-link"><span class="icon">📈</span> Аналитика</a>
+      <div class="sidebar-section">Аккаунт</div>
+      <a href="settings.html" class="sidebar-link active"><span class="icon">⚙️</span> Настройки</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="index.html"><span>🏠</span> На сайт</a>
+      <a href="#" onclick="doLogout()" style="color:var(--danger)"><span>🚪</span> Выйти</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="dash-main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div class="topbar-title">⚙️ Настройки</div>
+      </div>
+      <div class="topbar-right" id="topbar-right">
+        <span class="status-badge active">● Активен</span>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="settings-grid">
+
+        <!-- LEFT: Settings navigation -->
+        <div class="settings-nav">
+          <div class="settings-nav-item active" onclick="showSection('profile', this)">
+            <span class="nav-icon">🏠</span> Профиль ресторана
+          </div>
+          <div class="settings-nav-item" onclick="showSection('languages', this)">
+            <span class="nav-icon">🌍</span> Языки меню
+          </div>
+          <div class="settings-nav-item" onclick="showSection('nfc', this)">
+            <span class="nav-icon">📲</span> NFC-метки
+          </div>
+          <div class="settings-nav-item" onclick="showSection('features', this)">
+            <span class="nav-icon">⚙️</span> Функции
+          </div>
+          <div class="settings-nav-item" onclick="showSection('account', this)">
+            <span class="nav-icon">👤</span> Аккаунт
+          </div>
+          <div class="settings-nav-item" onclick="showSection('subscription', this)">
+            <span class="nav-icon">💳</span> Подписка
+          </div>
+        </div>
+
+        <!-- RIGHT: Settings content -->
+        <div id="settings-content">
+
+          <!-- PROFILE -->
+          <div id="section-profile" class="settings-section active">
+            <div class="settings-card">
+              <div class="settings-card-title">🏠 Профиль ресторана</div>
+              <div class="settings-card-desc">Основная информация о вашем заведении, которую видят гости</div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Название ресторана</label>
+                  <input class="form-input" type="text" value="Ресторан «Аракс»" placeholder="Название заведения"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">URL-slug</label>
+                  <input class="form-input" type="text" value="araks" placeholder="araks"/>
+                  <span class="form-hint">menu.tapmenu.am/araks</span>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Описание (видно гостям)</label>
+                  <textarea class="form-textarea" placeholder="Краткое описание ресторана...">Армянский ресторан в центре Еревана. Традиционная кухня, живая музыка по выходным.</textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Телефон</label>
+                  <input class="form-input" type="tel" value="+374 10 123 456" placeholder="+374 XX XXX XXX"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Адрес</label>
+                  <input class="form-input" type="text" value="ул. Абовяна 18, Ереван" placeholder="Адрес заведения"/>
+                </div>
+              </div>
+
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Логотип ресторана</label>
+                  <div style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:64px;height:64px;background:var(--accent-soft);border:1px solid var(--db-border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;">🏺</div>
+                    <div>
+                      <button class="btn btn-sm btn-outline" style="margin-bottom:6px;">📁 Загрузить логотип</button>
+                      <div class="form-hint">JPG, PNG или WebP · до 2 МБ · рекомендуется 200×200 px</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="save-row">
+                <button class="btn btn-outline btn-sm" onclick="toast('Изменения отменены', 'info')">Отмена</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('Профиль сохранён ✓', 'success')">💾 Сохранить</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- LANGUAGES -->
+          <div id="section-languages" class="settings-section">
+            <div class="settings-card">
+              <div class="settings-card-title">🌍 Языки меню</div>
+              <div class="settings-card-desc">Выберите языки, на которых гости смогут просматривать меню. Тариф Pro позволяет до 3 языков.</div>
+
+              <div style="margin-bottom:20px;">
+                <div class="form-label" style="margin-bottom:10px;">Активные языки</div>
+                <div class="lang-pills">
+                  <div class="lang-pill active">🇷🇺 Русский</div>
+                  <div class="lang-pill active">🇬🇧 English</div>
+                  <div class="lang-pill active">🇦🇲 Հայերեն</div>
+                  <div class="lang-pill" title="Доступно на Premium/LUXE">🇩🇪 Deutsch</div>
+                  <div class="lang-pill" title="Доступно на Premium/LUXE">🇫🇷 Français</div>
+                  <div class="lang-pill" title="Доступно на Premium/LUXE">🇨🇳 中文</div>
+                  <div class="lang-pill" title="Доступно на Premium/LUXE">🇯🇵 日本語</div>
+                  <div class="lang-pill" title="Доступно на Premium/LUXE">🇸🇦 العربية</div>
+                </div>
+                <div class="form-hint" style="margin-top:10px;">Серые языки доступны на тарифах Premium и LUXE</div>
+              </div>
+
+              <div style="margin-bottom:20px;">
+                <label class="form-label">Язык по умолчанию</label>
+                <select class="form-select" style="max-width:260px;margin-top:8px;">
+                  <option selected>🇷🇺 Русский</option>
+                  <option>🇬🇧 English</option>
+                  <option>🇦🇲 Հայերեն</option>
+                </select>
+                <div class="form-hint">Этот язык открывается первым при входе на страницу меню</div>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">Авто-определение языка браузера</div>
+                  <div class="toggle-desc">Открывать меню на языке браузера гостя, если он доступен</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="save-row">
+                <button class="btn btn-primary btn-sm" onclick="toast('Языки сохранены ✓', 'success')">💾 Сохранить</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NFC -->
+          <div id="section-nfc" class="settings-section">
+            <div class="settings-card">
+              <div class="settings-card-title">📲 NFC-метки и QR-коды</div>
+              <div class="settings-card-desc">Управление метками на столах. Тариф Pro — до 8 меток.</div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div style="font-size:0.85rem;color:var(--text-secondary);">Использовано: <strong style="color:var(--text);">4 / 8</strong> меток</div>
+                <button class="btn btn-outline btn-sm">+ Добавить метку</button>
+              </div>
+
+              <div class="nfc-list">
+                <div class="nfc-item">
+                  <div class="nfc-dot active"></div>
+                  <div class="nfc-info">
+                    <div class="nfc-name">Стол №1 (у окна)</div>
+                    <div class="nfc-url">menu.tapmenu.am/araks?table=1</div>
+                  </div>
+                  <span class="nfc-status active">Активна</span>
+                  <button class="icon-btn" title="QR-код">📱</button>
+                </div>
+                <div class="nfc-item">
+                  <div class="nfc-dot active"></div>
+                  <div class="nfc-info">
+                    <div class="nfc-name">Стол №2</div>
+                    <div class="nfc-url">menu.tapmenu.am/araks?table=2</div>
+                  </div>
+                  <span class="nfc-status active">Активна</span>
+                  <button class="icon-btn" title="QR-код">📱</button>
+                </div>
+                <div class="nfc-item">
+                  <div class="nfc-dot active"></div>
+                  <div class="nfc-info">
+                    <div class="nfc-name">Стол №3 (терраса)</div>
+                    <div class="nfc-url">menu.tapmenu.am/araks?table=3</div>
+                  </div>
+                  <span class="nfc-status active">Активна</span>
+                  <button class="icon-btn" title="QR-код">📱</button>
+                </div>
+                <div class="nfc-item">
+                  <div class="nfc-dot inactive"></div>
+                  <div class="nfc-info">
+                    <div class="nfc-name">Барная стойка</div>
+                    <div class="nfc-url">menu.tapmenu.am/araks?table=bar</div>
+                  </div>
+                  <span class="nfc-status inactive">Не активна</span>
+                  <button class="icon-btn" title="QR-код">📱</button>
+                </div>
+              </div>
+
+              <div style="margin-top:20px;padding:14px;background:var(--db-bg);border:1px solid var(--db-border);border-radius:var(--radius-sm);font-size:0.82rem;color:var(--text-secondary);">
+                💡 <strong style="color:var(--text);">Совет:</strong> Скачайте QR-коды, распечатайте на подставку и разместите рядом с NFC-метками — для гостей с устаревшими телефонами без NFC.
+              </div>
+            </div>
+          </div>
+
+          <!-- FEATURES -->
+          <div id="section-features" class="settings-section">
+            <div class="settings-card">
+              <div class="settings-card-title">⚙️ Функции меню</div>
+              <div class="settings-card-desc">Включите или выключите дополнительные возможности для ваших гостей</div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">🔔 Вызов официанта</div>
+                  <div class="toggle-desc">Гость видит кнопку «Позвать официанта» в меню</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">💱 Туристический режим (конвертер валют)</div>
+                  <div class="toggle-desc">Показывать цены в USD/EUR/RUB по курсу ЦБ Армении</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">📶 Wi-Fi для гостей</div>
+                  <div class="toggle-desc">Показывать название сети и пароль в меню</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">🎯 Специальные предложения (слайдер)</div>
+                  <div class="toggle-desc">Показывать баннер с акциями вверху меню</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <div class="toggle-label">🔍 Поиск по меню</div>
+                  <div class="toggle-desc">Строка поиска блюд для гостей</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" checked onchange="toast('Настройка обновлена', 'success')">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row" style="opacity:0.5;">
+                <div class="toggle-info">
+                  <div class="toggle-label">🤖 AI-ассистент <span style="font-size:0.7rem;color:var(--gold);background:var(--gold-soft);padding:2px 8px;border-radius:4px;margin-left:6px;">LUXE</span></div>
+                  <div class="toggle-desc">Чат-помощник для управления меню — доступен на LUXE</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" disabled>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Wi-Fi block -->
+            <div class="settings-card" id="wifi-card">
+              <div class="settings-card-title">📶 Данные Wi-Fi</div>
+              <div class="settings-card-desc">Гости увидят кнопку «Wi-Fi» в меню и смогут подключиться одним нажатием</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Название сети (SSID)</label>
+                  <input class="form-input" type="text" value="Araks_Guest" placeholder="Название Wi-Fi сети"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Пароль</label>
+                  <input class="form-input" type="password" value="araks2024" placeholder="Пароль"/>
+                  <span class="form-hint">🔒 Хранится в зашифрованном виде</span>
+                </div>
+              </div>
+              <div class="save-row">
+                <button class="btn btn-primary btn-sm" onclick="toast('Wi-Fi данные сохранены ✓', 'success')">💾 Сохранить</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACCOUNT -->
+          <div id="section-account" class="settings-section">
+            <div class="settings-card">
+              <div class="settings-card-title">👤 Данные аккаунта</div>
+              <div class="settings-card-desc">Информация для входа в панель управления</div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Имя</label>
+                  <input class="form-input" type="text" value="Арман Петросян"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Телефон</label>
+                  <input class="form-input" type="tel" value="+374 91 234 567"/>
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input class="form-input" type="email" value="arman@araks.am"/>
+                </div>
+              </div>
+              <div class="save-row">
+                <button class="btn btn-primary btn-sm" onclick="toast('Данные аккаунта обновлены ✓', 'success')">💾 Сохранить</button>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-title">🔐 Смена пароля</div>
+              <div class="settings-card-desc">Используйте надёжный пароль длиной не менее 8 символов</div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">Текущий пароль</label>
+                  <input class="form-input" type="password" placeholder="••••••••"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Новый пароль</label>
+                  <input class="form-input" type="password" placeholder="••••••••"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Повторите пароль</label>
+                  <input class="form-input" type="password" placeholder="••••••••"/>
+                </div>
+              </div>
+              <div class="save-row">
+                <button class="btn btn-outline btn-sm" onclick="toast('Изменения отменены', 'info')">Отмена</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('Пароль изменён ✓', 'success')">🔐 Изменить пароль</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUBSCRIPTION -->
+          <div id="section-subscription" class="settings-section">
+            <div class="settings-card">
+              <div class="settings-card-title">💳 Текущая подписка</div>
+              <div class="settings-card-desc">Информация о вашем тарифе и сроках оплаты</div>
+
+              <div class="plan-info-badge">⭐ Тариф Pro — $25/мес</div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+                <div style="background:var(--db-bg);border:1px solid var(--db-border);border-radius:var(--radius-sm);padding:14px;">
+                  <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Статус</div>
+                  <div style="font-weight:700;color:var(--emerald);">● Активна</div>
+                </div>
+                <div style="background:var(--db-bg);border:1px solid var(--db-border);border-radius:var(--radius-sm);padding:14px;">
+                  <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Действует до</div>
+                  <div style="font-weight:700;">1 апреля 2025</div>
+                </div>
+                <div style="background:var(--db-bg);border:1px solid var(--db-border);border-radius:var(--radius-sm);padding:14px;">
+                  <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Меню / блюда</div>
+                  <div style="font-weight:700;">3 меню · до 150 блюд</div>
+                </div>
+                <div style="background:var(--db-bg);border:1px solid var(--db-border);border-radius:var(--radius-sm);padding:14px;">
+                  <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">NFC-метки</div>
+                  <div style="font-weight:700;">4 / 8 использовано</div>
+                </div>
+              </div>
+
+              <div style="padding:14px;background:var(--gold-soft);border:1px solid var(--db-border-gold);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text-secondary);margin-bottom:20px;">
+                💡 <strong style="color:var(--gold);">Продление:</strong> для продления подписки свяжитесь с вашим менеджером или напишите на
+                <a href="mailto:hello@tapmenu.am" style="color:var(--accent);">hello@tapmenu.am</a>
+              </div>
+
+              <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <a href="../pricing.html" class="btn btn-outline btn-sm">💎 Перейти на Premium</a>
+                <a href="../luxe.html" class="btn btn-sm" style="background:var(--gold-soft);border:1px solid var(--db-border-gold);color:var(--gold);">✦ Узнать о LUXE</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/supabase-config.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+// Settings navigation
+function showSection(name, el) {
+  document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-' + name).classList.add('active');
+}
+
+// Language pills toggle
+document.querySelectorAll('.lang-pill').forEach(pill => {
+  pill.addEventListener('click', () => {
+    if (pill.title) { toast('Это доступно на тарифе Premium/LUXE', 'info'); return; }
+    pill.classList.toggle('active');
+  });
+});
+
+// Sidebar toggle
+document.querySelector('.sidebar-toggle')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+
+// Logout
+function doLogout() {
+  if (typeof _supabase !== 'undefined' && _supabase) {
+    _supabase.auth.signOut().then(() => { window.location.href = 'login.html'; });
+  } else {
+    window.location.href = 'login.html';
+  }
+}
+</script>
+</body>
+</html>
