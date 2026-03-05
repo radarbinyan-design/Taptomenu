@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TapMenu Armenia — Техническое Задание v2.0</title>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #e85d26;
+    --accent2: #f0a500;
+    --bg: #f7f8fa;
+    --white: #ffffff;
+    --text: #2c2c2c;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --sidebar-w: 280px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI',system-ui,sans-serif; color:var(--text); background:var(--bg); display:flex; min-height:100vh; }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width:var(--sidebar-w); background:var(--primary); color:#fff;
+    position:fixed; top:0; left:0; height:100vh; overflow-y:auto;
+    padding:0 0 40px 0; z-index:100; transition:.3s;
+  }
+  #sidebar .logo {
+    padding:28px 24px 20px; border-bottom:1px solid rgba(255,255,255,.1);
+    font-size:1.15rem; font-weight:700; letter-spacing:.5px;
+  }
+  #sidebar .logo span { color:var(--accent); }
+  #sidebar nav { padding:12px 0; }
+  #sidebar nav a {
+    display:flex; align-items:center; gap:10px;
+    padding:9px 24px; color:rgba(255,255,255,.75); text-decoration:none;
+    font-size:.875rem; transition:.2s; border-left:3px solid transparent;
+  }
+  #sidebar nav a:hover, #sidebar nav a.active {
+    color:#fff; background:rgba(255,255,255,.07); border-left-color:var(--accent);
+  }
+  #sidebar nav .section-title {
+    padding:16px 24px 6px; font-size:.7rem; text-transform:uppercase;
+    letter-spacing:1.2px; color:rgba(255,255,255,.35); font-weight:600;
+  }
+
+  /* ── MAIN ── */
+  #main { margin-left:var(--sidebar-w); flex:1; padding:40px 48px; max-width:1100px; }
+
+  /* ── COVER ── */
+  .cover {
+    background:linear-gradient(135deg,var(--primary) 0%,#2d2b55 100%);
+    color:#fff; border-radius:16px; padding:60px 52px; margin-bottom:48px;
+    position:relative; overflow:hidden;
+  }
+  .cover::after {
+    content:''; position:absolute; right:-60px; top:-60px;
+    width:320px; height:320px; background:rgba(232,93,38,.15);
+    border-radius:50%;
+  }
+  .cover .badge {
+    display:inline-block; background:var(--accent); color:#fff;
+    font-size:.72rem; font-weight:700; padding:4px 12px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:.8px; margin-bottom:16px;
+  }
+  .cover h1 { font-size:2.6rem; font-weight:800; line-height:1.15; margin-bottom:10px; }
+  .cover p { font-size:1.05rem; color:rgba(255,255,255,.75); margin-bottom:28px; max-width:560px; }
+  .cover .meta { display:flex; gap:24px; flex-wrap:wrap; }
+  .cover .meta-item { display:flex; flex-direction:column; }
+  .cover .meta-item .label { font-size:.7rem; text-transform:uppercase; color:rgba(255,255,255,.45); letter-spacing:.8px; }
+  .cover .meta-item .value { font-size:.95rem; font-weight:600; color:#fff; }
+
+  /* ── SECTIONS ── */
+  section { margin-bottom:56px; scroll-margin-top:24px; }
+  h2 {
+    font-size:1.55rem; font-weight:800; color:var(--primary);
+    padding-bottom:12px; margin-bottom:24px;
+    border-bottom:3px solid var(--accent); display:flex; align-items:center; gap:10px;
+  }
+  h2 .num {
+    background:var(--accent); color:#fff; width:32px; height:32px;
+    border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:.85rem; font-weight:800; flex-shrink:0;
+  }
+  h3 { font-size:1.1rem; font-weight:700; color:var(--primary); margin:24px 0 12px; }
+  h4 { font-size:.95rem; font-weight:700; color:var(--muted); margin:16px 0 8px; text-transform:uppercase; letter-spacing:.5px; }
+  p { line-height:1.7; margin-bottom:10px; font-size:.95rem; }
+
+  /* ── CARDS ── */
+  .cards { display:grid; gap:16px; margin:16px 0; }
+  .cards.col2 { grid-template-columns:repeat(2,1fr); }
+  .cards.col3 { grid-template-columns:repeat(3,1fr); }
+  .cards.col4 { grid-template-columns:repeat(4,1fr); }
+  .card {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:12px; padding:20px; position:relative; overflow:hidden;
+  }
+  .card.accent-top { border-top:4px solid var(--accent); }
+  .card.accent-blue { border-top:4px solid var(--info); }
+  .card.accent-green { border-top:4px solid var(--success); }
+  .card.accent-orange { border-top:4px solid var(--accent2); }
+  .card h4 { margin-top:0; font-size:.9rem; }
+  .card p { font-size:.875rem; color:var(--muted); margin-bottom:0; }
+  .card .card-title { font-weight:700; color:var(--primary); font-size:.95rem; margin-bottom:6px; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x:auto; margin:16px 0; border-radius:10px; border:1px solid var(--border); }
+  table { width:100%; border-collapse:collapse; font-size:.875rem; }
+  thead th {
+    background:var(--primary); color:#fff; padding:12px 16px;
+    text-align:left; font-weight:600; white-space:nowrap;
+  }
+  tbody td { padding:11px 16px; border-bottom:1px solid var(--border); vertical-align:top; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:nth-child(even) { background:#fafafa; }
+  .check { color:var(--success); font-weight:700; }
+  .cross { color:var(--danger); }
+  .phase2 { color:var(--warning); font-weight:600; font-size:.8rem; }
+
+  /* ── CODE ── */
+  pre {
+    background:#0f172a; color:#e2e8f0; padding:20px 24px;
+    border-radius:10px; overflow-x:auto; font-size:.82rem; line-height:1.7;
+    margin:12px 0;
+  }
+  code { background:#f1f5f9; color:var(--accent); padding:2px 6px; border-radius:4px; font-size:.85em; }
+
+  /* ── ALERTS ── */
+  .alert {
+    border-radius:10px; padding:14px 18px; margin:16px 0;
+    font-size:.9rem; border-left:4px solid; display:flex; gap:12px; align-items:flex-start;
+  }
+  .alert.info { background:#eff6ff; border-color:var(--info); color:#1e40af; }
+  .alert.warning { background:#fffbeb; border-color:var(--warning); color:#92400e; }
+  .alert.success { background:#f0fdf4; border-color:var(--success); color:#14532d; }
+  .alert.danger { background:#fef2f2; border-color:var(--danger); color:#7f1d1d; }
+  .alert .icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+
+  /* ── FLOW ── */
+  .flow {
+    display:flex; align-items:center; flex-wrap:wrap; gap:6px;
+    padding:16px; background:var(--white); border-radius:10px;
+    border:1px solid var(--border); margin:12px 0;
+  }
+  .flow-step {
+    background:var(--bg); border:1px solid var(--border);
+    padding:8px 14px; border-radius:8px; font-size:.82rem;
+    font-weight:600; color:var(--primary);
+  }
+  .flow-arrow { color:var(--accent); font-size:1.1rem; font-weight:700; }
+  .flow-step.highlight { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .flow-step.muted { background:#f1f5f9; color:var(--muted); }
+
+  /* ── TAGS ── */
+  .tag {
+    display:inline-block; padding:3px 10px; border-radius:20px;
+    font-size:.75rem; font-weight:600; margin:2px;
+  }
+  .tag.green { background:#dcfce7; color:#166534; }
+  .tag.blue { background:#dbeafe; color:#1e40af; }
+  .tag.orange { background:#ffedd5; color:#9a3412; }
+  .tag.gray { background:#f3f4f6; color:#374151; }
+  .tag.purple { background:#f3e8ff; color:#6b21a8; }
+  .tag.red { background:#fee2e2; color:#991b1b; }
+
+  /* ── PRICING TABLE ── */
+  .pricing { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:20px 0; }
+  .plan {
+    background:var(--white); border:2px solid var(--border);
+    border-radius:14px; padding:24px 18px; text-align:center; position:relative;
+  }
+  .plan.popular { border-color:var(--accent); box-shadow:0 4px 20px rgba(232,93,38,.15); }
+  .plan .popular-badge {
+    position:absolute; top:-12px; left:50%; transform:translateX(-50%);
+    background:var(--accent); color:#fff; font-size:.7rem; font-weight:700;
+    padding:4px 14px; border-radius:20px; white-space:nowrap;
+  }
+  .plan .plan-name { font-weight:800; font-size:1.1rem; color:var(--primary); margin-bottom:4px; }
+  .plan .plan-price { font-size:2rem; font-weight:800; color:var(--accent); }
+  .plan .plan-price span { font-size:.85rem; color:var(--muted); font-weight:400; }
+  .plan .plan-year { font-size:.8rem; color:var(--success); font-weight:600; margin-bottom:16px; }
+  .plan ul { list-style:none; text-align:left; font-size:.82rem; }
+  .plan ul li { padding:5px 0; border-bottom:1px solid var(--border); display:flex; gap:8px; }
+  .plan ul li:last-child { border-bottom:none; }
+
+  /* ── SCREEN MOCKUP ── */
+  .screen {
+    background:var(--white); border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; margin:16px 0; box-shadow:0 2px 12px rgba(0,0,0,.06);
+  }
+  .screen-header {
+    background:var(--primary); color:#fff; padding:10px 16px;
+    font-size:.8rem; display:flex; align-items:center; gap:8px; font-weight:600;
+  }
+  .screen-body { padding:16px 20px; font-size:.875rem; }
+
+  /* ── TIMELINE ── */
+  .timeline { position:relative; padding-left:32px; margin:16px 0; }
+  .timeline::before { content:''; position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:var(--border); }
+  .tl-item { position:relative; margin-bottom:24px; }
+  .tl-item::before {
+    content:''; position:absolute; left:-28px; top:4px;
+    width:14px; height:14px; border-radius:50%; background:var(--accent); border:2px solid #fff;
+    box-shadow:0 0 0 2px var(--accent);
+  }
+  .tl-item h4 { margin-top:0; color:var(--primary); font-size:.9rem; text-transform:none; letter-spacing:0; }
+  .tl-item p { font-size:.85rem; }
+
+  /* ── DB SCHEMA ── */
+  .schema-table {
+    background:#0f172a; border-radius:10px; padding:4px; margin:12px 0; overflow-x:auto;
+  }
+  .schema-table table { background:transparent; }
+  .schema-table thead th { background:#1e293b; color:#94a3b8; font-size:.78rem; padding:8px 14px; }
+  .schema-table tbody td { color:#e2e8f0; font-size:.8rem; padding:7px 14px; border-bottom:1px solid #1e293b; font-family:monospace; }
+  .schema-table tbody tr:nth-child(even) { background:#0f172a; }
+  .schema-table .type { color:#7dd3fc; }
+  .schema-table .pk { color:#fbbf24; font-weight:700; }
+  .schema-table .fk { color:#a78bfa; }
+  .schema-table .note { color:#6b7280; font-style:italic; }
+
+  /* ── ACCORDION (Wi-Fi hint style) ── */
+  .hint-box {
+    border:1px solid var(--border); border-radius:10px; margin:12px 0; overflow:hidden;
+  }
+  .hint-header {
+    background:#f8fafc; padding:12px 16px; display:flex; align-items:center;
+    justify-content:space-between; cursor:pointer; font-weight:600; font-size:.875rem;
+  }
+  .hint-body { padding:14px 16px; font-size:.85rem; line-height:1.7; background:var(--white); }
+  .hint-body ol { padding-left:18px; }
+  .hint-body li { margin-bottom:6px; }
+
+  /* ── MISC ── */
+  .divider { border:none; border-top:1px solid var(--border); margin:32px 0; }
+  .muted-text { color:var(--muted); font-size:.85rem; }
+  ul.feature-list { list-style:none; padding:0; }
+  ul.feature-list li { padding:6px 0; border-bottom:1px solid var(--border); font-size:.9rem; display:flex; gap:8px; }
+  ul.feature-list li:last-child { border-bottom:none; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+
+  @media(max-width:900px) {
+    #sidebar { transform:translateX(-100%); }
+    #main { margin-left:0; padding:24px 20px; }
+    .cards.col2,.cards.col3,.cards.col4 { grid-template-columns:1fr; }
+    .pricing { grid-template-columns:1fr 1fr; }
+    .two-col,.three-col { grid-template-columns:1fr; }
+  }
+
+  /* print */
+  @media print { #sidebar { display:none; } #main { margin-left:0; } }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<aside id="sidebar">
+  <div class="logo">Tap<span>Menu</span> Armenia<br><small style="font-weight:400;font-size:.7rem;color:rgba(255,255,255,.4)">Техническое задание v2.0</small></div>
+  <nav>
+    <div class="section-title">Проект</div>
+    <a href="#s1">01 · Обзор проекта</a>
+    <a href="#s2">02 · Техстек</a>
+    <a href="#s3">03 · Роли</a>
+    <a href="#s4">04 · Тарифные планы</a>
+    <div class="section-title">База данных</div>
+    <a href="#s5">05 · Схема БД</a>
+    <div class="section-title">Модули</div>
+    <a href="#s6">06 · Лендинг</a>
+    <a href="#s7">07 · Публичное меню</a>
+    <a href="#s8">08 · Кабинет ресторана</a>
+    <a href="#s9">09 · Суперадмин панель</a>
+    <div class="section-title">Логика</div>
+    <a href="#s10">10 · Флоу взаимодействий</a>
+    <a href="#s11">11 · Изображения</a>
+    <a href="#s12">12 · Курсы валют</a>
+    <a href="#s13">13 · AI ассистент (LUXE)</a>
+    <a href="#s14">14 · Email уведомления</a>
+    <a href="#s15">15 · Безопасность</a>
+    <a href="#s16">16 · Платежи (Phase 2)</a>
+    <a href="#s17">17 · Роадмап</a>
+  </nav>
+</aside>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<main id="main">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="badge">Финальная версия · MVP + Phase 2</div>
+  <h1>TapMenu Armenia<br>Техническое задание</h1>
+  <p>SaaS-платформа цифровых NFC-меню для ресторанов Армении. Документ для fullstack-разработчика.</p>
+  <div class="meta">
+    <div class="meta-item"><span class="label">Версия</span><span class="value">2.0 Final</span></div>
+    <div class="meta-item"><span class="label">Срок MVP</span><span class="value">8 недель</span></div>
+    <div class="meta-item"><span class="label">Команда</span><span class="value">1 Fullstack Dev</span></div>
+    <div class="meta-item"><span class="label">Домен</span><span class="value">tapmenu.am</span></div>
+    <div class="meta-item"><span class="label">Стек</span><span class="value">Next.js 14 · Supabase · TypeScript</span></div>
+  </div>
+</div>
+
+<!-- ═══ 01 ОБЗОР ═══ -->
+<section id="s1">
+  <h2><span class="num">01</span> Обзор проекта</h2>
+  <p><strong>TapMenu Armenia</strong> — SaaS-платформа для ресторанов Армении. Гость прикладывает смартфон к NFC-метке на столе → мгновенно открывается веб-меню ресторана на его языке. Без установки приложений, без регистрации.</p>
+
+  <div class="cards col3" style="margin-top:20px">
+    <div class="card accent-top">
+      <div class="card-title">👤 Для гостя</div>
+      <p>Одно касание → меню. Выбор языка, просмотр блюд, детали и аллергены, переключение валюты.</p>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">🍽 Для ресторана</div>
+      <p>Личный кабинет: управление меню, библиотека блюд, аналитика, специальные предложения, настройка шаблона.</p>
+    </div>
+    <div class="card accent-green">
+      <div class="card-title">⚙️ Для суперадмина</div>
+      <p>Управление всеми ресторанами, подписками, заявками с сайта, курсами валют и настройками платформы.</p>
+    </div>
+  </div>
+
+  <h3>Адреса системы</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>URL</th><th>Назначение</th><th>Кто видит</th></tr></thead>
+      <tbody>
+        <tr><td><code>tapmenu.am</code></td><td>Публичный лендинг</td><td>Все</td></tr>
+        <tr><td><code>app.tapmenu.am</code></td><td>Кабинет владельца ресторана</td><td>Owner (логин/пароль)</td></tr>
+        <tr><td><code>menu.tapmenu.am/[slug]</code></td><td>Публичное меню ресторана</td><td>Гости (без регистрации)</td></tr>
+        <tr><td><code>admin.tapmenu.am</code></td><td>Суперадмин панель</td><td>Только Super Admin</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 02 ТЕХСТЕК ═══ -->
+<section id="s2">
+  <h2><span class="num">02</span> Технический стек</h2>
+
+  <div class="alert warning">
+    <span class="icon">⚠️</span>
+    <div><strong>Единый стек для всего проекта.</strong> В предыдущих документах были противоречия (Node.js vs Next.js, AWS vs Supabase). Этот документ — окончательный эталон. Все решения ниже обязательны.</div>
+  </div>
+
+  <div class="cards col2">
+    <div class="card">
+      <h4>Frontend</h4>
+      <ul class="feature-list">
+        <li>✦ Next.js 14 (App Router)</li>
+        <li>✦ TypeScript (strict mode)</li>
+        <li>✦ Tailwind CSS + shadcn/ui</li>
+        <li>✦ Framer Motion (анимации)</li>
+        <li>✦ Zustand (state management)</li>
+        <li>✦ TanStack Query (API кэш)</li>
+        <li>✦ React Hook Form + Zod</li>
+        <li>✦ @dnd-kit/core (drag & drop)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Backend & Database</h4>
+      <ul class="feature-list">
+        <li>✦ Next.js API Routes + Server Actions</li>
+        <li>✦ Supabase (PostgreSQL + Auth + Storage)</li>
+        <li>✦ Supabase Row Level Security (RLS)</li>
+        <li>✦ Prisma ORM</li>
+        <li>✦ Vercel Cron Jobs (фоновые задачи)</li>
+        <li>✦ Resend (email уведомления)</li>
+        <li>✦ Sharp.js (обработка изображений)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Внешние интеграции — MVP</h4>
+      <ul class="feature-list">
+        <li>✦ DeepL API — перевод (Pro/Premium/LUXE)</li>
+        <li>✦ Google Translate API — базовый перевод</li>
+        <li>✦ ЦБ РА API — курсы валют (бесплатно)</li>
+        <li>✦ OpenAI GPT-4o + DALL-E 3 — только LUXE</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Платежи — Phase 2 (не MVP)</h4>
+      <ul class="feature-list">
+        <li>⏳ Stripe — карты Visa / Mastercard</li>
+        <li>⏳ IDram — армянская платёжная система</li>
+        <li>⏳ Годовые подписки со скидкой 20%</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <span class="icon">ℹ️</span>
+    <div><strong>Хостинг:</strong> Vercel (автодеплой из GitHub). Изображения — Supabase Storage + Next/Image оптимизация. Не использовать AWS в MVP.</div>
+  </div>
+</section>
+
+<!-- ═══ 03 РОЛИ ═══ -->
+<section id="s3">
+  <h2><span class="num">03</span> Роли пользователей</h2>
+
+  <div class="cards col3">
+    <div class="card accent-orange">
+      <div class="card-title">👑 Super Admin</div>
+      <p style="font-size:.82rem">Вы — владелец платформы. Видит всё: все рестораны, статусы, выручку. Создаёт аккаунты ресторанов, управляет подписками вручную, обрабатывает заявки с сайта.</p>
+      <div style="margin-top:8px"><span class="tag orange">admin.tapmenu.am</span></div>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">🍽 Owner (Ресторан)</div>
+      <p style="font-size:.82rem">Клиент платформы. Видит только свой ресторан. Управляет меню, библиотекой блюд, спецпредложениями, настройками, аналитикой.</p>
+      <div style="margin-top:8px"><span class="tag blue">app.tapmenu.am</span></div>
+    </div>
+    <div class="card accent-green">
+      <div class="card-title">👤 Guest (Гость ресторана)</div>
+      <p style="font-size:.82rem">Конечный пользователь. Открывает меню через NFC или QR. Выбирает язык и валюту. Не регистрируется, ничего не редактирует.</p>
+      <div style="margin-top:8px"><span class="tag green">menu.tapmenu.am/[slug]</span></div>
+    </div>
+  </div>
+
+  <h3>Матрица доступа</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Действие</th><th>Super Admin</th><th>Owner</th><th>Guest</th></tr></thead>
+      <tbody>
+        <tr><td>Просмотр публичного меню</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Редактировать своё меню</td><td class="check">✅</td><td class="check">✅</td><td class="cross">❌</td></tr>
+        <tr><td>Редактировать меню любого ресторана</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Создавать рестораны</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+        <tr><td>Управлять подписками</td><td class="check">✅</td><td>👁 только просмотр</td><td class="cross">❌</td></tr>
+        <tr><td>Аналитика платформы</td><td class="check">✅ (все)</td><td>✅ (только свои)</td><td class="cross">❌</td></tr>
+        <tr><td>Настройка шаблона меню</td><td class="check">✅</td><td>✅ (в рамках тарифа)</td><td class="cross">❌</td></tr>
+        <tr><td>AI-ассистент</td><td class="check">✅</td><td>✅ (только LUXE)</td><td class="cross">❌</td></tr>
+        <tr><td>Блокировать рестораны</td><td class="check">✅</td><td class="cross">❌</td><td class="cross">❌</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 04 ТАРИФЫ ═══ -->
+<section id="s4">
+  <h2><span class="num">04</span> Тарифные планы</h2>
+
+  <div class="pricing">
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">$15<span>/мес</span></div>
+      <div class="plan-year">или $144/год (-20%)</div>
+      <ul>
+        <li><span class="check">✅</span> 1 меню</li>
+        <li><span class="check">✅</span> до 50 блюд</li>
+        <li><span class="check">✅</span> 2 языка (EN + HY)</li>
+        <li><span class="check">✅</span> 4 NFC-метки</li>
+        <li><span class="check">✅</span> Шаблон Classic</li>
+        <li><span class="cross">❌</span> Выбор цвета акцента</li>
+        <li><span class="cross">❌</span> Аналитика топ блюд</li>
+        <li><span class="cross">❌</span> AI ассистент</li>
+      </ul>
+    </div>
+    <div class="plan popular">
+      <div class="popular-badge">🔥 Популярный</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">$25<span>/мес</span></div>
+      <div class="plan-year">или $240/год (-20%)</div>
+      <ul>
+        <li><span class="check">✅</span> 3 меню</li>
+        <li><span class="check">✅</span> до 150 блюд</li>
+        <li><span class="check">✅</span> 3 языка на выбор из 33</li>
+        <li><span class="check">✅</span> 8 NFC-меток</li>
+        <li><span class="check">✅</span> Classic или Modern</li>
+        <li><span class="check">✅</span> 5 цветов акцента</li>
+        <li><span class="check">✅</span> Полная аналитика</li>
+        <li><span class="cross">❌</span> AI ассистент</li>
+      </ul>
+    </div>
+    <div class="plan">
+      <div class="plan-name">Premium</div>
+      <div class="plan-price">$45<span>/мес</span></div>
+      <div class="plan-year">или $432/год (-20%)</div>
+      <ul>
+        <li><span class="check">✅</span> Безлимит меню</li>
+        <li><span class="check">✅</span> Безлимит блюд</li>
+        <li><span class="check">✅</span> 3 языка на выбор из 33</li>
+        <li><span class="check">✅</span> 12 NFC-меток</li>
+        <li><span class="check">✅</span> Classic / Modern / Minimal</li>
+        <li><span class="check">✅</span> 5 цветов акцента</li>
+        <li><span class="check">✅</span> Полная аналитика</li>
+        <li><span class="cross">❌</span> AI ассистент</li>
+      </ul>
+    </div>
+    <div class="plan" style="border-color:var(--accent2)">
+      <div class="plan-name" style="color:var(--accent2)">LUXE</div>
+      <div class="plan-price" style="color:var(--accent2)">$50+<span>/мес</span></div>
+      <div class="plan-year">или $480+/год (-20%)</div>
+      <ul>
+        <li><span class="check">✅</span> Всё из Premium</li>
+        <li><span class="check">✅</span> 33 языка (DeepL)</li>
+        <li><span class="check">✅</span> V-Template + баннер</li>
+        <li><span class="check">✅</span> Свободный выбор цвета</li>
+        <li><span class="check">✅</span> AI-ассистент (GPT-4o)</li>
+        <li><span class="check">✅</span> Генерация фото блюд</li>
+        <li><span class="check">✅</span> Приоритетная поддержка</li>
+        <li><span class="check">✅</span> Гибкий набор инструментов</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Шаблоны меню по тарифам</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Шаблон</th><th>Описание</th><th>Доступен на тарифе</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Classic</strong></td>
+          <td>Карточки блюд сеткой, светлый фон, традиционная типографика. Без кастомизации цвета.</td>
+          <td><span class="tag gray">Starter</span><span class="tag blue">Pro</span><span class="tag orange">Premium</span><span class="tag purple">LUXE</span></td>
+        </tr>
+        <tr>
+          <td><strong>Modern</strong></td>
+          <td>Горизонтальные карточки с фото слева, минимализм. Выбор из 5 цветов акцента.</td>
+          <td><span class="tag blue">Pro</span><span class="tag orange">Premium</span><span class="tag purple">LUXE</span></td>
+        </tr>
+        <tr>
+          <td><strong>Minimal</strong></td>
+          <td>Только текст + цена, без тяжёлых изображений, быстрая загрузка. 5 цветов акцента.</td>
+          <td><span class="tag orange">Premium</span><span class="tag purple">LUXE</span></td>
+        </tr>
+        <tr>
+          <td><strong>V-Template</strong></td>
+          <td>Полноэкранный баннер ресторана сверху, загрузка собственного фона, свободный цвет, фирменный стиль.</td>
+          <td><span class="tag purple">LUXE only</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Языки по тарифам</h3>
+  <div class="alert info">
+    <span class="icon">🌍</span>
+    <div>
+      <strong>По умолчанию для всех тарифов:</strong> Русский / Английский / Армянский (RU/EN/HY).<br>
+      Гость сам переключает язык меню. Меню <strong>не отображается сразу на всех языках</strong> одновременно — только на выбранном.<br><br>
+      <strong>Starter</strong> — 2 языка (EN + HY фиксированно)<br>
+      <strong>Pro / Premium</strong> — любые 3 языка на выбор из 33 языков DeepL (по умолчанию RU/EN/HY)<br>
+      <strong>LUXE</strong> — все 33 языка DeepL
+    </div>
+  </div>
+
+  <h3>Trial период и годовые тарифы</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+      <tbody>
+        <tr><td>Trial период</td><td>7 дней — для всех тарифов</td></tr>
+        <tr><td>Grace period</td><td>3 дня после истечения → затем блокировка</td></tr>
+        <tr><td>Годовая скидка</td><td>−20% при оплате за год</td></tr>
+        <tr><td>Управление подписками в MVP</td><td>Вручную суперадмином (Stripe/IDram — Phase 2)</td></tr>
+        <tr><td>Автоблокировка</td><td>Vercel Cron раз в 24 ч проверяет истёкшие подписки</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 05 БД ═══ -->
+<section id="s5">
+  <h2><span class="num">05</span> Схема базы данных</h2>
+
+  <div class="alert success">
+    <span class="icon">✅</span>
+    <div>Все таблицы используют <strong>Supabase Row Level Security (RLS)</strong>. Owner видит только данные своего ресторана. Admin видит всё. Guest читает только активные данные активных ресторанов.</div>
+  </div>
+
+  <h3>users</h3>
+  <div class="schema-table"><table>
+    <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td class="pk">id</td><td class="type">UUID PK</td><td class="note">gen_random_uuid()</td></tr>
+      <tr><td>email</td><td class="type">VARCHAR(255)</td><td>Уникальный, NOT NULL</td></tr>
+      <tr><td>first_name</td><td class="type">VARCHAR(100)</td><td></td></tr>
+      <tr><td>last_name</td><td class="type">VARCHAR(100)</td><td></td></tr>
+      <tr><td>phone</td><td class="type">VARCHAR(20)</td><td></td></tr>
+      <tr><td>role</td><td class="type">VARCHAR(20)</td><td>'owner' | 'admin' — DEFAULT 'owner'</td></tr>
+      <tr><td>created_at</td><td class="type">TIMESTAMP</td><td>DEFAULT NOW()</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>restaurants</h3>
+  <div class="schema-table"><table>
+    <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td class="pk">id</td><td class="type">UUID PK</td><td></td></tr>
+      <tr><td class="fk">owner_id</td><td class="type">UUID FK → users</td><td>ON DELETE SET NULL</td></tr>
+      <tr><td>name</td><td class="type">VARCHAR(255)</td><td>NOT NULL</td></tr>
+      <tr><td>slug</td><td class="type">VARCHAR(100)</td><td>UNIQUE — только a-z, 0-9, дефис</td></tr>
+      <tr><td>description</td><td class="type">TEXT</td><td></td></tr>
+      <tr><td>logo_url</td><td class="type">TEXT</td><td>Supabase Storage URL</td></tr>
+      <tr><td>address</td><td class="type">TEXT</td><td></td></tr>
+      <tr><td>phone</td><td class="type">VARCHAR(20)</td><td></td></tr>
+      <tr><td>tourist_mode</td><td class="type">BOOLEAN</td><td>DEFAULT false — показывать переключатель валюты</td></tr>
+      <tr><td>wifi_ssid</td><td class="type">VARCHAR(100)</td><td>Название Wi-Fi сети</td></tr>
+      <tr><td>wifi_password</td><td class="type">TEXT</td><td>AES-256 зашифровано на уровне приложения</td></tr>
+      <tr><td>status</td><td class="type">VARCHAR(20)</td><td>'pending'|'trial'|'active'|'expired'|'blocked'</td></tr>
+      <tr><td>created_at / updated_at</td><td class="type">TIMESTAMP</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>subscriptions</h3>
+  <div class="schema-table"><table>
+    <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td class="pk">id</td><td class="type">UUID PK</td><td></td></tr>
+      <tr><td class="fk">restaurant_id</td><td class="type">UUID FK → restaurants</td><td>ON DELETE CASCADE</td></tr>
+      <tr><td>plan</td><td class="type">VARCHAR(20)</td><td>'starter'|'pro'|'premium'|'luxe'</td></tr>
+      <tr><td>billing_cycle</td><td class="type">VARCHAR(10)</td><td>'monthly'|'annual'</td></tr>
+      <tr><td>status</td><td class="type">VARCHAR(20)</td><td>'trial'|'active'|'expired'|'blocked'</td></tr>
+      <tr><td>trial_ends_at</td><td class="type">TIMESTAMP</td><td></td></tr>
+      <tr><td>current_period_end</td><td class="type">DATE</td><td>Дата следующей оплаты — устанавливает суперадмин</td></tr>
+      <tr><td>notes</td><td class="type">TEXT</td><td>Комментарий суперадмина (способ оплаты и т.д.)</td></tr>
+      <tr><td>stripe_subscription_id</td><td class="type">VARCHAR(100)</td><td>NULL в MVP, заполняется в Phase 2</td></tr>
+      <tr><td>idram_order_id</td><td class="type">VARCHAR(100)</td><td>NULL в MVP, заполняется в Phase 2</td></tr>
+      <tr><td>created_at / updated_at</td><td class="type">TIMESTAMP</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>dishes_library (библиотека блюд)</h3>
+  <div class="alert info" style="margin-bottom:8px">
+    <span class="icon">📚</span>
+    <div><strong>Библиотека блюд</strong> — блюдо создаётся один раз и хранится в библиотеке ресторана. Менеджер добавляет его в категорию меню (toggle ВКЛ) или убирает оттуда (toggle ВЫКЛ) без удаления. Блюдо всегда остаётся в библиотеке и может быть добавлено снова в любой момент.</div>
+  </div>
+  <div class="schema-table"><table>
+    <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td class="pk">id</td><td class="type">UUID PK</td><td></td></tr>
+      <tr><td class="fk">restaurant_id</td><td class="type">UUID FK → restaurants</td><td>ON DELETE CASCADE</td></tr>
+      <tr><td>name_ru / name_en / name_hy</td><td class="type">VARCHAR(255)</td><td>Название на 3 языках</td></tr>
+      <tr><td>description_ru/en/hy</td><td class="type">TEXT</td><td>Описание на 3 языках</td></tr>
+      <tr><td>price</td><td class="type">DECIMAL(10,2)</td><td>В AMD, NOT NULL</td></tr>
+      <tr><td>image_url</td><td class="type">TEXT</td><td>Supabase Storage (WebP)</td></tr>
+      <tr><td>image_thumbnail_url</td><td class="type">TEXT</td><td>Миниатюра 300×200 WebP</td></tr>
+      <tr><td>weight_grams</td><td class="type">INTEGER</td><td>Вес в граммах</td></tr>
+      <tr><td>calories_kcal</td><td class="type">INTEGER</td><td>Скрытое поле (в аккордеоне)</td></tr>
+      <tr><td>protein_g</td><td class="type">DECIMAL(6,2)</td><td>Белки — скрытое поле</td></tr>
+      <tr><td>fat_g</td><td class="type">DECIMAL(6,2)</td><td>Жиры — скрытое поле</td></tr>
+      <tr><td>carbs_g</td><td class="type">DECIMAL(6,2)</td><td>Углеводы — скрытое поле</td></tr>
+      <tr><td>allergens</td><td class="type">TEXT[]</td><td>Массив аллергенов — скрытое поле</td></tr>
+      <tr><td>tags</td><td class="type">TEXT[]</td><td>['хит','веган','острое','шеф','новинка'] — скрытое</td></tr>
+      <tr><td>notes</td><td class="type">TEXT</td><td>Примечания — скрытое поле</td></tr>
+      <tr><td>created_at / updated_at</td><td class="type">TIMESTAMP</td><td></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>menu_dishes (привязка блюда к категории меню)</h3>
+  <div class="schema-table"><table>
+    <thead><tr><th>Поле</th><th>Тип</th><th>Описание</th></tr></thead>
+    <tbody>
+      <tr><td class="fk">dish_id</td><td class="type">UUID FK → dishes_library</td><td>ON DELETE CASCADE</td></tr>
+      <tr><td class="fk">category_id</td><td class="type">UUID FK → categories</td><td>ON DELETE CASCADE</td></tr>
+      <tr><td>is_active</td><td class="type">BOOLEAN</td><td>DEFAULT true — toggle включить/выключить в меню</td></tr>
+      <tr><td>is_available</td><td class="type">BOOLEAN</td><td>DEFAULT true — стоп-лист (быстрое переключение)</td></tr>
+      <tr><td>sort_order</td><td class="type">INTEGER</td><td>Drag & Drop сортировка</td></tr>
+      <tr><td colspan="3" class="note">PRIMARY KEY (dish_id, category_id)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Остальные таблицы</h3>
+  <pre>-- menus: id, restaurant_id, title, is_active, template_id, accent_color, banner_url, sort_order
+-- categories: id, menu_id, name_ru/en/hy, icon (эмодзи), sort_order, is_visible
+-- special_offers: id, restaurant_id, title_ru/en/hy, description_ru/en/hy, banner_image_url,
+--                 starts_at (TIME), ends_at (TIME), valid_from (DATE), valid_until (DATE), is_active
+-- special_offer_dishes: special_offer_id FK, dish_id FK  [многие-ко-многим]
+-- tables: id, restaurant_id, table_number, nfc_uid, qr_code_url, menu_url, is_active
+-- menu_views: id, restaurant_id, table_id, dish_id (клик), language, access_type(nfc|qr|direct), viewed_at
+-- exchange_rates: currency_code PK, rate_to_amd, last_updated
+-- leads: id, name, restaurant_name, email, phone, plan, message, status(new|processing|done), created_at
+-- ai_conversations: id, restaurant_id, messages JSONB, created_at  [только LUXE]
+-- payment_history: id, restaurant_id, amount, currency, method, period_from, period_to, note, created_at
+-- luxe_features: id, restaurant_id, feature_key, is_enabled  [гибкий набор инструментов LUXE]</pre>
+</section>
+
+<!-- ═══ 06 ЛЕНДИНГ ═══ -->
+<section id="s6">
+  <h2><span class="num">06</span> Модуль 1 — Лендинг (tapmenu.am)</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Страница</th><th>Содержание</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>/</code></td>
+          <td>Hero (заголовок + CTA), как это работает (3 шага), преимущества, краткие тарифы, footer</td>
+        </tr>
+        <tr>
+          <td><code>/pricing</code></td>
+          <td>Полная таблица тарифов + сравнение + годовые цены (-20%) + FAQ + кнопка "Оставить заявку"</td>
+        </tr>
+        <tr>
+          <td><code>/how-it-works</code></td>
+          <td>Пошаговая схема для ресторана: регистрация → метки → меню → гости. FAQ.</td>
+        </tr>
+        <tr>
+          <td><code>/demo</code></td>
+          <td>Живое демо-меню (полностью функциональное, демо-данные) + кнопка "Хочу такое же" → форма заявки</td>
+        </tr>
+        <tr>
+          <td><code>/contact</code></td>
+          <td>Форма обратной связи + контакты (email, телефон, адрес)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Форма заявки с /demo</h3>
+  <p>Поля: Имя, Название ресторана, Email, Телефон, Интересующий тариф (выбор), Комментарий. После отправки — сообщение "Мы свяжемся в течение 24 часов". Заявка сохраняется в таблицу <code>leads</code> → суперадмин видит в панели.</p>
+</section>
+
+<!-- ═══ 07 ПУБЛИЧНОЕ МЕНЮ ═══ -->
+<section id="s7">
+  <h2><span class="num">07</span> Модуль 2 — Публичное меню (menu.tapmenu.am/[slug])</h2>
+
+  <h3>Флоу открытия меню</h3>
+  <div class="flow">
+    <div class="flow-step highlight">NFC / QR</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">menu.tapmenu.am/[slug]</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Проверка: ресторан активен?</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Определить язык браузера</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Загрузить меню</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Записать просмотр</div>
+  </div>
+  <p class="muted-text" style="margin-top:4px">Если ресторан неактивен/заблокирован → страница-заглушка "Меню временно недоступно"</p>
+
+  <h3>Элементы страницы меню</h3>
+  <ul class="feature-list">
+    <li>🏷 Логотип + название ресторана (шапка)</li>
+    <li>🌍 Переключатель языка — флаги доступных языков по тарифу (гость выбирает сам)</li>
+    <li>💱 Переключатель валюты — AMD / USD / EUR / RUB (только если <code>tourist_mode = true</code>). Курс подгружается в момент нажатия с ЦБ РА API</li>
+    <li>📡 Кнопка Wi-Fi — если настроено в кабинете (копирует пароль или открывает QR для подключения)</li>
+    <li>🎯 Слайдер спецпредложений — если есть активные на текущее время/дату</li>
+    <li>📂 Горизонтальное меню категорий с иконками (прокрутка)</li>
+    <li>🃏 Карточки блюд по выбранной категории</li>
+  </ul>
+
+  <h3>Карточка блюда (в списке)</h3>
+  <div class="cards col2">
+    <div class="card accent-green">
+      <div class="card-title">Всегда отображается</div>
+      <ul class="feature-list">
+        <li>📸 Фото блюда (если загружено)</li>
+        <li>📝 Название (на выбранном языке)</li>
+        <li>📄 Описание (краткое)</li>
+        <li>💰 Цена (AMD или выбранная валюта)</li>
+        <li>⚖️ Вес в граммах</li>
+        <li>🔴 Бейдж "Стоп" если блюдо недоступно</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:4px solid var(--muted)">
+      <div class="card-title">Скрытая секция (аккордеон ▼)</div>
+      <p style="font-size:.82rem;margin-bottom:8px">Отображается <strong>только если ресторан заполнил эти поля</strong>. Гость открывает стрелочкой.</p>
+      <ul class="feature-list">
+        <li>🔥 Калории (ккал)</li>
+        <li>🥩 Белки / жиры / углеводы (БЖУ)</li>
+        <li>⚠️ Аллергены</li>
+        <li>🏷 Теги (веган, острое, хит...)</li>
+        <li>📌 Примечания</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert info">
+    <span class="icon">📱</span>
+    <div><strong>Технические требования:</strong> SSR через Next.js Server Components. Загрузка &lt; 2 сек на мобильном (LTE). Работает без JavaScript (для старых браузеров). Lighthouse mobile score &gt; 90. Изображения — WebP, lazy loading, оптимизация через Next/Image.</div>
+  </div>
+</section>
+
+<!-- ═══ 08 КАБИНЕТ ═══ -->
+<section id="s8">
+  <h2><span class="num">08</span> Модуль 3 — Кабинет ресторана (app.tapmenu.am)</h2>
+
+  <div class="alert warning">
+    <span class="icon">🔐</span>
+    <div><strong>Самостоятельная регистрация не предусмотрена.</strong> Аккаунт создаёт суперадмин. После создания на email ресторана приходит письмо с логином и временным паролем. При первом входе система обязывает сменить пароль.</div>
+  </div>
+
+  <h3>8.1 Аутентификация</h3>
+  <ul class="feature-list">
+    <li>📧 Страница входа: Email + Пароль (Supabase Auth)</li>
+    <li>🔑 Восстановление пароля через email</li>
+    <li>🔄 При первом входе — обязательная смена временного пароля</li>
+    <li>🚀 Онбординг-визард (3 шага): загрузка логотипа → описание ресторана → добавление первого блюда</li>
+  </ul>
+
+  <h3>8.2 Главный дашборд</h3>
+  <div class="screen">
+    <div class="screen-header">📊 Дашборд — Ресторан "Аракс" · Тариф: Pro · ✅ Активен</div>
+    <div class="screen-body">
+      <p><strong>Быстрая статистика (сегодня):</strong> 👁 Просмотров: 142 · 🍽 Блюд в меню: 67</p>
+      <p><strong>Языки гостей:</strong> 🇷🇺 60% · 🇬🇧 30% · 🇦🇲 10%</p>
+      <p style="margin-top:8px">📈 График просмотров за 7 дней</p>
+      <p>🍽 Топ-5 популярных блюд (Pro/Premium/LUXE)</p>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:8px">⚠️ Starter: топ блюд не отображается — только языки и просмотры</p>
+    </div>
+  </div>
+
+  <h3>8.3 Управление меню</h3>
+  <p>Список всех меню ресторана. Создать новое (в рамках лимита тарифа). Только одно меню может быть активным одновременно.</p>
+  <p><strong>Редактор меню</strong> — двухпанельный интерфейс:</p>
+  <div class="cards col2">
+    <div class="card accent-blue">
+      <div class="card-title">Левая панель — Категории</div>
+      <ul class="feature-list">
+        <li>Drag & Drop сортировка</li>
+        <li>Создать категорию: название RU → "Перевести" → EN/HY</li>
+        <li>Выбор иконки (эмодзи)</li>
+        <li>Скрыть / показать категорию</li>
+        <li>Удалить (с предупреждением если есть блюда)</li>
+      </ul>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-title">Правая панель — Блюда категории</div>
+      <ul class="feature-list">
+        <li>Список блюд с toggle "в меню" и toggle "доступно (стоп-лист)"</li>
+        <li>Drag & Drop сортировка</li>
+        <li>Кнопка "Добавить из библиотеки"</li>
+        <li>Кнопка "Создать новое блюдо"</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>8.4 Библиотека блюд</h3>
+  <div class="alert success">
+    <span class="icon">📚</span>
+    <div>Отдельный раздел кабинета. Все блюда ресторана хранятся здесь. Каждое блюдо можно добавить в одну или несколько категорий меню или убрать оттуда — блюдо из библиотеки <strong>не удаляется</strong>.</div>
+  </div>
+  <p><strong>Форма создания/редактирования блюда:</strong></p>
+  <ul class="feature-list">
+    <li>📸 Фото — drag & drop, любой формат (JPG/PNG/HEIC/WebP) → автоконвертация в WebP (см. раздел 11)</li>
+    <li>📝 Название RU + кнопка "Перевести" → EN, HY (и другие языки по тарифу)</li>
+    <li>📄 Описание RU + кнопка "Перевести" → EN, HY</li>
+    <li>💰 Цена (AMD)</li>
+    <li>⚖️ Вес (граммы) — обязательное поле для отображения</li>
+    <li>🔥 Калории (ккал) — необязательно, скрыто в меню</li>
+    <li>🥩 Белки / Жиры / Углеводы — необязательно, скрыто в меню</li>
+    <li>⚠️ Аллергены — мультивыбор из предустановленного списка, скрыто в меню</li>
+    <li>🏷 Теги — Хит / Веган / Острое / Шеф рекомендует / Новинка, скрыто в меню</li>
+    <li>📌 Примечания — текстовое поле, скрыто в меню</li>
+  </ul>
+  <div class="alert warning">
+    <span class="icon">💾</span>
+    <div><strong>Каждое блюдо сохраняется отдельно</strong> кнопкой "Сохранить". Нет автосохранения всей формы целиком — только явное сохранение конкретного блюда.</div>
+  </div>
+
+  <h3>8.5 Специальные предложения</h3>
+  <p>Список активных и архивных предложений. Форма создания:</p>
+  <ul class="feature-list">
+    <li>Заголовок (RU + автоперевод EN/HY)</li>
+    <li>Описание (RU + автоперевод)</li>
+    <li>Загрузка баннера → отображается в слайдере на главной странице меню</li>
+    <li>Выбор блюд из библиотеки (мультивыбор)</li>
+    <li>Время действия: с HH:MM до HH:MM (бизнес-ланч 12:00–15:00)</li>
+    <li>Даты: с DD.MM.YYYY по DD.MM.YYYY</li>
+    <li>Toggle "Активно"</li>
+  </ul>
+
+  <h3>8.6 Управление столами и NFC-метками</h3>
+  <div class="alert info">
+    <span class="icon">❓</span>
+    <div>
+      <strong>Что такое этот раздел и зачем он нужен?</strong><br><br>
+      В вашем ресторане несколько столов. Вы хотите, чтобы гость за столом №5 открыл именно ваше меню. Для этого каждый стол получает <strong>свою уникальную ссылку</strong> и <strong>NFC-метку / QR-код</strong>.<br><br>
+      <strong>Пример:</strong> Стол №3 → ссылка <code>menu.tapmenu.am/araks?table=3</code><br>
+      Эта ссылка зашита в NFC-метку. Когда гость касается меткой — открывается именно это меню.<br>
+      В аналитике вы потом видите: со стола №3 сегодня было 12 просмотров.
+    </div>
+  </div>
+  <p><strong>Кто видит этот раздел:</strong> Owner своего ресторана + Super Admin для любого ресторана.</p>
+  <p><strong>Как добавить стол:</strong></p>
+  <div class="flow">
+    <div class="flow-step">Нажать "Добавить стол"</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Ввести номер стола (1, 2, "Терраса"...)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Система генерирует ссылку и QR</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Скачать QR или привязать NFC</div>
+  </div>
+  <p><strong>Действия для каждого стола:</strong></p>
+  <ul class="feature-list">
+    <li>📥 Скачать QR-код (PNG) — для распечатки и размещения на столе</li>
+    <li>🔗 Скопировать ссылку — отправить в мессенджере или вставить в NFC-метку вручную</li>
+    <li>📡 Ввести UID NFC-метки — после того как суперадмин запрограммировал и прислал метки</li>
+    <li>✅ Активировать / Деактивировать стол</li>
+  </ul>
+  <p class="muted-text">Показывает лимит по тарифу: "Использовано 4 из 4 меток (Starter)"</p>
+
+  <h3>8.7 Аналитика</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Метрика</th><th>Starter</th><th>Pro</th><th>Premium</th><th>LUXE</th></tr></thead>
+      <tbody>
+        <tr><td>Просмотры меню (день/неделя/месяц)</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Языки гостей в %</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Пик активности по часам</td><td class="cross">❌</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>Топ-5 популярных блюд</td><td class="cross">❌</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>NFC vs QR vs прямая ссылка</td><td class="cross">❌</td><td class="check">✅</td><td class="check">✅</td><td class="check">✅</td></tr>
+        <tr><td>AI-советы на основе данных</td><td class="cross">❌</td><td class="cross">❌</td><td class="cross">❌</td><td class="check">✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.8 Настройки ресторана</h3>
+  <ul class="feature-list">
+    <li>📛 Название, описание, адрес, телефон</li>
+    <li>🖼 Логотип (загрузка)</li>
+    <li>🔗 Slug (URL) — редактировать с красным предупреждением: "Изменение slug сломает все NFC-метки!"</li>
+    <li>🎨 Шаблон меню (в рамках тарифа) + выбор цвета акцента</li>
+    <li>🖼 Загрузка баннера (только LUXE)</li>
+    <li>🌍 Управление языками меню (активировать/деактивировать, в рамках тарифа)</li>
+    <li>💱 Toggle "Режим Туриста" — показывать переключатель валюты гостям</li>
+    <li>📡 Wi-Fi SSID + пароль</li>
+  </ul>
+
+  <div class="hint-box">
+    <div class="hint-header">
+      📶 Как найти SSID и пароль Wi-Fi? <span>▼ нажмите для инструкции</span>
+    </div>
+    <div class="hint-body">
+      <p>SSID — это название вашей Wi-Fi сети. Пароль — ключ для подключения.</p>
+      <ol>
+        <li><strong>Название (SSID)</strong> — посмотрите на роутере (маршрутизаторе) — обычно написано на наклейке снизу или сзади устройства. Или спросите у интернет-провайдера.</li>
+        <li><strong>Пароль</strong> — тоже на наклейке роутера (поле "Password" или "Key"). Или настройки роутера → раздел Wi-Fi.</li>
+        <li>После заполнения в меню появится кнопка 📶 Wi-Fi для гостей — они смогут быстро подключиться одним касанием.</li>
+      </ol>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:8px">🔒 Пароль хранится в зашифрованном виде (AES-256). Никто, кроме системы, его не видит.</p>
+    </div>
+  </div>
+
+  <h3>8.9 Раздел "Подписка"</h3>
+  <ul class="feature-list">
+    <li>📋 Текущий тариф: название, цена, дата окончания, статус</li>
+    <li>📜 История платежей (дата, сумма, способ, период — заполняет суперадмин)</li>
+    <li>📧 Кнопка "Связаться для продления" — открывает форму / email</li>
+    <li>⏳ В Phase 2: кнопка "Оплатить онлайн" (Stripe Visa/MC + IDram)</li>
+  </ul>
+</section>
+
+<!-- ═══ 09 СУПЕРАДМИН ═══ -->
+<section id="s9">
+  <h2><span class="num">09</span> Модуль 4 — Суперадмин панель (admin.tapmenu.am)</h2>
+
+  <h3>9.1 Главный дашборд суперадмина</h3>
+  <div class="screen">
+    <div class="screen-header">⚙️ TapMenu Admin Panel</div>
+    <div class="screen-body">
+      <div class="cards col4" style="margin:0">
+        <div style="background:#f0fdf4;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:1.6rem;font-weight:800;color:var(--success)">50</div>
+          <div style="font-size:.78rem;color:var(--muted)">Ресторанов всего</div>
+        </div>
+        <div style="background:#eff6ff;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:1.6rem;font-weight:800;color:var(--info)">42</div>
+          <div style="font-size:.78rem;color:var(--muted)">Активных</div>
+        </div>
+        <div style="background:#fffbeb;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:1.6rem;font-weight:800;color:var(--warning)">5</div>
+          <div style="font-size:.78rem;color:var(--muted)">Trial</div>
+        </div>
+        <div style="background:#fef2f2;padding:12px;border-radius:8px;text-align:center">
+          <div style="font-size:1.6rem;font-weight:800;color:var(--danger)">3</div>
+          <div style="font-size:.78rem;color:var(--muted)">Заблокированных</div>
+        </div>
+      </div>
+      <p style="margin-top:16px">📈 График роста ресторанов по месяцам · 💰 MRR: $1,250 / ARR: $15,000</p>
+      <p>⚠️ <strong>Требуют внимания:</strong> Ресторан "Нова" — trial истекает завтра · 2 новые заявки с сайта</p>
+    </div>
+  </div>
+
+  <h3>9.2 Управление ресторанами</h3>
+  <p>Таблица всех ресторанов с фильтрами (по статусу, тарифу, поиск). Кнопка <strong>"Создать ресторан"</strong>.</p>
+
+  <h4>Форма создания ресторана</h4>
+  <pre>Поля:
+  • Название ресторана *
+  • Slug (URL) *  — авто-генерация из названия, ручное редактирование
+  • Email владельца *
+  • Имя / Фамилия владельца
+  • Телефон
+  • Тариф (Starter / Pro / Premium / LUXE)
+  • Период: Trial (7 дней) / Ввести даты вручную
+  • Заметки суперадмина (ресторан не видит)
+
+После создания:
+  → Создаётся users + restaurants + subscriptions
+  → Email владельцу: логин + временный пароль + ссылка на вход</pre>
+
+  <h4>Карточка ресторана (детальная страница)</h4>
+  <div class="cards col2">
+    <div class="card">
+      <div class="card-title">Вкладка "Подписка"</div>
+      <ul class="feature-list" style="font-size:.82rem">
+        <li>Кнопки: Активировать / Заблокировать / Продлить</li>
+        <li>Изменить тариф и billing_cycle</li>
+        <li>Установить дату окончания подписки</li>
+        <li>Добавить запись об оплате: дата, сумма, способ (карта/IDram/другое), период</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Вкладки "Меню" и "Аналитика"</div>
+      <ul class="feature-list" style="font-size:.82rem">
+        <li>Просмотр и редактирование меню ресторана</li>
+        <li>Статистика конкретного ресторана</li>
+        <li>Логи изменений (кто что менял)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>9.3 Заявки с сайта (Leads)</h3>
+  <p>Список заявок с <code>/demo</code> и <code>/contact</code>. Статусы: Новая / В обработке / Завершена. Кнопка "Создать ресторан из заявки" → форма с предзаполненными данными.</p>
+
+  <h3>9.4 Подписки (сводный список)</h3>
+  <p>Таблица всех подписок. Сортировка по дате истечения. Виджет "Истекают в ближайшие 7 дней". Быстрые действия прямо из таблицы.</p>
+
+  <h3>9.5 Курсы валют</h3>
+  <p>Отображение текущих курсов (AMD → USD/EUR/RUB) и дата последнего обновления. Кнопка "Обновить вручную" (запрос к ЦБ РА). Автообновление — Vercel Cron раз в день (06:00 UTC). Подробнее — раздел 12.</p>
+
+  <h3>9.6 Настройки платформы</h3>
+  <ul class="feature-list">
+    <li>Редактирование лимитов тарифов (блюда, меню, метки, языки)</li>
+    <li>Email-шаблоны (приветственное, истечение, блокировка)</li>
+    <li>Управление LUXE-инструментами для конкретного клиента (<code>luxe_features</code>)</li>
+  </ul>
+</section>
+
+<!-- ═══ 10 ФЛОУ ═══ -->
+<section id="s10">
+  <h2><span class="num">10</span> Флоу взаимодействий</h2>
+
+  <h3>Флоу 1: Запуск нового ресторана (от заявки до живого меню)</h3>
+  <div class="timeline">
+    <div class="tl-item">
+      <h4>1. Заявка с сайта</h4>
+      <p>Ресторан заполняет форму на <code>tapmenu.am/demo</code> → заявка сохраняется в <code>leads</code></p>
+    </div>
+    <div class="tl-item">
+      <h4>2. Суперадмин обрабатывает заявку</h4>
+      <p>Видит уведомление в панели → связывается с рестораном → создаёт аккаунт из заявки одной кнопкой</p>
+    </div>
+    <div class="tl-item">
+      <h4>3. Email ресторану</h4>
+      <p>Автоматически уходит письмо: логин (email), временный пароль, ссылка на вход, тариф и дата окончания trial</p>
+    </div>
+    <div class="tl-item">
+      <h4>4. Первый вход</h4>
+      <p>Ресторан входит на <code>app.tapmenu.am</code> → меняет пароль → проходит онбординг-визард (логотип, описание, первое блюдо)</p>
+    </div>
+    <div class="tl-item">
+      <h4>5. Заполнение меню</h4>
+      <p>Owner создаёт категории, добавляет блюда в библиотеку, включает их в меню. Настраивает шаблон и языки.</p>
+    </div>
+    <div class="tl-item">
+      <h4>6. NFC-метки</h4>
+      <p>Суперадмин программирует метки с URL ресторана, отправляет почтой/курьером. Ресторан вводит UID каждой метки в разделе "Столы", распечатывает QR как резервный вариант.</p>
+    </div>
+    <div class="tl-item">
+      <h4>7. Готово ✅</h4>
+      <p>Гости касаются метками → меню работает. Аналитика начинает накапливаться.</p>
+    </div>
+  </div>
+
+  <h3>Флоу 2: Продление подписки</h3>
+  <div class="flow">
+    <div class="flow-step">Подписка истекает через 7 дней</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Суперадмин видит виджет</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Связывается с рестораном</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Ресторан платит вне системы (MVP)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Суперадмин продлевает + записывает оплату</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Ресторан видит обновлённый статус ✅</div>
+  </div>
+
+  <h3>Флоу 3: Автоблокировка при неоплате</h3>
+  <div class="timeline">
+    <div class="tl-item"><h4>День 0</h4><p>Дата окончания подписки → система меняет статус на <code>expired</code> (Vercel Cron)</p></div>
+    <div class="tl-item"><h4>День 0 — Email</h4><p>Автоматически: "Ваша подписка истекла. Свяжитесь с нами."</p></div>
+    <div class="tl-item"><h4>День +3 (grace period)</h4><p>Статус → <code>blocked</code>. Публичное меню показывает заглушку "Меню временно недоступно".</p></div>
+    <div class="tl-item"><h4>После оплаты</h4><p>Суперадмин нажимает "Активировать" → меню мгновенно доступно снова.</p></div>
+  </div>
+
+  <h3>Флоу 4: Гость открывает меню</h3>
+  <div class="flow">
+    <div class="flow-step highlight">NFC касание или QR скан</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Открывается /menu/[slug]?table=N</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Язык = язык браузера (или RU по умолчанию)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Активные спецпредложения? → слайдер</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Гость листает меню</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step muted">Просмотр записан в аналитику</div>
+  </div>
+</section>
+
+<!-- ═══ 11 ИЗОБРАЖЕНИЯ ═══ -->
+<section id="s11">
+  <h2><span class="num">11</span> Работа с изображениями</h2>
+
+  <div class="alert success">
+    <span class="icon">🖼</span>
+    <div><strong>Концепция:</strong> Принимаем любой формат от ресторана → автоматически обрабатываем на сервере → сохраняем в Supabase Storage в оптимальном формате. Высокое качество + быстрая загрузка.</div>
+  </div>
+
+  <h3>Процесс обработки изображений (Sharp.js)</h3>
+  <div class="flow">
+    <div class="flow-step highlight">Загрузка (JPG / PNG / HEIC / WebP)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Проверка: тип файла + макс. 10 MB</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Sharp.js: конвертация в WebP</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Создание 3 версий</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Supabase Storage</div>
+  </div>
+
+  <h3>3 версии каждого изображения</h3>
+  <div class="cards col3">
+    <div class="card accent-green">
+      <div class="card-title">Thumbnail</div>
+      <p>300 × 200 px · WebP · quality 80%</p>
+      <p>Используется: список блюд в кабинете, карточки в меню</p>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">Medium</div>
+      <p>800 × 600 px · WebP · quality 85%</p>
+      <p>Используется: модальное окно блюда на мобильных</p>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-title">Full</div>
+      <p>1200 × 900 px · WebP · quality 90%</p>
+      <p>Используется: десктоп, LUXE V-Template, баннеры</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+      <tbody>
+        <tr><td>Принимаемые форматы</td><td>JPG, PNG, HEIC (iPhone), WebP, GIF (конвертируется в статичный WebP)</td></tr>
+        <tr><td>Максимальный размер загружаемого файла</td><td>10 MB</td></tr>
+        <tr><td>Инструмент обработки</td><td>Sharp.js (Next.js API Route)</td></tr>
+        <tr><td>Обрезка (crop)</td><td>Предварительный просмотр с drag-обрезкой до нужного соотношения</td></tr>
+        <tr><td>Хранение</td><td>Supabase Storage (CDN-доступ)</td></tr>
+        <tr><td>Оптимизация отображения</td><td>Next/Image с blur placeholder</td></tr>
+        <tr><td>Путь в Storage</td><td><code>/{restaurant_id}/dishes/{dish_id}/{size}.webp</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 12 КУРСЫ ВАЛЮТ ═══ -->
+<section id="s12">
+  <h2><span class="num">12</span> Курсы валют</h2>
+
+  <div class="alert info">
+    <span class="icon">💱</span>
+    <div>
+      <strong>Логика работы:</strong> Цены в меню всегда хранятся и вводятся в <strong>AMD (армянские драмы)</strong>. Переключение валюты — опция для гостей-туристов. Курсы берутся автоматически из официального API ЦБ РА.<br><br>
+      Переключатель валюты отображается <strong>только если owner включил "Режим Туриста"</strong> в настройках ресторана.
+    </div>
+  </div>
+
+  <h3>Источник курсов — ЦБ РА (Центральный банк Армении)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+      <tbody>
+        <tr><td>API</td><td>Официальный API ЦБ РА (<code>api.cba.am</code>)</td></tr>
+        <tr><td>Стоимость</td><td>Бесплатно</td></tr>
+        <tr><td>Валюты</td><td>USD, EUR, RUB → AMD</td></tr>
+        <tr><td>Автообновление</td><td>Vercel Cron — каждый день в 09:00 по Еревану</td></tr>
+        <tr><td>Кэш</td><td>Курсы кэшируются в таблице <code>exchange_rates</code> до следующего обновления</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Момент отображения курса</h3>
+  <div class="flow">
+    <div class="flow-step">Гость видит меню (цены в AMD)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Нажимает кнопку "USD / EUR / RUB"</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Запрос к <code>/api/rates</code></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Возвращает кэшированный курс из БД</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step highlight">Цены пересчитываются на клиенте</div>
+  </div>
+  <p class="muted-text">Пересчёт происходит на стороне клиента (JavaScript). Цены в БД не меняются — всегда AMD.</p>
+</section>
+
+<!-- ═══ 13 AI ═══ -->
+<section id="s13">
+  <h2><span class="num">13</span> AI-ассистент (только LUXE)</h2>
+
+  <p>Чат-интерфейс в кабинете ресторана — иконка в правом нижнем углу. Открывает боковую панель. Работает на базе OpenAI GPT-4o и DALL-E 3.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Функция</th><th>Пример запроса</th><th>Что делает</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Генерация описаний блюд</td>
+          <td>"Напиши описание для 'Шашлык из баранины'"</td>
+          <td>GPT-4o генерирует на RU → DeepL переводит на EN и HY</td>
+        </tr>
+        <tr>
+          <td>Генерация фото блюда</td>
+          <td>"Создай красивое фото долмы для меню"</td>
+          <td>DALL-E 3 генерирует изображение ресторанного стиля</td>
+        </tr>
+        <tr>
+          <td>Анализ меню</td>
+          <td>"Как улучшить структуру моего меню?"</td>
+          <td>Анализирует текущее меню, даёт конкретные рекомендации</td>
+        </tr>
+        <tr>
+          <td>Анализ аналитики</td>
+          <td>"Почему вечером мало посетителей?"</td>
+          <td>Анализирует данные из <code>menu_views</code>, строит гипотезы</td>
+        </tr>
+        <tr>
+          <td>Пакетный перевод</td>
+          <td>"Переведи все описания на английский"</td>
+          <td>Пакетный перевод через GPT-4o</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Лимиты и гибкие инструменты</h3>
+  <ul class="feature-list">
+    <li>💬 50 сообщений / месяц (GPT-4o)</li>
+    <li>🎨 10 изображений / месяц (DALL-E 3)</li>
+    <li>⚙️ Суперадмин в панели включает/отключает конкретные функции для каждого LUXE-клиента через таблицу <code>luxe_features</code></li>
+    <li>📜 История чата хранится в таблице <code>ai_conversations</code></li>
+  </ul>
+</section>
+
+<!-- ═══ 14 EMAIL ═══ -->
+<section id="s14">
+  <h2><span class="num">14</span> Email-уведомления (Resend)</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Событие</th><th>Получатель</th><th>Содержание письма</th></tr></thead>
+      <tbody>
+        <tr><td>Создание аккаунта</td><td>Owner</td><td>Логин + временный пароль + ссылка на вход + тариф</td></tr>
+        <tr><td>Trial истекает через 3 дня</td><td>Owner</td><td>Напоминание + контакт для продления</td></tr>
+        <tr><td>Подписка истекла</td><td>Owner</td><td>Уведомление + "Свяжитесь с нами"</td></tr>
+        <tr><td>Аккаунт заблокирован</td><td>Owner</td><td>"Меню недоступно гостям. Свяжитесь для разблокировки."</td></tr>
+        <tr><td>Аккаунт активирован / продлён</td><td>Owner</td><td>Подтверждение + дата следующей оплаты</td></tr>
+        <tr><td>Новая заявка с сайта</td><td>Super Admin</td><td>Имя, ресторан, телефон, email, тариф, комментарий</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 15 БЕЗОПАСНОСТЬ ═══ -->
+<section id="s15">
+  <h2><span class="num">15</span> Безопасность</h2>
+
+  <div class="cards col2">
+    <div class="card accent-green">
+      <div class="card-title">Аутентификация и авторизация</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>✅ Supabase Auth (JWT-токены с автообновлением)</li>
+        <li>✅ Row Level Security на всех таблицах</li>
+        <li>✅ Разделение ролей: owner / admin (RBAC)</li>
+        <li>✅ Обязательная смена временного пароля при первом входе</li>
+      </ul>
+    </div>
+    <div class="card accent-blue">
+      <div class="card-title">Данные и шифрование</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>✅ HTTPS везде (Vercel автоматически)</li>
+        <li>✅ Wi-Fi пароль — AES-256 шифрование на уровне приложения</li>
+        <li>✅ Все API-ключи только в .env переменных (никогда в коде)</li>
+        <li>✅ Slug: только a-z, 0-9, дефис (sanitization)</li>
+      </ul>
+    </div>
+    <div class="card accent-orange">
+      <div class="card-title">Защита от атак</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>✅ Rate Limiting: 100 req/min (публичное меню), 30 req/min (API)</li>
+        <li>✅ Валидация всех входящих данных (Zod — frontend + server)</li>
+        <li>✅ CORS: только разрешённые домены tapmenu.am</li>
+        <li>✅ Изображения: проверка MIME-типа + максимум 10 MB</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Производительность</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>✅ SSR + ISR кэш 60 сек для публичного меню</li>
+        <li>✅ Индексы БД: restaurant_id, slug, category_id, dish_id</li>
+        <li>✅ Цель: Lighthouse mobile score &gt; 90</li>
+        <li>✅ API response: &lt; 200ms</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 16 ПЛАТЕЖИ ═══ -->
+<section id="s16">
+  <h2><span class="num">16</span> Платёжная система (Phase 2)</h2>
+
+  <div class="alert warning">
+    <span class="icon">⏳</span>
+    <div><strong>Не входит в MVP.</strong> В MVP подписки управляются вручную суперадмином. Phase 2 разрабатывается после запуска MVP. Поля <code>stripe_subscription_id</code> и <code>idram_order_id</code> в таблице <code>subscriptions</code> уже зарезервированы.</div>
+  </div>
+
+  <h3>Что реализуется в Phase 2</h3>
+  <div class="cards col2">
+    <div class="card accent-blue">
+      <div class="card-title">Stripe — Visa / Mastercard</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>Привязка карты (recurring subscription)</li>
+        <li>Разовый платёж за год (one-time)</li>
+        <li>Автоматическое продление подписки</li>
+        <li>Webhook: автоактивация / деактивация</li>
+        <li>Customer Portal (смена карты, отмена)</li>
+      </ul>
+    </div>
+    <div class="card accent-green">
+      <div class="card-title">IDram — армянская система</div>
+      <ul class="feature-list" style="font-size:.85rem">
+        <li>Оплата через IDram кошелёк</li>
+        <li>Разовый платёж (месяц / год)</li>
+        <li>Требует: юридическое лицо в Армении + договор с IDram</li>
+        <li>Webhook: подтверждение оплаты → активация</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Варианты оплаты в Phase 2</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Вариант</th><th>Тип</th><th>Скидка</th></tr></thead>
+      <tbody>
+        <tr><td>Ежемесячная подписка (Stripe)</td><td>Recurring (автоматическое списание)</td><td>—</td></tr>
+        <tr><td>Годовой платёж (Stripe)</td><td>One-time за 12 месяцев</td><td>−20%</td></tr>
+        <tr><td>IDram разовый платёж</td><td>One-time (месяц или год)</td><td>−20% за год</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="alert danger">
+    <span class="icon">🚫</span>
+    <div>Наличный расчёт в системе <strong>не предусмотрен</strong>. Все платежи — только через карту (Stripe) или IDram.</div>
+  </div>
+</section>
+
+<!-- ═══ 17 РОАДМАП ═══ -->
+<section id="s17">
+  <h2><span class="num">17</span> Роадмап разработки</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Неделя</th><th>Что разрабатывается</th><th>Результат</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>1</strong></td>
+          <td>Supabase: схема БД + RLS + Auth. Структура Next.js, роутинг, layout, middleware (защита роутов)</td>
+          <td>Рабочая БД + авторизация</td>
+        </tr>
+        <tr>
+          <td><strong>2</strong></td>
+          <td>Суперадмин: создание ресторана, управление подписками, список ресторанов, обработка заявок, email-уведомления (Resend)</td>
+          <td>Суперадмин создаёт аккаунты</td>
+        </tr>
+        <tr>
+          <td><strong>3</strong></td>
+          <td>Кабинет Owner: вход, смена пароля, онбординг-визард, дашборд, управление категориями меню</td>
+          <td>Owner входит и создаёт категории</td>
+        </tr>
+        <tr>
+          <td><strong>4</strong></td>
+          <td>Библиотека блюд (полный CRUD + Sharp.js обработка фото + DeepL/Google автоперевод), привязка блюд к категориям</td>
+          <td>Owner заполняет меню полностью</td>
+        </tr>
+        <tr>
+          <td><strong>5</strong></td>
+          <td>Публичное меню: 3 шаблона (Classic/Modern/Minimal) + переключатель языка + окно блюда с аккордеоном + спецпредложения (слайдер)</td>
+          <td>Гость открывает работающее меню</td>
+        </tr>
+        <tr>
+          <td><strong>6</strong></td>
+          <td>Аналитика (запись + дашборды), управление столами/NFC, курсы валют (ЦБ РА + Vercel Cron), tourist mode, автоблокировка подписок</td>
+          <td>Полный MVP</td>
+        </tr>
+        <tr>
+          <td><strong>7</strong></td>
+          <td>Лендинг (все страницы + живое демо + форма заявки), Wi-Fi функция, настройки ресторана</td>
+          <td>Публичный сайт готов</td>
+        </tr>
+        <tr>
+          <td><strong>8</strong></td>
+          <td>LUXE: V-Template + AI-ассистент (GPT-4o + DALL-E 3). Тестирование всех тарифов, баги, деплой на Vercel</td>
+          <td>Production-ready MVP</td>
+        </tr>
+        <tr style="background:#fff3e0">
+          <td><strong>Phase 2</strong></td>
+          <td>Stripe + IDram интеграция, годовые подписки, Customer Portal, автоматический биллинг</td>
+          <td>Автоматическая монетизация</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Структура проекта (файловая)</h3>
+  <pre>tapmenu-armenia/
+├── app/
+│   ├── (public)/              # Лендинг (/, /pricing, /how-it-works, /demo, /contact)
+│   ├── menu/[slug]/           # Публичное меню гостя
+│   ├── dashboard/             # Кабинет Owner (protected)
+│   │   ├── page.tsx           # Дашборд
+│   │   ├── menu/              # Управление меню
+│   │   ├── library/           # Библиотека блюд
+│   │   ├── specials/          # Спецпредложения
+│   │   ├── tables/            # Столы и NFC
+│   │   ├── analytics/         # Аналитика
+│   │   ├── settings/          # Настройки ресторана
+│   │   └── subscription/      # Подписка
+│   ├── admin/                 # Суперадмин (protected, role=admin)
+│   │   ├── page.tsx           # Дашборд
+│   │   ├── restaurants/       # Управление ресторанами
+│   │   ├── leads/             # Заявки с сайта
+│   │   ├── subscriptions/     # Сводный список подписок
+│   │   ├── rates/             # Курсы валют
+│   │   └── settings/          # Настройки платформы
+│   └── api/
+│       ├── menu/[slug]/       # Public API (меню для гостя)
+│       ├── admin/             # Admin API
+│       ├── dashboard/         # Owner API
+│       ├── cron/
+│       │   ├── check-subscriptions/  # Ежедневная проверка истёкших подписок
+│       │   └── update-rates/         # Обновление курсов ЦБ РА
+│       ├── ai/                # OpenAI интеграция (только LUXE)
+│       └── upload/            # Sharp.js обработка изображений
+├── components/
+│   ├── menu/templates/
+│   │   ├── ClassicTemplate.tsx
+│   │   ├── ModernTemplate.tsx
+│   │   ├── MinimalTemplate.tsx
+│   │   └── VTemplate.tsx      # LUXE only
+│   ├── menu/
+│   │   ├── DishCard.tsx
+│   │   ├── DishModal.tsx      # Окно с деталями + аккордеон
+│   │   ├── LanguageSwitcher.tsx
+│   │   ├── CurrencySwitcher.tsx
+│   │   └── SpecialOffersBanner.tsx
+│   ├── dashboard/
+│   └── admin/
+├── lib/
+│   ├── supabase/              # Клиент и серверный клиент
+│   ├── openai/                # GPT-4o + DALL-E 3
+│   ├── resend/                # Email шаблоны
+│   ├── translations/          # DeepL + Google Translate
+│   ├── sharp/                 # Обработка изображений
+│   └── cba/                   # ЦБ РА API клиент
+├── stores/                    # Zustand stores
+├── hooks/                     # Кастомные React хуки
+├── types/                     # TypeScript типы (global)
+└── prisma/schema.prisma       # Схема БД</pre>
+
+  <div class="alert success" style="margin-top:24px">
+    <span class="icon">✅</span>
+    <div>
+      <strong>Итог для разработчика:</strong> MVP без платёжного шлюза (Phase 2). Фокус — качественное публичное меню (3+1 шаблона), удобный кабинет с библиотекой блюд, полноценная суперадмин-панель. Вся монетизация в MVP — ручная через суперадмина. AI — только LUXE, не блокирует запуск остальных тарифов. Архитектура спроектирована с расчётом на масштабирование (RLS, multi-tenant, модульная структура).
+    </div>
+  </div>
+</section>
+
+<footer style="margin-top:48px;padding-top:20px;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:.82rem">
+  TapMenu Armenia · Техническое задание v2.0 · Финальная версия · 2026
+</footer>
+
+</main>
+</body>
+</html>
