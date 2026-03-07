@@ -1,0 +1,49 @@
+# Node.js
+node_modules/
+.npm
+
+# Next.js
+.next/
+out/
+dist/
+
+# Environment variables - NEVER COMMIT
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Vercel
+.vercel
+
+# Testing
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tar.gz
+*.zip

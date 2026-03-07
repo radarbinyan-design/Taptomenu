@@ -1,0 +1,18 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/update-rates",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "regions": ["fra1"],
+  "functions": {
+    "src/app/api/upload/route.ts": {
+      "memory": 1024,
+      "maxDuration": 30
+    },
+    "src/app/api/ai/**": {
+      "maxDuration": 60
+    }
+  }
+}

@@ -1,7 +1,11 @@
 node_modules/
 .env
+.env.local
 .dev.vars
 *.log
 .DS_Store
 *.tar.gz
 *.zip
+.next/
+nextjs-app/.next/
+nextjs-app/node_modules/

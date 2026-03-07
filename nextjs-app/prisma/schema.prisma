@@ -1,0 +1,295 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  owner
+  admin
+  superadmin
+}
+
+enum SubscriptionPlan {
+  starter
+  pro
+  premium
+  luxe
+}
+
+enum SubscriptionStatus {
+  trial
+  active
+  grace
+  blocked
+  cancelled
+}
+
+enum DishStatus {
+  active
+  inactive
+  archived
+}
+
+enum MenuStatus {
+  active
+  inactive
+  draft
+}
+
+model User {
+  id                String       @id @default(uuid())
+  email             String       @unique
+  name              String
+  phone             String?
+  role              UserRole     @default(owner)
+  avatarUrl         String?      @map("avatar_url")
+  isEmailVerified   Boolean      @default(false) @map("is_email_verified")
+  mustChangePassword Boolean     @default(true) @map("must_change_password")
+  lastLoginAt       DateTime?    @map("last_login_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  restaurants       Restaurant[]
+  subscription      Subscription?
+
+  @@map("users")
+}
+
+model Restaurant {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  name            String
+  slug            String   @unique
+  description     String?
+  logoUrl         String?  @map("logo_url")
+  coverUrl        String?  @map("cover_url")
+  address         String?
+  city            String?
+  country         String   @default("AM")
+  phone           String?
+  website         String?
+  wifiName        String?  @map("wifi_name")
+  wifiPasswordEnc String?  @map("wifi_password_enc") // AES-256 encrypted
+  primaryColor    String   @default("#F59E0B") @map("primary_color")
+  accentColor     String   @default("#1F2937") @map("accent_color")
+  templateId      String   @default("classic") @map("template_id")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dishes          Dish[]
+  menus           Menu[]
+  tables          Table[]
+  menuViews       MenuView[]
+
+  @@index([userId])
+  @@index([slug])
+  @@map("restaurants")
+}
+
+model Subscription {
+  id              String             @id @default(uuid())
+  userId          String             @unique @map("user_id")
+  plan            SubscriptionPlan   @default(starter)
+  status          SubscriptionStatus @default(trial)
+  isYearly        Boolean            @default(false) @map("is_yearly")
+  trialEndsAt     DateTime?          @map("trial_ends_at")
+  currentPeriodEnd DateTime?         @map("current_period_end")
+  graceEndsAt     DateTime?          @map("grace_ends_at")
+  maxMenus        Int                @default(1) @map("max_menus")
+  maxDishes       Int                @default(30) @map("max_dishes")
+  maxLanguages    Int                @default(2) @map("max_languages")
+  maxNfcTags      Int                @default(1) @map("max_nfc_tags")
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paymentHistory  PaymentHistory[]
+
+  @@map("subscriptions")
+}
+
+model Dish {
+  id              String     @id @default(uuid())
+  restaurantId    String     @map("restaurant_id")
+  name            String
+  nameTranslations Json?     @map("name_translations") // {en: "...", hy: "...", ru: "..."}
+  description     String?
+  descriptionTranslations Json? @map("description_translations")
+  price           Int        // Price in AMD (drams)
+  imageUrl        String?    @map("image_url")
+  imageUrlMd      String?    @map("image_url_md")
+  imageUrlSm      String?    @map("image_url_sm")
+  calories        Int?
+  proteins        Float?
+  fats            Float?
+  carbohydrates   Float?
+  weight          Int?       // grams
+  spicyLevel      Int        @default(0) @map("spicy_level") // 0-3
+  isVegan         Boolean    @default(false) @map("is_vegan")
+  isGlutenFree    Boolean    @default(false) @map("is_gluten_free")
+  allergens       String[]   @default([])
+  tags            String[]   @default([])
+  status          DishStatus @default(active)
+  sortOrder       Int        @default(0) @map("sort_order")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuDishes      MenuDish[]
+
+  @@index([restaurantId])
+  @@map("dishes")
+}
+
+model Menu {
+  id              String     @id @default(uuid())
+  restaurantId    String     @map("restaurant_id")
+  name            String
+  description     String?
+  status          MenuStatus @default(draft)
+  isDefault       Boolean    @default(false) @map("is_default")
+  languages       String[]   @default(["ru"])
+  sortOrder       Int        @default(0) @map("sort_order")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  restaurant      Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  categories      Category[]
+  menuDishes      MenuDish[]
+
+  @@index([restaurantId])
+  @@map("menus")
+}
+
+model Category {
+  id              String     @id @default(uuid())
+  menuId          String     @map("menu_id")
+  name            String
+  nameTranslations Json?     @map("name_translations")
+  emoji           String?
+  sortOrder       Int        @default(0) @map("sort_order")
+  isActive        Boolean    @default(true) @map("is_active")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  menu            Menu       @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  menuDishes      MenuDish[]
+
+  @@index([menuId])
+  @@map("categories")
+}
+
+model MenuDish {
+  id          String   @id @default(uuid())
+  menuId      String   @map("menu_id")
+  dishId      String   @map("dish_id")
+  categoryId  String?  @map("category_id")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isAvailable Boolean  @default(true) @map("is_available")
+  specialPrice Int?    @map("special_price")
+
+  menu        Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  dish        Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  @@unique([menuId, dishId])
+  @@index([menuId])
+  @@index([dishId])
+  @@map("menu_dishes")
+}
+
+model Table {
+  id           String     @id @default(uuid())
+  restaurantId String     @map("restaurant_id")
+  name         String
+  nfcTagId     String?    @unique @map("nfc_tag_id")
+  qrCode       String?    @map("qr_code")
+  isActive     Boolean    @default(true) @map("is_active")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@map("tables")
+}
+
+model MenuView {
+  id           String     @id @default(uuid())
+  restaurantId String     @map("restaurant_id")
+  tableId      String?    @map("table_id")
+  lang         String     @default("ru")
+  device       String?    // mobile | desktop | tablet
+  country      String?
+  city         String?
+  viewedAt     DateTime   @default(now()) @map("viewed_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@index([viewedAt])
+  @@map("menu_views")
+}
+
+model ExchangeRate {
+  id         String   @id @default(uuid())
+  fromCurrency String @map("from_currency")
+  toCurrency   String @map("to_currency")
+  rate        Float
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  @@unique([fromCurrency, toCurrency])
+  @@map("exchange_rates")
+}
+
+model Lead {
+  id           String   @id @default(uuid())
+  name         String
+  phone        String
+  email        String?
+  restaurantName String? @map("restaurant_name")
+  message      String?
+  source       String?
+  isProcessed  Boolean  @default(false) @map("is_processed")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("leads")
+}
+
+model PaymentHistory {
+  id             String       @id @default(uuid())
+  subscriptionId String       @map("subscription_id")
+  amount         Float
+  currency       String       @default("USD")
+  plan           SubscriptionPlan
+  period         String       // monthly | yearly
+  status         String       // success | failed | refunded
+  notes          String?
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@map("payment_history")
+}
+
+model AiConversation {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  userId       String   @map("user_id")
+  messages     Json     // [{role: "user"|"assistant", content: "..."}]
+  tokensUsed   Int      @default(0) @map("tokens_used")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@index([restaurantId])
+  @@map("ai_conversations")
+}
