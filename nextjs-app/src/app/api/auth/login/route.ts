@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { prisma } from '@/lib/prisma'
+
+// Demo accounts — always work regardless of NODE_ENV
+const DEMO_ACCOUNTS = [
+  {
+    email: 'owner@demo.com',
+    password: 'demo1234',
+    user: { id: 'demo-owner', email: 'owner@demo.com', name: 'Арам Петросян', role: 'owner' },
+  },
+  {
+    email: 'admin@tapmenu.am',
+    password: 'admin1234',
+    user: { id: 'demo-admin', email: 'admin@tapmenu.am', name: 'Admin TapMenu', role: 'superadmin' },
+  },
+]
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,51 +22,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email и пароль обязательны' }, { status: 400 })
     }
 
-    // Demo accounts for development
-    if (process.env.NODE_ENV !== 'production') {
-      if (email === 'owner@demo.com' && password === 'demo123') {
-        return NextResponse.json({
-          user: {
-            id: 'demo-owner',
-            email: 'owner@demo.com',
-            name: 'Арам Петросян',
-            role: 'owner',
-          },
-          message: 'Успешный вход',
-        })
-      }
-      if (email === 'admin@tapmenu.am' && password === 'admin123') {
-        return NextResponse.json({
-          user: {
-            id: 'demo-admin',
-            email: 'admin@tapmenu.am',
-            name: 'Admin TapMenu',
-            role: 'superadmin',
-          },
-          message: 'Успешный вход',
-        })
-      }
+    // Check demo accounts first (always available)
+    const demo = DEMO_ACCOUNTS.find(
+      (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
+    )
+
+    if (demo) {
+      const res = NextResponse.json({ user: demo.user, message: 'Успешный вход' })
+      // Set auth cookie so middleware lets them through
+      res.cookies.set('sb-access-token', `demo-token-${demo.user.role}`, {
+        httpOnly: true,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+        sameSite: 'lax',
+      })
+      res.cookies.set('user-role', demo.user.role, {
+        httpOnly: true,
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: 'lax',
+      })
+      res.cookies.set('user-name', demo.user.name, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+        sameSite: 'lax',
+      })
+      return res
     }
 
-    // Real Supabase auth
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+    // No real DB connected yet
+    return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 })
 
-    if (error) {
-      return NextResponse.json({ error: 'Неверный email или пароль' }, { status: 401 })
-    }
-
-    // Get user role from DB
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, name: true, role: true, mustChangePassword: true },
-    }).catch(() => null)
-
-    return NextResponse.json({
-      user: user || { id: data.user?.id, email, name: email, role: 'owner' },
-      session: data.session,
-    })
-  } catch (error) {
-    console.error('Login error:', error)
+  } catch (err) {
+    console.error('Login error:', err)
     return NextResponse.json({ error: 'Внутренняя ошибка сервера' }, { status: 500 })
   }
 }

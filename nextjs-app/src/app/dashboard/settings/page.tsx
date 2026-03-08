@@ -16,6 +16,7 @@ import {
   Upload,
   Crown,
   Check,
+  Lock,
 } from 'lucide-react'
 
 const TEMPLATES = [
@@ -31,16 +32,36 @@ const ACCENT_COLORS = [
 ]
 
 export default function SettingsPage() {
-  const [tab, setTab] = useState<'restaurant' | 'appearance' | 'wifi' | 'subscription'>('restaurant')
+  const [tab, setTab] = useState<'restaurant' | 'appearance' | 'wifi' | 'security' | 'subscription'>('restaurant')
   const [showWifi, setShowWifi] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState('classic')
   const [selectedColor, setSelectedColor] = useState('#F59E0B')
   const [saved, setSaved] = useState(false)
+  // Password change state
+  const [pwCurrent, setPwCurrent] = useState('')
+  const [pwNew, setPwNew] = useState('')
+  const [pwConfirm, setPwConfirm] = useState('')
+  const [showPwCurrent, setShowPwCurrent] = useState(false)
+  const [showPwNew, setShowPwNew] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState(false)
 
   const handleSave = () => {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
+
+  const handlePasswordChange = () => {
+    setPwError('')
+    if (!pwCurrent) { setPwError('Введите текущий пароль'); return }
+    if (pwNew.length < 8) { setPwError('Новый пароль — минимум 8 символов'); return }
+    if (pwNew !== pwConfirm) { setPwError('Пароли не совпадают'); return }
+    // TODO: call API
+    setPwSuccess(true)
+    setPwCurrent(''); setPwNew(''); setPwConfirm('')
+    setTimeout(() => setPwSuccess(false), 3000)
+  }
+
 
   return (
     <div className="space-y-6 max-w-3xl">
@@ -56,17 +77,18 @@ export default function SettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-200">
+      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto">
         {[
           { id: 'restaurant', label: 'Ресторан', icon: Store },
           { id: 'appearance', label: 'Внешний вид', icon: Palette },
           { id: 'wifi', label: 'Wi-Fi', icon: Wifi },
+          { id: 'security', label: 'Безопасность', icon: Lock },
           { id: 'subscription', label: 'Подписка', icon: Crown },
         ].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id as any)}
-            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               tab === t.id
                 ? 'border-amber-500 text-amber-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -213,6 +235,118 @@ export default function SettingsPage() {
                   Пароль зашифрован AES-256 и никогда не передаётся клиенту в открытом виде
                 </p>
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Security Tab — Change Password */}
+      {tab === 'security' && (
+        <div className="space-y-4 max-w-lg">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Lock className="w-4 h-4 text-amber-500" />
+                Смена пароля
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pwSuccess && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700 flex items-center gap-2">
+                  <Check className="w-4 h-4" /> Пароль успешно изменён!
+                </div>
+              )}
+              {pwError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                  ⚠️ {pwError}
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Текущий пароль</label>
+                <div className="relative">
+                  <input
+                    type={showPwCurrent ? 'text' : 'password'}
+                    value={pwCurrent}
+                    onChange={(e) => setPwCurrent(e.target.value)}
+                    placeholder="Введите текущий пароль"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button type="button" onClick={() => setShowPwCurrent(!showPwCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    {showPwCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Новый пароль</label>
+                <div className="relative">
+                  <input
+                    type={showPwNew ? 'text' : 'password'}
+                    value={pwNew}
+                    onChange={(e) => setPwNew(e.target.value)}
+                    placeholder="Минимум 8 символов"
+                    className="w-full px-4 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <button type="button" onClick={() => setShowPwNew(!showPwNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    {showPwNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                {pwNew && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full transition-all ${pwNew.length < 6 ? 'bg-red-400 w-1/3' : pwNew.length < 10 ? 'bg-amber-400 w-2/3' : 'bg-green-500 w-full'}`} />
+                    </div>
+                    <span className="text-xs text-gray-400">{pwNew.length < 6 ? 'Слабый' : pwNew.length < 10 ? 'Средний' : 'Сильный'}</span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700 block mb-1.5">Подтвердите пароль</label>
+                <input
+                  type="password"
+                  value={pwConfirm}
+                  onChange={(e) => setPwConfirm(e.target.value)}
+                  placeholder="Повторите новый пароль"
+                  className={`w-full px-4 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                    pwConfirm && pwNew !== pwConfirm ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  }`}
+                />
+                {pwConfirm && pwNew !== pwConfirm && (
+                  <p className="text-xs text-red-500 mt-1">Пароли не совпадают</p>
+                )}
+              </div>
+
+              <Button onClick={handlePasswordChange} className="w-full">
+                <Lock className="w-4 h-4" />
+                Изменить пароль
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Session info */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Активные сессии</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {[
+                { device: '💻 MacBook Pro', location: 'Ереван, AM', time: 'Сейчас', current: true },
+                { device: '📱 iPhone 14', location: 'Ереван, AM', time: '2 часа назад', current: false },
+              ].map((session, i) => (
+                <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">{session.device}</div>
+                    <div className="text-xs text-gray-400">{session.location} · {session.time}</div>
+                  </div>
+                  {session.current ? (
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">Текущая</span>
+                  ) : (
+                    <button className="text-xs text-red-500 hover:underline">Завершить</button>
+                  )}
+                </div>
+              ))}
             </CardContent>
           </Card>
         </div>

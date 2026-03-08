@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
@@ -14,7 +14,6 @@ import {
   LogOut,
   ChevronDown,
   Menu,
-  X,
   Bell,
   Crown,
 } from 'lucide-react'
@@ -32,7 +31,14 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -122,7 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          <button className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors">
+          <button className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors" onClick={handleLogout}>
             <LogOut className="w-4 h-4" />
             Выйти
           </button>
