@@ -1,6 +1,5 @@
-import { createServerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase'
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 interface LeadBody {
@@ -21,12 +20,6 @@ function escHtml(str: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
-}
-
-/** Check if Supabase env vars look real (not placeholders) */
-function isSupabaseConfigured(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
-  return url.startsWith('https://') && !url.includes('your-project')
 }
 
 /** Check if Resend API key looks real */
@@ -84,58 +77,53 @@ export async function POST(request: NextRequest) {
     const validPlans = ['starter', 'pro', 'premium', 'luxe']
     const lead = {
       name: String(body.name).slice(0, 100).trim(),
-      restaurant_name: String(body.restaurantName ?? '').slice(0, 200).trim(),
-      email: String(body.email).slice(0, 200).trim(),
-      phone: String(body.phone ?? '').slice(0, 30).trim(),
+      restaurant_name: String(body.restaurantName ?? '').slice(0, 200).trim() || null,
+      email: String(body.email).slice(0, 200).trim().toLowerCase(),
+      phone: String(body.phone ?? '').slice(0, 30).trim() || null,
       plan: validPlans.includes(body.plan ?? '') ? body.plan! : 'pro',
-      message: String(body.message ?? '').slice(0, 2000).trim(),
+      message: String(body.message ?? '').slice(0, 2000).trim() || null,
       status: 'new' as const,
-      created_at: new Date().toISOString(),
     }
 
     let savedId: string | null = null
 
-    /* ── Save to Supabase (if configured) ────────────────────────────────── */
+    /* ── Save to Supabase using admin client (bypasses RLS) ─────────────── */
     if (isSupabaseConfigured()) {
-      const cookieStore = cookies()
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        { cookies: { get: (n) => cookieStore.get(n)?.value } }
-      )
-
-      const { data, error } = await supabase
+      // Cast to any to avoid strict Database type mismatch (plan is string, not enum)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabaseAdmin as any)
         .from('leads')
         .insert(lead)
         .select('id')
         .single()
 
       if (error) {
-        // Log but don't fail — fall through to memory store
-        console.error('[leads] Supabase insert error:', error.message)
+        console.error('[leads] Supabase insert error:', error.message, error.code)
+        // Fall through to memory store
       } else {
         savedId = data?.id ?? null
-        console.log('[leads] Saved to Supabase, id:', savedId)
+        console.log('[leads] ✅ Saved to Supabase, id:', savedId)
       }
-    } else {
-      // Fallback: save to memory (development / no Supabase configured)
-      const memLead = { ...lead, id: `mem_${Date.now()}` }
+    }
+
+    /* ── Fallback: in-memory store ───────────────────────────────────────── */
+    if (!savedId) {
+      const memLead = {
+        ...lead,
+        id: `mem_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        created_at: new Date().toISOString(),
+      }
       memoryLeads.push(memLead)
-      savedId = memLead.id as string
-      console.log('[leads] Supabase not configured — saved to memory store, id:', savedId)
-      console.log('[leads] Lead data:', {
-        name: lead.name,
-        email: lead.email,
-        plan: lead.plan,
-        restaurant: lead.restaurant_name,
-      })
+      savedId = memLead.id
+      console.log('[leads] ℹ️  Supabase unavailable — saved to memory store, id:', savedId)
     }
 
     /* ── Send email via Resend (if configured) ───────────────────────────── */
     if (isResendConfigured()) {
       try {
         const adminEmail = process.env.ADMIN_EMAIL ?? 'admin@tapmenu.am'
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://admin.tapmenu.am'
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tapmenu.am'
+        const createdAt = new Date().toISOString()
 
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
@@ -146,8 +134,8 @@ export async function POST(request: NextRequest) {
           body: JSON.stringify({
             from: 'TapMenu <noreply@tapmenu.am>',
             to: adminEmail,
-            subject: `🔔 Новая заявка: ${escHtml(lead.name)} — ${escHtml(lead.plan.toUpperCase())}`,
-            html: buildEmailHtml(lead, appUrl),
+            subject: `🔔 Новая заявка: ${lead.name} — ${lead.plan.toUpperCase()}`,
+            html: buildEmailHtml({ ...lead, restaurant_name: lead.restaurant_name ?? '', phone: lead.phone ?? '', message: lead.message ?? '', created_at: createdAt }, appUrl),
           }),
         })
 
@@ -155,14 +143,14 @@ export async function POST(request: NextRequest) {
           const errBody = await emailRes.text()
           console.error('[leads] Resend error:', emailRes.status, errBody)
         } else {
-          console.log('[leads] Email sent via Resend')
+          console.log('[leads] ✅ Email sent via Resend to:', adminEmail)
         }
       } catch (emailErr) {
         // Non-fatal — lead is still saved
         console.error('[leads] Resend exception:', emailErr)
       }
     } else {
-      console.log('[leads] Resend not configured — skipping email notification')
+      console.log('[leads] ℹ️  Resend not configured — skipping email notification')
     }
 
     return NextResponse.json(
@@ -181,7 +169,7 @@ export async function POST(request: NextRequest) {
 
 /* ─── GET /api/leads (admin listing) ────────────────────────────────────── */
 export async function GET(request: NextRequest) {
-  /* ── Auth check: only superadmin ──────────────────────────────────────── */
+  /* ── Auth check: only admin/superadmin ───────────────────────────────── */
   const userRole = request.cookies.get('user-role')?.value
   if (userRole !== 'admin' && userRole !== 'superadmin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -191,18 +179,12 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status')
   const limit = Math.min(parseInt(searchParams.get('limit') ?? '50'), 200)
 
-  /* ── Supabase query ──────────────────────────────────────────────────── */
+  /* ── Supabase query using admin client ───────────────────────────────── */
   if (isSupabaseConfigured()) {
-    const cookieStore = cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { get: (n) => cookieStore.get(n)?.value } }
-    )
-
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabaseAdmin as any)
       .from('leads')
-      .select('*')
+      .select('*', { count: 'exact' })
       .order('created_at', { ascending: false })
       .limit(limit)
 
@@ -227,6 +209,42 @@ export async function GET(request: NextRequest) {
     total: filtered.length,
     note: 'memory-store (Supabase not configured)',
   })
+}
+
+/* ─── PATCH /api/leads (update status) ──────────────────────────────────── */
+export async function PATCH(request: NextRequest) {
+  const userRole = request.cookies.get('user-role')?.value
+  if (userRole !== 'admin' && userRole !== 'superadmin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  const { id, status } = await request.json()
+  const validStatuses = ['new', 'contacted', 'converted', 'rejected']
+
+  if (!id || !validStatuses.includes(status)) {
+    return NextResponse.json({ error: 'Invalid id or status' }, { status: 400 })
+  }
+
+  if (isSupabaseConfigured()) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabaseAdmin as any)
+      .from('leads')
+      .update({ status })
+      .eq('id', id)
+      .select('id, status')
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data })
+  }
+
+  // Memory fallback
+  const lead = memoryLeads.find((l) => l.id === id)
+  if (lead) lead.status = status
+  return NextResponse.json({ success: true, data: { id, status } })
 }
 
 /* ─── Email HTML builder ─────────────────────────────────────────────────── */
@@ -270,7 +288,8 @@ function buildEmailHtml(
         ${[
           ['👤 Имя', escHtml(lead.name)],
           ['🏪 Ресторан', escHtml(lead.restaurant_name) || '<span style="color:#64748b">Не указано</span>'],
-          ['📧 Email / Телефон', escHtml(lead.email) + (lead.phone ? ` · ${escHtml(lead.phone)}` : '')],
+          ['📧 Email', `<a href="mailto:${escHtml(lead.email)}" style="color:#f97316">${escHtml(lead.email)}</a>`],
+          ['📞 Телефон', lead.phone ? escHtml(lead.phone) : '<span style="color:#64748b">Не указан</span>'],
           ['💰 Тариф', `<strong style="color:#f97316">${escHtml(planLabels[lead.plan] ?? lead.plan)}</strong>`],
           ['📅 Дата', escHtml(new Date(lead.created_at).toLocaleString('ru-RU', { timeZone: 'Asia/Yerevan' }))],
         ]
