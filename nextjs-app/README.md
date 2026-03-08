@@ -1,202 +1,176 @@
-# TapMenu Armenia — SaaS NFC Menu Platform v2.0
+# TapMenu Armenia v2.0 — SaaS NFC Digital Menu Platform
 
-## Overview
-TapMenu Armenia — SaaS платформа цифровых NFC-меню для ресторанов. Одно касание NFC-тега — и гость видит полное меню на своём телефоне. Никаких приложений, никаких QR-сканеров.
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8)](https://tailwindcss.com)
 
-## Architecture
+## 🌍 URLs
+- **Production landing**: https://tapmenu.am
+- **Owner Dashboard**: https://app.tapmenu.am *(→ /dashboard)*
+- **Public Menu**: https://menu.tapmenu.am/araratrest *(→ /menu/araratrest)*
+- **Super Admin**: https://admin.tapmenu.am *(→ /admin)*
+- **GitHub**: https://github.com/radarbinyan-design/Taptomenu
+- **Sandbox**: https://3000-iwohn6b22s796hxme59pt-b32ec7bb.sandbox.novita.ai
 
-```
-app.tapmenu.am    — Owner Dashboard (Next.js 14)
-menu.tapmenu.am   — Public Menu SSR (ISR 60s)
-admin.tapmenu.am  — Super Admin Panel
-tapmenu.am        — Landing Page (HTML/CSS/JS)
-```
+## 🔑 Demo Credentials
+| Role  | Email | Password | Redirect |
+|-------|-------|----------|----------|
+| Owner | owner@demo.com | demo1234 | /dashboard |
+| Admin | admin@tapmenu.am | admin1234 | /admin |
 
-## Tech Stack
+## ✅ Implemented Features (Weeks 1–5)
 
-| Layer | Technology |
-|-------|------------|
-| Framework | Next.js 14 (App Router) |
-| Language | TypeScript (strict) |
-| Styling | Tailwind CSS |
-| State | Zustand + TanStack Query |
-| Forms | React Hook Form + Zod |
-| DnD | @dnd-kit/core |
-| Animation | Framer Motion |
-| Database | Supabase PostgreSQL + Prisma ORM |
-| Auth | Supabase Auth + JWT |
-| Storage | Supabase Storage |
-| Images | Sharp.js (WebP conversion, 3 sizes) |
-| Translate | DeepL API (Pro+) / Google Translate (Starter) |
-| AI | OpenAI GPT-4o + DALL-E 3 (LUXE only) |
-| Email | Resend |
-| Hosting | Vercel + Cron Jobs |
-| Security | RLS, AES-256 WiFi, HTTPS, Rate limiting |
+### Week 1 — Foundation
+- [x] Next.js 14 App Router, TypeScript strict, Tailwind + shadcn/ui
+- [x] Prisma schema with all tables (users, restaurants, dishes, menus, tables, etc.)
+- [x] Supabase auth integration with JWT + demo fallback
+- [x] Middleware: protected routes, RBAC (owner/admin), dev override
+- [x] API routes: `/api/auth/login`, `/api/auth/logout`, `/api/exchange-rates`, `/api/dishes`, `/api/ai/chat`, `/api/upload`, `/api/translations`
 
-## Tariff Plans
+### Week 2 — Super Admin Panel `/admin`
+- [x] MRR/ARR/ARPU/Churn KPI cards
+- [x] Revenue by plan chart (SVG bar chart)
+- [x] Searchable restaurant table with status badges
+- [x] Plan distribution (Starter/Pro/Premium/LUXE)
+- [x] Alerts panel (grace period, blocked, unpaid)
+- [x] Quick-action buttons
 
-| Plan | Price/mo | Menus | Dishes | Languages | Features |
-|------|----------|-------|--------|-----------|----------|
-| Starter | $15 | 1 | 30 | 2 | Basic menu, Google Translate |
-| Pro | $25 | 3 | 100 | 5 | Analytics, multiple menus |
-| Premium | $45 | 10 | 500 | 20 | DeepL, custom templates |
-| LUXE | $50+ | ∞ | ∞ | 33 | AI assistant, DALL-E images |
+### Week 3 — Owner Dashboard
+- [x] `/dashboard` — overview with stats, recent views feed, quick actions
+- [x] `/dashboard/dishes` — fully interactive dish library (filter/search, grouped/list view, all CRUD buttons, modal editor)
+- [x] `/dashboard/menus` — **fully interactive**: create/edit/delete/duplicate menus, language selector, status toggle, set default, plan usage bar
+- [x] `/dashboard/tables` — **fully interactive**: add/edit/delete tables, QR modal, NFC code generator, zone filter, URL copy, activation toggle
+- [x] `/dashboard/analytics` — **SVG charts**: bar chart (views), line chart (hourly), donut (devices), language bars, top dishes, period toggle
+- [x] `/dashboard/settings` — restaurant info, appearance, Wi-Fi, subscription tabs, **Security tab** (password change, active sessions)
+- [x] `/dashboard/ai-assistant` — AI chat UI (LUXE plan)
 
-All plans: 7-day free trial, 3-day grace period, 20% yearly discount
+### Week 4 — Dish Library
+- [x] `/dashboard/dishes/new` — 3-tab form (basic, translations, nutrition/allergens)
+- [x] `/dashboard/dishes/[id]` — **full dish editor**: photo upload + drag&drop, emoji picker, AI translation mock, allergens, dietary tags, spicy level
+- [x] `/dashboard/menus/[id]/edit` — **drag-and-drop menu editor**: DnD category/dish sorting, add/edit/delete categories, library modal, inline category editing, dish visibility toggle
 
-## Project Structure
+### Week 5 — Public Menu
+- [x] `/menu/[slug]` — ISR (60s), SSR with Prisma, demo fallback
+- [x] `PublicMenuClient` — **fully interactive**:
+  - 🛒 **Shopping cart with bottom drawer** — add/remove/qty, "Call waiter" button, order confirmation screen
+  - 📖 **Dish detail modal** — bottom sheet with full info, nutrition, allergens, dietary badges
+  - ❤️ **Favorites** — mark favorite dishes
+  - 🌍 Language switcher (RU/EN/HY/AR)
+  - 💱 Currency switcher (AMD/USD/EUR/RUB/GBP) with CBA rates
+  - 🔍 Full-text search across name + description
+  - 📜 Category tabs with smooth scroll
+  - 📡 Wi-Fi password display
+  - Scroll-to-top button
+
+### Auth Pages
+- [x] `/login` — dark gradient design, quick-login buttons, register CTA
+- [x] `/register` — 3-step flow (account → plan → success)
+- [x] `/forgot-password` — email form + confirmation
+
+## 🏗️ Architecture
 
 ```
 nextjs-app/
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/login/     # Auth pages
-│   │   ├── dashboard/        # Owner dashboard
-│   │   ├── admin/            # Super admin panel
-│   │   ├── menu/[slug]/      # Public menu (SSR + ISR)
-│   │   └── api/              # API routes
-│   │       ├── auth/
-│   │       ├── dishes/
-│   │       ├── exchange-rates/
-│   │       ├── upload/
-│   │       ├── ai/chat/
-│   │       └── cron/update-rates/
-│   ├── components/
-│   │   ├── ui/               # Button, Input, Card, Badge
-│   │   ├── menu/             # PublicMenuClient
-│   │   └── dashboard/
-│   ├── lib/
-│   │   ├── supabase.ts       # Supabase client (anon + admin)
-│   │   ├── prisma.ts         # Prisma client singleton
-│   │   ├── openai.ts         # GPT-4o + DALL-E 3
-│   │   ├── translations.ts   # DeepL + Google Translate
-│   │   ├── currency.ts       # CBA Armenia exchange rates
-│   │   ├── image-processing.ts # Sharp.js WebP + 3 sizes
-│   │   ├── security.ts       # AES-256, slug sanitizer, rate limit
-│   │   └── utils.ts          # cn() helper
-│   ├── stores/
-│   │   ├── auth.ts           # Zustand auth store
-│   │   └── menu.ts           # Menu preferences store
-│   └── types/index.ts        # All TypeScript types + PLAN_LIMITS
-├── prisma/schema.prisma       # Full Prisma schema (all tables)
-├── supabase/migrations/       # SQL schema + RLS policies
-├── vercel.json                # Cron jobs + function config
-├── .env.local                 # Environment variables (DO NOT COMMIT)
-└── .gitignore
+│   │   ├── (auth)/               # Login, Register, ForgotPassword
+│   │   ├── admin/                # Super-admin panel
+│   │   ├── api/                  # REST API routes
+│   │   │   ├── auth/             # Login/logout
+│   │   │   ├── dishes/           # Dish CRUD
+│   │   │   ├── exchange-rates/   # CBA rates
+│   │   │   ├── ai/chat/          # OpenAI integration
+│   │   │   ├── translations/     # DeepL/Google Translate
+│   │   │   └── upload/           # File upload (Sharp)
+│   │   ├── dashboard/            # Owner dashboard
+│   │   │   ├── dishes/           # Dish library + editors
+│   │   │   │   ├── page.tsx      # Dish list (interactive)
+│   │   │   │   ├── new/          # Create dish
+│   │   │   │   └── [id]/         # Edit dish
+│   │   │   ├── menus/            # Menu management
+│   │   │   │   ├── page.tsx      # Menu list (interactive)
+│   │   │   │   └── [id]/edit/    # Menu editor with DnD
+│   │   │   ├── tables/           # NFC table management
+│   │   │   ├── analytics/        # SVG analytics
+│   │   │   ├── settings/         # Restaurant settings
+│   │   │   └── ai-assistant/     # AI chat (LUXE)
+│   │   ├── menu/[slug]/          # Public menu (ISR)
+│   │   │   ├── page.tsx          # Server component (SSR/ISR)
+│   │   │   └── PublicMenuClient.tsx  # Cart, modals, lang/currency
+│   │   └── page.tsx              # Landing page
+│   ├── components/               # Reusable components
+│   ├── lib/                      # Utils (Prisma, Supabase, OpenAI, Sharp)
+│   └── types/                    # TypeScript types + constants
+├── prisma/                       # DB schema
+└── ecosystem.config.cjs          # PM2 config
 ```
 
-## Setup & Development
+## 📊 Data Models
+- **User** — role (owner/admin/superadmin), subscriptionPlan (starter/pro/premium/luxe)
+- **Restaurant** — name, slug, colors, template, wifiName (AES-256 encrypted)
+- **Dish** — multilingual name/desc, price (AMD), WebP images (3 sizes via Sharp), nutrition, tags, allergens
+- **Menu** — linked to restaurant, multiple categories with DnD order
+- **Category** — sortOrder, emoji, multilingual name
+- **Table** — NFC tag ID, QR, zone, viewCount
 
-### 1. Install dependencies
-```bash
-npm install
-```
+## 💰 Tariff Plans
+| Plan | Price | Menus | Dishes | Languages | NFC tags |
+|------|-------|-------|--------|-----------|----------|
+| Starter | $15/mo | 1 | 50 | 2 | 3 |
+| Pro | $25/mo | 3 | 100 | 5 | 8 |
+| Premium | $45/mo | 10 | 500 | 20 | ∞ |
+| LUXE | $50+/mo | ∞ | ∞ | 33 | ∞ |
 
-### 2. Configure environment
-```bash
-cp .env.local.example .env.local
-# Fill in Supabase, OpenAI, DeepL, Resend keys
-```
+## 🚀 Remaining Roadmap
 
-### 3. Setup database
-```bash
-# Apply Prisma schema
-npx prisma db push
+### Week 6 — Integrations
+- [ ] Real Supabase DB connection + full CRUD APIs
+- [ ] Vercel cron for CBA exchange rates (09:00 Yerevan)
+- [ ] Menu view analytics tracking
+- [ ] Real NFC/QR code generation (qrcode library)
+- [ ] Sharp image processing on upload
 
-# Or run Supabase migration manually:
-# Copy supabase/migrations/001_initial_schema.sql
-# and run in Supabase SQL Editor
-```
+### Week 7 — Landing & Wi-Fi
+- [ ] Public landing page polish
+- [ ] Wi-Fi password QR generation
+- [ ] Contact form with Resend email
+- [ ] Special offers / promo section
 
-### 4. Generate Prisma client
-```bash
-npx prisma generate
-```
+### Week 8 — LUXE & Deploy
+- [ ] LUXE template (V-template)
+- [ ] Real AI assistant (GPT-4o)
+- [ ] Real DeepL translation API
+- [ ] Vercel production deploy
+- [ ] Custom domain setup (tapmenu.am, app.tapmenu.am, menu.tapmenu.am)
+- [ ] Rate limiting, security hardening
 
-### 5. Run development server
-```bash
-npm run dev
-# → http://localhost:3000
-```
-
-## Demo Accounts (Development)
-- Owner: `owner@demo.com` / `demo123`
-- Admin: `admin@tapmenu.am` / `admin123`
-
-## Key URLs (Local)
-- Dashboard: http://localhost:3000/dashboard
-- Admin Panel: http://localhost:3000/admin
-- Public Menu: http://localhost:3000/menu/araratrest
-- Login: http://localhost:3000/login
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | /api/auth/login | User login |
-| GET | /api/dishes?restaurantId=xxx | Get dishes |
-| POST | /api/dishes | Create dish |
-| POST | /api/upload | Upload & process image (WebP) |
-| GET | /api/exchange-rates | CBA Armenia rates |
-| POST | /api/ai/chat | AI menu assistant (LUXE) |
-| GET/POST | /api/cron/update-rates | Daily exchange rate update |
-
-## Security
-- Supabase Auth + JWT tokens
-- RLS on all tables (owners see only their data)
-- AES-256 encryption for WiFi passwords
-- Slug sanitization (a-z, 0-9, hyphen only)
-- Rate limiting on sensitive endpoints
-- API keys in env vars only (never in code)
-
-## Deployment (Vercel)
+## 🛠️ Development
 
 ```bash
-# Install Vercel CLI
-npm i -g vercel
+# Start server
+pm2 start ecosystem.config.cjs
 
-# Deploy
-vercel --prod
+# Build
+npm run build
 
-# Set environment variables
-vercel env add SUPABASE_SERVICE_ROLE_KEY
-vercel env add OPENAI_API_KEY
-vercel env add DEEPL_API_KEY
-# ... etc
+# Test auth API
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"owner@demo.com","password":"demo1234"}'
 ```
 
-## 8-Week Roadmap
+## 🔐 Environment Variables
+```env
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...
+DATABASE_URL=postgresql://...
+OPENAI_API_KEY=...
+DEEPL_API_KEY=...
+RESEND_API_KEY=...
+WIFI_ENCRYPTION_KEY=...
+NEXT_PUBLIC_APP_URL=https://app.tapmenu.am
+```
 
-| Week | Focus |
-|------|-------|
-| 1 | ✅ Foundation: Next.js, DB schema, RLS, auth |
-| 2 | Super admin panel |
-| 3 | Owner dashboard core |
-| 4 | Dish library (CRUD, Sharp, translations) |
-| 5 | Public menu (SSR, templates, lang/currency switcher) |
-| 6 | Integrations (CBA API, Cron, analytics, NFC/QR) |
-| 7 | Landing & extras (WiFi, offers, lead form) |
-| 8 | LUXE (V-template, AI assistant, testing, deploy) |
-
-## Status
-- ✅ Next.js 14 project initialized with TypeScript + Tailwind
-- ✅ Full Prisma schema (all tables + relations)
-- ✅ Supabase SQL migration with RLS policies
-- ✅ Core UI components (Button, Input, Card, Badge)
-- ✅ Dashboard layout + overview + dishes + analytics pages
-- ✅ Admin panel layout + overview page
-- ✅ Public menu page (SSR + ISR + language/currency switcher)
-- ✅ Auth page (login with form validation)
-- ✅ Key API routes (login, dishes, upload, exchange rates, AI, cron)
-- ✅ Zustand stores (auth, menu preferences)
-- ✅ Security utilities (AES-256, slug sanitizer, rate limiting)
-- ✅ Image processing with Sharp.js (WebP, 3 sizes)
-- ✅ DeepL + Google Translate integration
-- ✅ OpenAI GPT-4o + DALL-E 3 integration
-- ✅ Vercel cron job configuration
-- ⏳ Full CRUD for dishes (modal form, drag-n-drop sort)
-- ⏳ Menu builder with categories
-- ⏳ NFC/QR code generator for tables
-- ⏳ Restaurant settings page
-- ⏳ LUXE AI assistant chat widget
-- ⏳ CI/CD pipeline
+---
+*Last updated: March 2026 | TapMenu Armenia © 2026*
