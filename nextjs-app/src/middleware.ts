@@ -8,7 +8,18 @@ const ADMIN_ROUTES = ['/admin']
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get auth token from cookies
+  // ─── /dev route: block in production ────────────────────────────────────
+  if (pathname.startsWith('/dev')) {
+    const isProduction = process.env.NODE_ENV === 'production'
+    if (isProduction) {
+      // Silently redirect to landing in production
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    // Allow in development/preview — continue
+    return NextResponse.next()
+  }
+
+  // ─── Auth token ──────────────────────────────────────────────────────────
   const authToken =
     request.cookies.get('sb-access-token')?.value ||
     request.cookies.get('supabase-auth-token')?.value
@@ -16,19 +27,19 @@ export function middleware(request: NextRequest) {
   const isAuthenticated = !!authToken
   const userRole = request.cookies.get('user-role')?.value
 
-  // Redirect unauthenticated users to login
+  // ─── Protect dashboard/admin routes ──────────────────────────────────────
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route)) && !isAuthenticated) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // Redirect authenticated users away from auth pages
+  // ─── Redirect authenticated users away from auth pages ───────────────────
   if (AUTH_ROUTES.some((route) => pathname.startsWith(route)) && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // Admin routes require admin/superadmin role
+  // ─── Admin routes require admin/superadmin role ───────────────────────────
   if (ADMIN_ROUTES.some((route) => pathname.startsWith(route)) && isAuthenticated) {
     if (userRole !== 'admin' && userRole !== 'superadmin') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
