@@ -97,7 +97,8 @@ nextjs-app/
 │   │   ├── menu/[slug]/          # Public menu (ISR)
 │   │   │   ├── page.tsx          # Server component (SSR/ISR)
 │   │   │   └── PublicMenuClient.tsx  # Cart, modals, lang/currency
-│   │   └── page.tsx              # Landing page
+│   │   ├── dev/                  # Dev navigation (localhost only, blocked in production)
+│   │   └── page.tsx              # Marketing landing page (Hero, Features, Pricing, FAQ, Contact)
 │   ├── components/               # Reusable components
 │   ├── lib/                      # Utils (Prisma, Supabase, OpenAI, Sharp)
 │   └── types/                    # TypeScript types + constants
@@ -131,9 +132,11 @@ nextjs-app/
 - [ ] Sharp image processing on upload
 
 ### Week 7 — Landing & Wi-Fi
-- [ ] Public landing page polish
+- [x] **Full marketing landing page** (`/`) — Hero, Stats, Features, HowItWorks, Pricing, FAQ, Contact, CTA, Footer
+- [x] **Dev navigation** moved to `/dev` (blocked in production with middleware guard)
+- [x] **ContactSection** — demo request form with plan selection
+- [x] Sticky header with mobile menu
 - [ ] Wi-Fi password QR generation
-- [ ] Contact form with Resend email
 - [ ] Special offers / promo section
 
 ### Week 8 — LUXE & Deploy
