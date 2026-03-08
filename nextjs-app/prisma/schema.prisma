@@ -251,16 +251,19 @@ model ExchangeRate {
 }
 
 model Lead {
-  id           String   @id @default(uuid())
-  name         String
-  phone        String
-  email        String?
-  restaurantName String? @map("restaurant_name")
-  message      String?
-  source       String?
-  isProcessed  Boolean  @default(false) @map("is_processed")
-  createdAt    DateTime @default(now()) @map("created_at")
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String   @db.VarChar(255)
+  restaurantName String?  @map("restaurant_name") @db.VarChar(255)
+  email          String   @db.VarChar(255)
+  phone          String?  @db.VarChar(50)
+  plan           String   @db.VarChar(50)
+  message        String?  @db.Text
+  status         String   @default("new") @db.VarChar(50)
+  createdAt      DateTime @default(now()) @map("created_at")
 
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
   @@map("leads")
 }
 
