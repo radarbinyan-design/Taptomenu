@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
   LayoutDashboard,
@@ -14,6 +14,7 @@ import {
   LogOut,
   ChevronDown,
   Menu,
+  MessageSquare,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -23,14 +24,21 @@ const navItems = [
   { href: '/admin/users', icon: Users, label: 'Пользователи' },
   { href: '/admin/subscriptions', icon: CreditCard, label: 'Подписки' },
   { href: '/admin/revenue', icon: BarChart3, label: 'Финансы' },
-  { href: '/admin/leads', icon: ChevronDown, label: 'Заявки' },
+  { href: '/admin/leads', icon: MessageSquare, label: 'Заявки' },
   { href: '/admin/analytics', icon: BarChart3, label: 'Аналитика' },
   { href: '/admin/settings', icon: Settings, label: 'Настройки' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 flex">
@@ -101,13 +109,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <div className="text-xs text-gray-500">admin@tapmenu.am</div>
             </div>
           </div>
-          <Link
-            href="/"
+          <button
+            onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2 w-full rounded-lg text-sm text-gray-500 hover:text-red-400 hover:bg-red-900/20 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Выйти
-          </Link>
+          </button>
         </div>
       </aside>
 

@@ -18,8 +18,21 @@ export function ContactSection() {
     setStatus('loading')
 
     try {
-      // Simulate API call (replace with real Resend API endpoint)
-      await new Promise((resolve) => setTimeout(resolve, 1200))
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          restaurantName: form.restaurant,
+          phone: form.phone,
+          email: form.email,
+          plan: form.plan,
+          message: form.message,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Server error')
+
       setStatus('success')
       setForm({ name: '', restaurant: '', phone: '', email: '', plan: 'pro', message: '' })
     } catch {
