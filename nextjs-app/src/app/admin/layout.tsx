@@ -22,7 +22,10 @@ const navItems = [
   { href: '/admin/restaurants', icon: Store, label: 'Рестораны' },
   { href: '/admin/users', icon: Users, label: 'Пользователи' },
   { href: '/admin/subscriptions', icon: CreditCard, label: 'Подписки' },
+  { href: '/admin/revenue', icon: BarChart3, label: 'Финансы' },
+  { href: '/admin/leads', icon: ChevronDown, label: 'Заявки' },
   { href: '/admin/analytics', icon: BarChart3, label: 'Аналитика' },
+  { href: '/admin/settings', icon: Settings, label: 'Настройки' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
