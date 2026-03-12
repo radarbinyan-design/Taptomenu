@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { redirect, notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import PublicMenuClient from './PublicMenuClient'
 
@@ -208,6 +208,11 @@ const DEMO_RESTAURANT = {
 }
 
 export default async function MenuPage({ params, searchParams }: MenuPageProps) {
+  // Redirect demo slug to dedicated demo page
+  if (params.slug === 'demo') {
+    redirect('/menu/demo')
+  }
+
   const restaurant = await getRestaurant(params.slug)
   
   // Use demo data for araratrest slug if DB not ready

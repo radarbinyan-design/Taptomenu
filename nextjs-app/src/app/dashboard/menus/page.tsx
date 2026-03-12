@@ -74,7 +74,41 @@ const INITIAL_MENUS: Menu[] = [
 
 const PLAN_LIMIT = 3
 
-const AVAILABLE_LANGS = ['RU', 'EN', 'HY', 'AR', 'FR', 'DE', 'ZH', 'ES']
+const AVAILABLE_LANGS = [
+  { code: 'RU', name: 'Русский', flag: '🇷🇺' },
+  { code: 'EN', name: 'English', flag: '🇺🇸' },
+  { code: 'HY', name: 'Հայերեն', flag: '🇦🇲' },
+  { code: 'AR', name: 'العربية', flag: '🇸🇦' },
+  { code: 'FR', name: 'Français', flag: '🇫🇷' },
+  { code: 'DE', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'ZH', name: '中文', flag: '🇨🇳' },
+  { code: 'ES', name: 'Español', flag: '🇪🇸' },
+  { code: 'IT', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'PT', name: 'Português', flag: '🇵🇹' },
+  { code: 'JA', name: '日本語', flag: '🇯🇵' },
+  { code: 'KO', name: '한국어', flag: '🇰🇷' },
+  { code: 'TR', name: 'Türkçe', flag: '🇹🇷' },
+  { code: 'PL', name: 'Polski', flag: '🇵🇱' },
+  { code: 'NL', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'SV', name: 'Svenska', flag: '🇸🇪' },
+  { code: 'DA', name: 'Dansk', flag: '🇩🇰' },
+  { code: 'FI', name: 'Suomi', flag: '🇫🇮' },
+  { code: 'NO', name: 'Norsk', flag: '🇳🇴' },
+  { code: 'CS', name: 'Čeština', flag: '🇨🇿' },
+  { code: 'SK', name: 'Slovenčina', flag: '🇸🇰' },
+  { code: 'HU', name: 'Magyar', flag: '🇭🇺' },
+  { code: 'RO', name: 'Română', flag: '🇷🇴' },
+  { code: 'BG', name: 'Български', flag: '🇧🇬' },
+  { code: 'UK', name: 'Українська', flag: '🇺🇦' },
+  { code: 'KA', name: 'ქართული', flag: '🇬🇪' },
+  { code: 'AZ', name: 'Azərbaycanca', flag: '🇦🇿' },
+  { code: 'UZ', name: 'Oʻzbekcha', flag: '🇺🇿' },
+  { code: 'KK', name: 'Қазақша', flag: '🇰🇿' },
+  { code: 'TH', name: 'ภาษาไทย', flag: '🇹🇭' },
+  { code: 'VI', name: 'Tiếng Việt', flag: '🇻🇳' },
+  { code: 'HI', name: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'FA', name: 'فارسی', flag: '🇮🇷' },
+]
 
 type ModalMode = 'create' | 'edit' | 'delete' | null
 
@@ -192,10 +226,18 @@ export default function MenusPage() {
     setOpenMenuId(null)
   }
 
-  const toggleLang = (lang: string) => {
+  const toggleLang = (code: string) => {
     setFormLangs(prev =>
-      prev.includes(lang) ? prev.filter(l => l !== lang) : [...prev, lang]
+      prev.includes(code) ? prev.filter(l => l !== code) : [...prev, code]
     )
+  }
+
+  const selectAllLangs = () => {
+    setFormLangs(AVAILABLE_LANGS.map(l => l.code))
+  }
+
+  const clearLangs = () => {
+    setFormLangs(['RU'])
   }
 
   const used = menus.length
@@ -453,21 +495,45 @@ export default function MenusPage() {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 block mb-2">Языки меню</label>
-                <div className="flex flex-wrap gap-2">
-                  {AVAILABLE_LANGS.map(lang => (
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-500">Выбрано: {formLangs.length} из {AVAILABLE_LANGS.length}</span>
+                  <div className="flex gap-2">
                     <button
-                      key={lang}
-                      onClick={() => toggleLang(lang)}
-                      className={`px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
-                        formLangs.includes(lang)
-                          ? 'border-blue-500 bg-blue-50 text-blue-700'
-                          : 'border-gray-200 text-gray-600 hover:bg-gray-50'
-                      }`}
+                      type="button"
+                      onClick={selectAllLangs}
+                      className="text-xs text-amber-600 hover:text-amber-700 font-medium"
                     >
-                      {formLangs.includes(lang) && <Check className="w-3 h-3 inline mr-1" />}
-                      {lang}
+                      Выбрать все
                     </button>
-                  ))}
+                    <span className="text-xs text-gray-300">|</span>
+                    <button
+                      type="button"
+                      onClick={clearLangs}
+                      className="text-xs text-gray-500 hover:text-gray-700 font-medium"
+                    >
+                      Сбросить
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200 p-2">
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {AVAILABLE_LANGS.map(lang => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => toggleLang(lang.code)}
+                        className={`flex items-center gap-1 px-2 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
+                          formLangs.includes(lang.code)
+                            ? 'border-blue-500 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                        title={lang.name}
+                      >
+                        <span className="text-sm">{lang.flag}</span>
+                        <span className="truncate">{lang.code}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

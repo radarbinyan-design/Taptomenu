@@ -47,7 +47,7 @@ export function HeroSection() {
             🚀 Начать бесплатно — 14 дней
           </Link>
           <Link
-            href="/menu/araratrest"
+            href="/menu/demo"
             target="_blank"
             className="inline-flex items-center justify-center gap-2 h-14 px-8 bg-white/10 hover:bg-white/15 text-white font-semibold text-lg rounded-2xl border border-white/20 transition-all backdrop-blur"
           >

@@ -111,14 +111,65 @@
 ## 🔐 Переменные окружения
 
 ```env
-DATABASE_URL=postgresql://...
-DIRECT_URL=postgresql://...
+# Database (PostgreSQL required for production)
+DATABASE_URL=postgresql://user:password@host:5432/tapmenu
+
+# Supabase (auth & storage)
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
+
+# Email (Resend)
+RESEND_API_KEY=re_xxxxxxxxxxxx
+
+# AI
 OPENAI_API_KEY=sk-...
-JWT_SECRET=...
+
+# Security
+JWT_SECRET=your-secret-key-min-32-chars
 ```
+
+See `.env.example` for full list of variables.
+
+## 🗄 Database Setup (Supabase / PostgreSQL)
+
+### Option 1: Supabase (Recommended for production)
+
+1. Create a project at [supabase.com](https://supabase.com)
+2. Go to **Settings → Database** and copy the connection string
+3. Set `DATABASE_URL` in your `.env.local`:
+   ```
+   DATABASE_URL="postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true"
+   ```
+4. Run migrations:
+   ```bash
+   cd nextjs-app
+   npx prisma migrate deploy
+   # or for initial push:
+   npx prisma db push
+   ```
+5. Generate Prisma client:
+   ```bash
+   npx prisma generate
+   ```
+
+### Option 2: Local PostgreSQL
+
+1. Install PostgreSQL locally
+2. Create database: `createdb tapmenu`
+3. Set `DATABASE_URL="postgresql://localhost:5432/tapmenu"` in `.env.local`
+4. Run `npx prisma db push` to create tables
+
+### Option 3: Local SQLite (development only)
+
+For quick local development without PostgreSQL, modify `prisma/schema.prisma`:
+```prisma
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+```
+Note: Some features (like `@db.Uuid`, `String[]` arrays) won't work with SQLite.
 
 ## 🚀 Запуск (dev)
 
