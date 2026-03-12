@@ -8,14 +8,34 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<'email' | 'sent'>('email')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) return
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1200))
-    setLoading(false)
-    setStep('sent')
+    setError('')
+
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Ошибка отправки. Попробуйте позже.')
+        return
+      }
+
+      setStep('sent')
+    } catch {
+      setError('Ошибка соединения. Проверьте интернет.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -68,6 +88,10 @@ export default function ForgotPasswordPage() {
                   />
                 </div>
 
+                {error && (
+                  <p className="text-red-500 text-sm">{error}</p>
+                )}
+
                 <button
                   type="submit"
                   disabled={!email || loading}
@@ -106,7 +130,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               <button
-                onClick={() => setStep('email')}
+                onClick={() => { setStep('email'); setError('') }}
                 className="w-full py-3 border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 mb-3"
               >
                 <RefreshCw className="w-4 h-4" />

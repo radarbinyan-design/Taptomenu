@@ -48,6 +48,7 @@ model User {
   email             String       @unique
   name              String
   phone             String?
+  passwordHash      String?      @map("password_hash")
   role              UserRole     @default(owner)
   avatarUrl         String?      @map("avatar_url")
   isEmailVerified   Boolean      @default(false) @map("is_email_verified")
@@ -58,8 +59,23 @@ model User {
 
   restaurants       Restaurant[]
   subscription      Subscription?
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model Restaurant {

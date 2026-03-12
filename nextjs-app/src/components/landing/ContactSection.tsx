@@ -64,9 +64,10 @@ export function ContactSection() {
             </p>
 
             {/* Contact info */}
+            {/* TODO: Replace with real phone number before production launch */}
             <div className="space-y-4 mb-8">
               {[
-                { emoji: '📞', label: 'Телефон', value: '+374 91 000 000' },
+                { emoji: '📞', label: 'Телефон', value: '[УКАЖИТЕ РЕАЛЬНЫЙ НОМЕР]' },
                 { emoji: '✉️', label: 'Email', value: 'hello@tapmenu.am' },
                 { emoji: '📍', label: 'Офис', value: 'Ереван, ул. Абовяна 12' },
                 { emoji: '⏰', label: 'Режим работы', value: 'Пн–Пт 10:00–19:00 AMT' },

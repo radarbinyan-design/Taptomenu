@@ -33,9 +33,10 @@ const CONTACTS = [
   {
     icon: '📞',
     title: 'Телефон',
-    value: '+374 91 000 000',
+    /* TODO: Replace with real phone number before production launch */
+    value: '[УКАЖИТЕ РЕАЛЬНЫЙ НОМЕР]',
     sub: 'Пн–Пт, 10:00–19:00 AMT',
-    href: 'tel:+37491000000',
+    href: '#',
   },
   {
     icon: '✈️',
@@ -407,9 +408,10 @@ export default function ContactPage() {
             <a href="mailto:hello@tapmenu.am" className="flex items-center gap-2 hover:text-orange-400 transition-colors">
               📧 hello@tapmenu.am
             </a>
-            <a href="tel:+37491000000" className="flex items-center gap-2 hover:text-orange-400 transition-colors">
-              📞 +374 91 000 000
-            </a>
+            {/* TODO: Replace with real phone number before production launch */}
+            <span className="flex items-center gap-2 text-slate-400">
+              📞 [УКАЖИТЕ РЕАЛЬНЫЙ НОМЕР]
+            </span>
             <a href="https://t.me/tapmenu_am" className="flex items-center gap-2 hover:text-orange-400 transition-colors" target="_blank" rel="noopener noreferrer">
               ✈️ @tapmenu_am
             </a>

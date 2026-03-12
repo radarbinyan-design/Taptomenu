@@ -30,7 +30,7 @@ export function LandingFooter() {
                 ['#features', 'Возможности'],
                 ['#how-it-works', 'Как работает'],
                 ['#pricing', 'Тарифы'],
-                ['/menu/araratrest', 'Демо меню'],
+                ['/menu/demo', 'Демо меню'],
               ].map(([href, label]) => (
                 <li key={href}>
                   <a href={href} className="hover:text-white transition-colors">{label}</a>
