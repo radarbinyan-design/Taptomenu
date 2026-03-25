@@ -89,6 +89,7 @@ model Restaurant {
   menus           Menu[]
   tables          Table[]
   menuViews       MenuView[]
+  orders          Order[]
 
   @@index([userId])
   @@index([slug])
@@ -108,11 +109,17 @@ model Subscription {
   maxDishes       Int                @default(30) @map("max_dishes")
   maxLanguages    Int                @default(2) @map("max_languages")
   maxNfcTags      Int                @default(1) @map("max_nfc_tags")
+  // Phase 04: Stripe integration fields
+  stripeCustomerId     String?       @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?       @unique @map("stripe_subscription_id")
+  stripePriceId        String?       @map("stripe_price_id")
+  cancelAtPeriodEnd    Boolean       @default(false) @map("cancel_at_period_end")
   createdAt       DateTime           @default(now()) @map("created_at")
   updatedAt       DateTime           @updatedAt @map("updated_at")
 
   user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   paymentHistory  PaymentHistory[]
+  paymentTransactions PaymentTransaction[]
 
   @@map("subscriptions")
 }
@@ -145,6 +152,7 @@ model Dish {
 
   restaurant      Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   menuDishes      MenuDish[]
+  orderItems      OrderItem[]
 
   @@index([restaurantId])
   @@map("dishes")
@@ -295,4 +303,113 @@ model AiConversation {
 
   @@index([restaurantId])
   @@map("ai_conversations")
+}
+
+// ─── PHASE 01: Guest Ordering ─────────────────────────────────────────────────
+
+enum OrderStatus {
+  pending
+  confirmed
+  preparing
+  ready
+  delivered
+  cancelled
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  restaurantId String      @map("restaurant_id")
+  tableId      String?     @map("table_id")
+  status       OrderStatus @default(pending)
+  totalAmount  Int         @map("total_amount") // AMD
+  guestName    String?     @map("guest_name")
+  guestPhone   String?     @map("guest_phone")
+  notes        String?
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        OrderItem[]
+
+  @@index([restaurantId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id                  String   @id @default(uuid())
+  orderId             String   @map("order_id")
+  dishId              String   @map("dish_id")
+  quantity            Int      @default(1)
+  price               Int      // AMD, snapshot at order time
+  specialInstructions String?  @map("special_instructions")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  dish                Dish     @relation(fields: [dishId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ─── PHASE 04: Payments ──────────────────────────────────────────────────────
+
+enum PaymentTransactionStatus {
+  pending
+  succeeded
+  failed
+  refunded
+  cancelled
+}
+
+enum PaymentTransactionType {
+  subscription_create
+  subscription_renew
+  subscription_upgrade
+  subscription_downgrade
+  refund
+}
+
+model PaymentTransaction {
+  id                  String                   @id @default(uuid())
+  subscriptionId      String                   @map("subscription_id")
+  stripePaymentIntentId String?                @unique @map("stripe_payment_intent_id")
+  stripeInvoiceId     String?                  @unique @map("stripe_invoice_id")
+  type                PaymentTransactionType   @default(subscription_create)
+  status              PaymentTransactionStatus @default(pending)
+  amount              Int                      // cents (USD)
+  currency            String                   @default("usd")
+  plan                SubscriptionPlan
+  period              String                   // monthly | yearly
+  description         String?
+  failureReason       String?                  @map("failure_reason")
+  receiptUrl          String?                  @map("receipt_url")
+  metadata            Json?
+  createdAt           DateTime                 @default(now()) @map("created_at")
+  updatedAt           DateTime                 @updatedAt @map("updated_at")
+
+  subscription        Subscription             @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("payment_transactions")
+}
+
+// ─── PHASE 03: Transformer (AI) ─────────────────────────────────────────────
+
+model TransformerUsage {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  type         String   // translation | description | image
+  provider     String   // deepl | google | openai | dalle | demo
+  tokensUsed   Int      @default(0) @map("tokens_used")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([restaurantId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("transformer_usage")
 }

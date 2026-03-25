@@ -6,9 +6,28 @@ import type { NextRequest } from 'next/server'
 const PROTECTED_ROUTES = ['/dashboard', '/admin']
 const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
 const ADMIN_ROUTES = ['/admin']
+const PUBLIC_ROUTES = ['/r/', '/menu/']
+
+// Routes accessible to RESTAURANT_ADMIN (owner role)
+const RESTAURANT_ADMIN_ALLOWED = [
+  '/dashboard',
+  '/dashboard/menu-generator',
+  '/dashboard/menu-editor',
+  '/dashboard/menus',
+  '/dashboard/tables',
+  '/dashboard/dishes',
+  '/dashboard/translations',
+  '/dashboard/billing',
+  '/dashboard/settings',
+]
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // ─── Public routes (guest menu, no auth needed) ────────────────────────
+  if (PUBLIC_ROUTES.some(r => pathname.startsWith(r))) {
+    return NextResponse.next()
+  }
 
   // ─── /dev: block in production ────────────────────────────────────────────
   if (pathname.startsWith('/dev')) {
@@ -34,14 +53,12 @@ export async function middleware(request: NextRequest) {
 
   if (isRealSupabase) {
     try {
-      // createServerClient needs cookie read/write to refresh tokens
       const supabase = createServerClient(supabaseUrl, supabaseKey, {
         cookies: {
           get(name) {
             return request.cookies.get(name)?.value
           },
           set(name, value, options) {
-            // Write refreshed cookie back to both request and response
             request.cookies.set({ name, value, ...options })
             res.cookies.set({ name, value, ...options })
           },
@@ -58,14 +75,11 @@ export async function middleware(request: NextRequest) {
 
       if (sbSession) {
         session = sbSession
-
-        // Fetch role from users table (single DB call, cached by Supabase edge)
         const { data: userRow } = await supabase
           .from('users')
           .select('role')
           .eq('id', sbSession.user.id)
           .single()
-
         supabaseRole = userRow?.role ?? null
       }
     } catch {
@@ -74,7 +88,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── Cookie-based auth fallback (demo / dev without real Supabase) ────────
-  // Our /api/auth/login sets these cookies on demo login
   const cookieToken =
     request.cookies.get('sb-access-token')?.value ||
     request.cookies.get('supabase-auth-token')?.value
@@ -104,19 +117,30 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // ─── RBAC: RESTAURANT_ADMIN can only access allowed dashboard pages ──────
+  if (pathname.startsWith('/dashboard') && isAuthenticated) {
+    if (userRole === 'owner') {
+      // Check if the path is allowed for restaurant admin
+      const isAllowed = RESTAURANT_ADMIN_ALLOWED.some(allowed => {
+        if (allowed === '/dashboard' && pathname === '/dashboard') return true
+        if (allowed !== '/dashboard' && pathname.startsWith(allowed)) return true
+        return false
+      })
+
+      if (!isAllowed) {
+        // Redirect to dashboard home with 403 indication
+        const dashboardUrl = new URL('/dashboard', request.url)
+        dashboardUrl.searchParams.set('access_denied', '1')
+        return NextResponse.redirect(dashboardUrl)
+      }
+    }
+  }
+
   return res
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all paths EXCEPT:
-     * - _next/static  (static files)
-     * - _next/image   (image optimisation)
-     * - favicon.ico
-     * - public/       (static assets)
-     * - api/          (API routes handle their own auth)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
   ],
 }

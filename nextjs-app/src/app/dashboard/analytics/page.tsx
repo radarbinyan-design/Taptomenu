@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -18,9 +18,22 @@ import {
   Utensils,
   Clock,
   RefreshCw,
+  Loader2,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth'
+import { useToast } from '@/components/shared/Toast'
 
-const weeklyData = [
+// ─── Types for API response ──────────────────────────────────────────────────
+interface AnalyticsData {
+  totalViews: number
+  viewsByLang: Array<{ lang: string; count: number }>
+  viewsByDevice: Array<{ device: string | null; count: number }>
+  viewsByDay: Array<{ date: string; count: number }>
+  period: { days: number; since: string }
+}
+
+// ─── Demo data (fallback) ────────────────────────────────────────────────────
+const DEMO_WEEKLY_DATA = [
   { day: 'Пн', views: 85, unique: 62 },
   { day: 'Вт', views: 120, unique: 89 },
   { day: 'Ср', views: 95, unique: 71 },
@@ -30,20 +43,20 @@ const weeklyData = [
   { day: 'Вс', views: 195, unique: 147 },
 ]
 
-const monthlyData = [
+const DEMO_MONTHLY_DATA = [
   { day: '1', views: 45 }, { day: '5', views: 78 }, { day: '10', views: 92 },
   { day: '15', views: 110 }, { day: '20', views: 135 }, { day: '25', views: 158 }, { day: '30', views: 142 },
 ]
 
-const langStats = [
-  { lang: '🇷🇺 Русский', count: 485, pct: 42 },
-  { lang: '🇦🇲 Армянский', count: 320, pct: 28 },
-  { lang: '🇬🇧 English', count: 196, pct: 17 },
-  { lang: '🇸🇦 Arabic', count: 92, pct: 8 },
-  { lang: '🇫🇷 Français', count: 57, pct: 5 },
+const DEMO_LANG_STATS = [
+  { lang: 'ru', count: 485, pct: 42 },
+  { lang: 'hy', count: 320, pct: 28 },
+  { lang: 'en', count: 196, pct: 17 },
+  { lang: 'ar', count: 92, pct: 8 },
+  { lang: 'fr', count: 57, pct: 5 },
 ]
 
-const topDishes = [
+const DEMO_TOP_DISHES = [
   { name: 'Хоровац из баранины', views: 342, orders: 89, emoji: '🥩' },
   { name: 'Греческий салат', views: 287, orders: 72, emoji: '🥗' },
   { name: 'Долма', views: 265, orders: 68, emoji: '🫑' },
@@ -51,7 +64,7 @@ const topDishes = [
   { name: 'Лаваш с сырами', views: 176, orders: 47, emoji: '🫓' },
 ]
 
-const hourlyData = [
+const DEMO_HOURLY_DATA = [
   { hour: '10', value: 12 }, { hour: '11', value: 18 }, { hour: '12', value: 45 },
   { hour: '13', value: 78 }, { hour: '14', value: 65 }, { hour: '15', value: 52 },
   { hour: '16', value: 38 }, { hour: '17', value: 42 }, { hour: '18', value: 58 },
@@ -59,7 +72,21 @@ const hourlyData = [
   { hour: '22', value: 45 }, { hour: '23', value: 22 },
 ]
 
-// SVG Bar Chart component
+// ─── Lang display helper ─────────────────────────────────────────────────────
+const LANG_LABELS: Record<string, string> = {
+  ru: '🇷🇺 Русский',
+  hy: '🇦🇲 Армянский',
+  en: '🇬🇧 English',
+  ar: '🇸🇦 Arabic',
+  fr: '🇫🇷 Français',
+  de: '🇩🇪 Deutsch',
+  zh: '🇨🇳 中文',
+  es: '🇪🇸 Español',
+}
+
+const DAY_NAMES = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб']
+
+// ─── SVG Bar Chart ───────────────────────────────────────────────────────────
 function BarChart({
   data,
   height = 120,
@@ -71,7 +98,7 @@ function BarChart({
   color?: string
   showSecondary?: boolean
 }) {
-  const maxVal = Math.max(...data.map(d => d.views))
+  const maxVal = Math.max(...data.map(d => d.views), 1)
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   return (
@@ -91,7 +118,6 @@ function BarChart({
 
           return (
             <g key={i}>
-              {/* Secondary bar */}
               {showSecondary && d.unique && (
                 <rect
                   x={x}
@@ -102,7 +128,6 @@ function BarChart({
                   rx={3}
                 />
               )}
-              {/* Main bar */}
               <rect
                 x={showSecondary ? x + 17 : x + 4}
                 y={y}
@@ -114,7 +139,6 @@ function BarChart({
                 onMouseEnter={() => setHoveredIdx(i)}
                 onMouseLeave={() => setHoveredIdx(null)}
               />
-              {/* Tooltip */}
               {isHovered && (
                 <g>
                   <rect x={x - 2} y={y - 24} width={44} height={20} fill="#1f2937" rx={4} />
@@ -123,7 +147,6 @@ function BarChart({
                   </text>
                 </g>
               )}
-              {/* Label */}
               <text
                 x={x + 16}
                 y={height + 16}
@@ -141,9 +164,9 @@ function BarChart({
   )
 }
 
-// Line Chart component
-function LineChart({ data, height = 100 }: { data: { hour: string; value: number }[], height?: number }) {
-  const maxVal = Math.max(...data.map(d => d.value))
+// ─── Line Chart ──────────────────────────────────────────────────────────────
+function LineChart({ data, height = 100 }: { data: { hour: string; value: number }[]; height?: number }) {
+  const maxVal = Math.max(...data.map(d => d.value), 1)
   const w = 400
   const points = data.map((d, i) => ({
     x: (i / (data.length - 1)) * w,
@@ -177,9 +200,9 @@ function LineChart({ data, height = 100 }: { data: { hour: string; value: number
   )
 }
 
-// Donut chart for device split
+// ─── Donut chart ─────────────────────────────────────────────────────────────
 function DonutChart({ mobile, desktop }: { mobile: number; desktop: number }) {
-  const total = mobile + desktop
+  const total = mobile + desktop || 1
   const mPct = (mobile / total) * 100
   const circumference = 2 * Math.PI * 30
   const mDash = (mPct / 100) * circumference
@@ -204,29 +227,128 @@ function DonutChart({ mobile, desktop }: { mobile: number; desktop: number }) {
       <div className="space-y-1.5">
         <div className="flex items-center gap-2 text-sm">
           <span className="w-2.5 h-2.5 rounded-sm bg-amber-400 inline-block" />
-          <span className="text-gray-700">📱 Mobile — {Math.round(mPct)}%</span>
+          <span className="text-gray-700">Mobile -- {Math.round(mPct)}%</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="w-2.5 h-2.5 rounded-sm bg-gray-200 inline-block" />
-          <span className="text-gray-700">🖥 Desktop — {100 - Math.round(mPct)}%</span>
+          <span className="text-gray-700">Desktop -- {100 - Math.round(mPct)}%</span>
         </div>
       </div>
     </div>
   )
 }
 
+// ─── Main Page ───────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
+  const restaurant = useAuthStore(s => s.restaurant)
+  const { toast } = useToast()
   const [period, setPeriod] = useState<'week' | 'month'>('week')
+  const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
+  const [isUsingRealData, setIsUsingRealData] = useState(false)
 
-  const chartData = period === 'week' ? weeklyData : monthlyData.map(d => ({ ...d, unique: Math.round(d.views * 0.74) }))
+  // Fetch real analytics data
+  const fetchAnalytics = async (showSpinner = false) => {
+    if (!restaurant?.id) return
+    if (showSpinner) setIsLoading(true)
+    else setIsRefreshing(true)
 
-  const totalViews = weeklyData.reduce((s, d) => s + d.views, 0)
-  const avgPerDay = Math.round(totalViews / 7)
+    try {
+      const days = period === 'week' ? 7 : 30
+      const res = await fetch(`/api/menu-views?restaurantId=${restaurant.id}&days=${days}`)
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data: AnalyticsData = await res.json()
+      setAnalyticsData(data)
+      setIsUsingRealData(true)
+    } catch {
+      // Silently fall back to demo data
+      setIsUsingRealData(false)
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAnalytics(true)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant?.id, period])
 
   const handleRefresh = () => {
-    setIsRefreshing(true)
-    setTimeout(() => setIsRefreshing(false), 1200)
+    fetchAnalytics(false)
+    if (!restaurant?.id) {
+      setIsRefreshing(true)
+      setTimeout(() => setIsRefreshing(false), 1200)
+    }
+  }
+
+  // ── Derive chart data from real or demo ────────────────────────────────────
+
+  const chartData = useMemo(() => {
+    if (isUsingRealData && analyticsData) {
+      return analyticsData.viewsByDay.map(d => {
+        const dateObj = new Date(d.date)
+        const label = period === 'week'
+          ? DAY_NAMES[dateObj.getDay()]
+          : String(dateObj.getDate())
+        return {
+          day: label,
+          views: d.count,
+          unique: Math.round(d.count * 0.74), // approximate unique ratio
+        }
+      })
+    }
+    return period === 'week'
+      ? DEMO_WEEKLY_DATA
+      : DEMO_MONTHLY_DATA.map(d => ({ ...d, unique: Math.round(d.views * 0.74) }))
+  }, [isUsingRealData, analyticsData, period])
+
+  const totalViews = useMemo(() => {
+    if (isUsingRealData && analyticsData) return analyticsData.totalViews
+    return DEMO_WEEKLY_DATA.reduce((s, d) => s + d.views, 0)
+  }, [isUsingRealData, analyticsData])
+
+  const avgPerDay = Math.round(totalViews / (period === 'week' ? 7 : 30))
+
+  const langStats = useMemo(() => {
+    if (isUsingRealData && analyticsData && analyticsData.viewsByLang.length > 0) {
+      const total = analyticsData.viewsByLang.reduce((s, v) => s + v.count, 0) || 1
+      return analyticsData.viewsByLang.map(v => ({
+        lang: LANG_LABELS[v.lang] || v.lang,
+        count: v.count,
+        pct: Math.round((v.count / total) * 100),
+      }))
+    }
+    return DEMO_LANG_STATS.map(l => ({
+      lang: LANG_LABELS[l.lang] || l.lang,
+      count: l.count,
+      pct: l.pct,
+    }))
+  }, [isUsingRealData, analyticsData])
+
+  const deviceStats = useMemo(() => {
+    if (isUsingRealData && analyticsData && analyticsData.viewsByDevice.length > 0) {
+      let mobile = 0; let desktop = 0
+      analyticsData.viewsByDevice.forEach(d => {
+        if (d.device === 'mobile' || d.device === 'tablet') mobile += d.count
+        else desktop += d.count
+      })
+      return { mobile, desktop }
+    }
+    return { mobile: 78, desktop: 22 }
+  }, [isUsingRealData, analyticsData])
+
+  const topDishes = DEMO_TOP_DISHES // Top dishes stay demo for now (requires dish-level analytics)
+  const hourlyData = DEMO_HOURLY_DATA // Hourly data stays demo (no hourly grouping in API yet)
+
+  if (isLoading && restaurant?.id) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <span className="ml-3 text-gray-500">Загрузка аналитики...</span>
+      </div>
+    )
   }
 
   return (
@@ -235,7 +357,10 @@ export default function AnalyticsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Аналитика</h1>
-          <p className="text-gray-500 mt-1">Ресторан Арарат · Данные за последние 7 дней</p>
+          <p className="text-gray-500 mt-1">
+            {restaurant?.name || 'Ресторан Арарат'} · Данные за последние {period === 'week' ? '7' : '30'} дней
+            {!isUsingRealData && <span className="text-amber-500 ml-2">(демо-данные)</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -263,9 +388,9 @@ export default function AnalyticsPage() {
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Просмотров за неделю', value: totalViews.toLocaleString(), change: '+18%', positive: true, icon: Eye, color: 'text-blue-500 bg-blue-50' },
+          { label: `Просмотров за ${period === 'week' ? 'неделю' : 'месяц'}`, value: totalViews.toLocaleString(), change: '+18%', positive: true, icon: Eye, color: 'text-blue-500 bg-blue-50' },
           { label: 'Среднее в день', value: avgPerDay.toString(), change: '+12%', positive: true, icon: BarChart2, color: 'text-amber-500 bg-amber-50' },
-          { label: 'Уникальных гостей', value: '766', change: '+9%', positive: true, icon: Users, color: 'text-green-500 bg-green-50' },
+          { label: 'Уникальных гостей', value: Math.round(totalViews * 0.74).toLocaleString(), change: '+9%', positive: true, icon: Users, color: 'text-green-500 bg-green-50' },
           { label: 'Топ-блюдо просмотров', value: '342', change: 'Хоровац', positive: true, icon: Utensils, color: 'text-purple-500 bg-purple-50' },
         ].map(s => (
           <Card key={s.label} className="border border-gray-200">
@@ -312,22 +437,24 @@ export default function AnalyticsPage() {
             <CardTitle className="text-base font-semibold text-gray-900">Устройства</CardTitle>
           </CardHeader>
           <CardContent>
-            <DonutChart mobile={78} desktop={22} />
+            <DonutChart mobile={deviceStats.mobile} desktop={deviceStats.desktop} />
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-              {[
-                { label: 'iOS', value: '58%', bar: 58 },
-                { label: 'Android', value: '34%', bar: 34 },
-                { label: 'Desktop', value: '8%', bar: 8 },
-              ].map(d => (
-                <div key={d.label}>
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>{d.label}</span><span>{d.value}</span>
+              {(() => {
+                const total = deviceStats.mobile + deviceStats.desktop || 1
+                return [
+                  { label: 'Mobile', value: `${Math.round((deviceStats.mobile / total) * 100)}%`, bar: Math.round((deviceStats.mobile / total) * 100) },
+                  { label: 'Desktop', value: `${Math.round((deviceStats.desktop / total) * 100)}%`, bar: Math.round((deviceStats.desktop / total) * 100) },
+                ].map(d => (
+                  <div key={d.label}>
+                    <div className="flex justify-between text-xs text-gray-600 mb-1">
+                      <span>{d.label}</span><span>{d.value}</span>
+                    </div>
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${d.bar}%` }} />
+                    </div>
                   </div>
-                  <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-400 rounded-full" style={{ width: `${d.bar}%` }} />
-                  </div>
-                </div>
-              ))}
+                ))
+              })()}
             </div>
           </CardContent>
         </Card>
@@ -340,14 +467,14 @@ export default function AnalyticsPage() {
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base font-semibold text-gray-900">Активность по времени</CardTitle>
-              <Badge className="text-xs bg-amber-100 text-amber-700">🔥 Пик 20:00–21:00</Badge>
+              <Badge className="text-xs bg-amber-100 text-amber-700">Пик 20:00-21:00</Badge>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
             <LineChart data={hourlyData} height={100} />
             <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1">
               <Clock className="w-3.5 h-3.5" />
-              <span>Самое активное время: <strong className="text-gray-800">19:00 – 21:00</strong></span>
+              <span>Самое активное время: <strong className="text-gray-800">19:00 - 21:00</strong></span>
             </div>
           </CardContent>
         </Card>

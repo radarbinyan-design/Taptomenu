@@ -1,226 +1,276 @@
-import type { Metadata } from 'next'
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
 import {
-  Eye,
+  Sparkles,
+  Edit3,
+  Table2,
+  Settings,
+  ArrowRight,
+  ExternalLink,
+  AlertTriangle,
+  Zap,
+  Languages,
+  Camera,
+  Image as ImageIcon,
   UtensilsCrossed,
   BookOpen,
-  Table2,
-  TrendingUp,
-  Plus,
-  ExternalLink,
-  Smartphone,
-  Globe,
-  Wifi,
-  ArrowUpRight,
+  Eye,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth'
 
-export const metadata: Metadata = { title: 'Dashboard' }
+function DashboardContent() {
+  const searchParams = useSearchParams()
+  const accessDenied = searchParams.get('access_denied') === '1'
+  const [showDenied, setShowDenied] = useState(accessDenied)
+  const restaurant = useAuthStore(s => s.restaurant)
+  const [stats, setStats] = useState<{ dishes: number; menus: number; tables: number; views: number } | null>(null)
 
-const stats = [
-  {
-    label: 'Просмотры сегодня',
-    value: '142',
-    change: '+12%',
-    positive: true,
-    icon: Eye,
-    color: 'text-blue-500 bg-blue-50',
-  },
-  {
-    label: 'Блюд в меню',
-    value: '47',
-    change: '3 добавлено',
-    positive: true,
-    icon: UtensilsCrossed,
-    color: 'text-amber-500 bg-amber-50',
-  },
-  {
-    label: 'Активных меню',
-    value: '2',
-    change: 'из 3 доступных',
-    positive: true,
-    icon: BookOpen,
-    color: 'text-green-500 bg-green-50',
-  },
-  {
-    label: 'NFC-столиков',
-    value: '8',
-    change: '6 активных',
-    positive: true,
-    icon: Table2,
-    color: 'text-purple-500 bg-purple-50',
-  },
-]
+  useEffect(() => {
+    if (accessDenied) {
+      setTimeout(() => setShowDenied(false), 5000)
+    }
+  }, [accessDenied])
 
-const recentViews = [
-  { time: '14:32', device: 'mobile', lang: 'RU', table: 'Столик 5' },
-  { time: '14:28', device: 'mobile', lang: 'EN', table: 'Столик 2' },
-  { time: '14:15', device: 'mobile', lang: 'HY', table: 'Столик 8' },
-  { time: '13:55', device: 'desktop', lang: 'RU', table: 'QR-код' },
-  { time: '13:42', device: 'mobile', lang: 'AR', table: 'Столик 3' },
-]
+  // Load stats from real APIs when restaurant is available
+  useEffect(() => {
+    if (!restaurant?.id) return
+    Promise.all([
+      fetch(`/api/dishes?restaurantId=${restaurant.id}&limit=1`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/menus?restaurantId=${restaurant.id}`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/tables?restaurantId=${restaurant.id}`).then(r => r.ok ? r.json() : null),
+      fetch(`/api/menu-views?restaurantId=${restaurant.id}&period=week`).then(r => r.ok ? r.json() : null),
+    ]).then(([dishesRes, menusRes, tablesRes, viewsRes]) => {
+      setStats({
+        dishes: dishesRes?.total ?? 0,
+        menus: menusRes?.menus?.length ?? 0,
+        tables: tablesRes?.tables?.length ?? 0,
+        views: viewsRes?.total ?? 0,
+      })
+    }).catch(() => { /* demo mode */ })
+  }, [restaurant?.id])
 
-export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Добрый день, Арам! 👋</h1>
-          <p className="text-gray-500 mt-1">Ресторан Арарат · araratrest.tapmenu.am</p>
+      {/* Access denied toast */}
+      {showDenied && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-red-800">Доступ запрещён</p>
+            <p className="text-xs text-red-600">У вас нет доступа к этому разделу. Доступные разделы: Меню, Столики, Настройки.</p>
+          </div>
+          <button onClick={() => setShowDenied(false)} className="text-red-400 hover:text-red-600 ml-auto">
+            &times;
+          </button>
         </div>
-        <div className="flex items-center gap-3">
-          <Link href="/menu/araratrest" target="_blank" className="inline-flex items-center gap-2 h-8 px-3 text-xs font-medium rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 transition-colors">
-              <ExternalLink className="w-4 h-4" />
-              Открыть меню
-          </Link>
-          <Link href="/dashboard/dishes?action=new" className="inline-flex items-center gap-2 h-8 px-3 text-xs font-medium rounded-lg bg-amber-500 hover:bg-amber-600 text-white shadow-sm transition-colors">
-            <Plus className="w-4 h-4" />
-            Добавить блюдо
-          </Link>
-        </div>
+      )}
+
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">TapToMenu MVP</h1>
+        <p className="text-gray-500 mt-1">AI-автоматизация ресторанных меню: от фото до QR за 15 минут</p>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="pt-5">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className={`text-xs mt-1 ${stat.positive ? 'text-green-600' : 'text-red-500'}`}>
-                    {stat.change}
-                  </p>
-                </div>
-                <div className={`p-2 rounded-lg ${stat.color}`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
+      {/* Hero card - main CTA */}
+      <Card className="border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 overflow-hidden">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-violet-500" />
+                Создайте цифровое меню за 15 минут
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Загрузите фото бумажного меню + логотип. AI распознает текст, переведёт на 3 языка
+                и сгенерирует фотографии всех блюд.
+              </p>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {[
+                  { icon: Camera, text: 'OCR распознавание' },
+                  { icon: Languages, text: 'RU / EN / HY перевод' },
+                  { icon: ImageIcon, text: 'AI-фото блюд' },
+                ].map(item => (
+                  <span key={item.text} className="flex items-center gap-1.5 text-xs bg-white/80 text-violet-700 px-2.5 py-1 rounded-full">
+                    <item.icon className="w-3.5 h-3.5" />
+                    {item.text}
+                  </span>
+                ))}
               </div>
-            </CardContent>
-          </Card>
+              <Link
+                href="/dashboard/menu-generator"
+                className="inline-flex items-center gap-2 h-11 px-6 text-sm font-semibold rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all"
+              >
+                <Zap className="w-4 h-4" />
+                Начать генерацию
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            <div className="text-8xl">
+              🍽️
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats row — real data when available */}
+      {stats && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: 'Блюд', value: stats.dishes, icon: UtensilsCrossed, color: 'bg-amber-50 text-amber-500' },
+            { label: 'Меню', value: stats.menus, icon: BookOpen, color: 'bg-blue-50 text-blue-500' },
+            { label: 'Столиков', value: stats.tables, icon: Table2, color: 'bg-green-50 text-green-500' },
+            { label: 'Просмотров (7д)', value: stats.views, icon: Eye, color: 'bg-purple-50 text-purple-500' },
+          ].map(s => (
+            <Card key={s.label} className="border border-gray-200">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.color}`}>
+                    <s.icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-gray-900">{s.value}</p>
+                    <p className="text-xs text-gray-500">{s.label}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Quick actions grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            href: '/dashboard/menu-generator',
+            icon: Sparkles,
+            title: 'AI Генерация',
+            desc: 'Фото меню -> цифровое',
+            color: 'bg-violet-50 text-violet-500',
+            badge: 'NEW',
+          },
+          {
+            href: '/dashboard/menu-editor',
+            icon: Edit3,
+            title: 'Редактор меню',
+            desc: 'Правки и предпросмотр',
+            color: 'bg-blue-50 text-blue-500',
+          },
+          {
+            href: '/dashboard/tables',
+            icon: Table2,
+            title: 'QR-столики',
+            desc: 'QR-коды для столиков',
+            color: 'bg-green-50 text-green-500',
+          },
+          {
+            href: '/dashboard/settings',
+            icon: Settings,
+            title: 'Настройки',
+            desc: 'Логотип, языки, дизайн',
+            color: 'bg-amber-50 text-amber-500',
+          },
+        ].map(item => (
+          <Link key={item.href} href={item.href}>
+            <Card hover className="h-full">
+              <CardContent className="pt-5 pb-5">
+                <div className="flex items-start gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${item.color}`}>
+                    <item.icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-gray-900 text-sm">{item.title}</h3>
+                      {item.badge && (
+                        <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">
+                          {item.badge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
 
-      {/* Main grid */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Recent activity */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base">Последние просмотры</CardTitle>
-                <Link href="/dashboard/analytics" className="text-sm text-amber-500 hover:underline flex items-center gap-1">
-                  Все <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentViews.map((view, i) => (
-                  <div key={i} className="flex items-center gap-4 py-2 border-b border-gray-50 last:border-0">
-                    <div className="text-xs text-gray-400 font-mono w-10">{view.time}</div>
-                    <div className="flex items-center gap-1 text-gray-500">
-                      {view.device === 'mobile' ? (
-                        <Smartphone className="w-3.5 h-3.5" />
-                      ) : (
-                        <Globe className="w-3.5 h-3.5" />
-                      )}
-                    </div>
-                    <div className="flex-1 text-sm text-gray-700">{view.table}</div>
-                    <Badge variant="outline" className="text-xs">{view.lang}</Badge>
+      {/* Flow diagram */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Как работает TapToMenu</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+            {[
+              { step: '1', emoji: '📸', title: 'Загрузите фото', desc: 'До 15 фотографий бумажного меню' },
+              { step: '2', emoji: '🤖', title: 'AI обработка', desc: 'OCR + структурирование + перевод' },
+              { step: '3', emoji: '🍽️', title: 'Фото блюд', desc: 'DALL-E генерирует фотографии' },
+              { step: '4', emoji: '✏️', title: 'Редактирование', desc: 'Правки + live preview' },
+              { step: '5', emoji: '📱', title: 'QR-меню', desc: 'Гость сканирует — видит меню' },
+            ].map((item, i) => (
+              <div key={i} className="text-center relative">
+                <div className="w-12 h-12 mx-auto mb-2 bg-violet-100 rounded-full flex items-center justify-center text-xl">
+                  {item.emoji}
+                </div>
+                <div className="text-sm font-semibold text-gray-900">{item.title}</div>
+                <div className="text-xs text-gray-500 mt-0.5">{item.desc}</div>
+                {i < 4 && (
+                  <div className="hidden sm:block absolute top-6 -right-2 text-gray-300">
+                    <ArrowRight className="w-4 h-4" />
                   </div>
-                ))}
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Quick actions */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Быстрые действия</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link
-                href="/dashboard/dishes?action=new"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-amber-50 transition-colors group"
-              >
-                <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center group-hover:bg-amber-200 transition-colors">
-                  <Plus className="w-4 h-4 text-amber-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">Добавить блюдо</div>
-                  <div className="text-xs text-gray-500">В библиотеку ресторана</div>
-                </div>
-              </Link>
-              <Link
-                href="/dashboard/menus"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors group"
-              >
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <BookOpen className="w-4 h-4 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">Управление меню</div>
-                  <div className="text-xs text-gray-500">Категории и блюда</div>
-                </div>
-              </Link>
-              <Link
-                href="/dashboard/tables"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group"
-              >
-                <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <Table2 className="w-4 h-4 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">NFC-столики</div>
-                  <div className="text-xs text-gray-500">Генерация QR-кодов</div>
-                </div>
-              </Link>
-              <Link
-                href="/dashboard/settings"
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors group"
-              >
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                  <Wifi className="w-4 h-4 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-gray-900">Wi-Fi для гостей</div>
-                  <div className="text-xs text-gray-500">Настроить QR-код</div>
-                </div>
-              </Link>
-            </CardContent>
-          </Card>
-
-          {/* Plan info */}
-          <Card className="border-amber-200 bg-amber-50">
-            <CardContent className="pt-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-semibold text-amber-800">Pro план</span>
-              </div>
-              <div className="text-xs text-amber-700 space-y-1">
-                <div>Блюд: 47 / 100</div>
-                <div>Меню: 2 / 3</div>
-                <div>Языки: 4 / 5</div>
-                <div className="pt-2">
-                  <div className="h-1.5 bg-amber-200 rounded-full">
-                    <div className="h-1.5 bg-amber-500 rounded-full" style={{ width: '47%' }}></div>
-                  </div>
-                </div>
-              </div>
-              <Button size="sm" className="w-full mt-3" variant="outline">
-                Улучшить план
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Links */}
+      <div className="flex flex-wrap gap-3">
+        {restaurant?.slug ? (
+          <Link
+            href={`/menu/${restaurant.slug}`}
+            target="_blank"
+            className="inline-flex items-center gap-2 text-sm text-violet-600 hover:text-violet-700 font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Превью меню «{restaurant.name}»
+          </Link>
+        ) : (
+          <Link
+            href="/r/demo/menu?lang=en"
+            target="_blank"
+            className="inline-flex items-center gap-2 text-sm text-violet-600 hover:text-violet-700 font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Превью гостевого меню
+          </Link>
+        )}
+        <Link
+          href="/menu/araratrest"
+          target="_blank"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 font-medium"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Демо-меню Арарат
+        </Link>
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="text-5xl animate-bounce">🍽️</div></div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }

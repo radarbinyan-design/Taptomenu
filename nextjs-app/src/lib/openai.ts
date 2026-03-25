@@ -7,11 +7,21 @@ let openaiClient: OpenAI | null = null
 
 function getOpenAI(): OpenAI {
   if (!openaiClient) {
+    const baseURL = process.env.OPENAI_BASE_URL
     openaiClient = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      ...(baseURL ? { baseURL } : {}),
     })
   }
   return openaiClient
+}
+
+// Determine the best chat model
+function getChatModel(): string {
+  const baseURL = process.env.OPENAI_BASE_URL || ''
+  // GenSpark proxy supports gpt-5 models
+  if (baseURL.includes('genspark.ai')) return 'gpt-5'
+  return 'gpt-4o'
 }
 
 export async function generateMenuDescription(
@@ -26,7 +36,7 @@ export async function generateMenuDescription(
   }
   
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getChatModel(),
     messages: [
       {
         role: 'system',
@@ -52,7 +62,7 @@ export async function translateDishContent(
   const openai = getOpenAI()
   
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getChatModel(),
     messages: [
       {
         role: 'system',
@@ -83,7 +93,7 @@ Be friendly, helpful, and respond in the same language as the guest.
 If you don't know specific information, say so politely and offer to get help from staff.`
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: getChatModel(),
     messages: [
       { role: 'system', content: systemPrompt },
       ...messages,
@@ -100,6 +110,12 @@ export async function generateDishImage(
   description?: string
 ): Promise<string> {
   const openai = getOpenAI()
+  const baseURL = process.env.OPENAI_BASE_URL || ''
+  
+  // DALL-E is not available through proxy
+  if (baseURL.includes('genspark.ai')) {
+    return '' // Return empty, use placeholder images
+  }
   
   const prompt = `Professional food photography of "${dishName}"${description ? `. ${description}` : ''}. 
 High-quality restaurant menu photo, top-down or 45-degree angle, natural lighting, minimal background.`

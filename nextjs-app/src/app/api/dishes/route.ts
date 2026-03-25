@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logger } from '@/lib/logger'
+import { DishCreateSchema, paginationSchema, formatZodErrors } from '@/lib/validators'
+
+const log = logger.child('api:dishes')
 
 // GET /api/dishes?restaurantId=xxx
 export async function GET(request: NextRequest) {
@@ -8,8 +12,10 @@ export async function GET(request: NextRequest) {
     const restaurantId = searchParams.get('restaurantId')
     const status = searchParams.get('status')
     const search = searchParams.get('search')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const pagination = paginationSchema.parse({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+    })
 
     if (!restaurantId) {
       return NextResponse.json({ error: 'restaurantId is required' }, { status: 400 })
@@ -28,8 +34,8 @@ export async function GET(request: NextRequest) {
       prisma.dish.findMany({
         where,
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: (pagination.page - 1) * pagination.limit,
+        take: pagination.limit,
       }),
       prisma.dish.count({ where }),
     ])
@@ -37,12 +43,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       dishes,
       total,
-      page,
-      totalPages: Math.ceil(total / limit),
+      page: pagination.page,
+      totalPages: Math.ceil(total / pagination.limit),
     })
   } catch (error) {
-    console.error('GET /api/dishes error:', error)
-    return NextResponse.json({ error: 'Ошибка получения блюд' }, { status: 500 })
+    log.error('GET failed', { error })
+    return NextResponse.json({ error: 'Failed to fetch dishes' }, { status: 500 })
   }
 }
 
@@ -50,55 +56,44 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const {
-      restaurantId,
-      name,
-      price,
-      description,
-      calories,
-      proteins,
-      fats,
-      carbohydrates,
-      weight,
-      spicyLevel = 0,
-      isVegan = false,
-      isGlutenFree = false,
-      allergens = [],
-      tags = [],
-    } = body
+    const parsed = DishCreateSchema.safeParse(body)
 
-    if (!restaurantId || !name || !price) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'restaurantId, name и price обязательны' },
+        { error: formatZodErrors(parsed.error) },
         { status: 400 }
       )
     }
 
     // Check dish limit based on subscription
-    // TODO: Add subscription check
-
-    const dish = await prisma.dish.create({
-      data: {
-        restaurantId,
-        name,
-        price: parseInt(price),
-        description,
-        calories: calories ? parseInt(calories) : null,
-        proteins: proteins ? parseFloat(proteins) : null,
-        fats: fats ? parseFloat(fats) : null,
-        carbohydrates: carbohydrates ? parseFloat(carbohydrates) : null,
-        weight: weight ? parseInt(weight) : null,
-        spicyLevel,
-        isVegan,
-        isGlutenFree,
-        allergens,
-        tags,
+    const restaurant = await prisma.restaurant.findUnique({
+      where: { id: parsed.data.restaurantId },
+      include: {
+        user: { include: { subscription: true } },
+        _count: { select: { dishes: { where: { status: { not: 'archived' } } } } },
       },
     })
 
+    if (!restaurant) {
+      return NextResponse.json({ error: 'Restaurant not found' }, { status: 404 })
+    }
+
+    const maxDishes = restaurant.user?.subscription?.maxDishes ?? 30
+    if (maxDishes !== -1 && restaurant._count.dishes >= maxDishes) {
+      return NextResponse.json(
+        { error: `Dish limit reached (${maxDishes}). Upgrade your plan.` },
+        { status: 403 }
+      )
+    }
+
+    const dish = await prisma.dish.create({
+      data: parsed.data,
+    })
+
+    log.info('Dish created', { id: dish.id, restaurantId: dish.restaurantId })
     return NextResponse.json({ dish }, { status: 201 })
   } catch (error) {
-    console.error('POST /api/dishes error:', error)
-    return NextResponse.json({ error: 'Ошибка создания блюда' }, { status: 500 })
+    log.error('POST failed', { error })
+    return NextResponse.json({ error: 'Failed to create dish' }, { status: 500 })
   }
 }
