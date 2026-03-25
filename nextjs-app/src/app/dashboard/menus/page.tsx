@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,11 @@ import {
   Settings2,
   MoreVertical,
   Layers,
+  Loader2,
 } from 'lucide-react'
+import { useAuthStore } from '@/stores/auth'
+import { useMenus, type ApiMenu } from '@/hooks'
+import { useToast } from '@/components/shared/Toast'
 
 interface Menu {
   id: string
@@ -36,7 +40,7 @@ interface Menu {
   description?: string
 }
 
-const INITIAL_MENUS: Menu[] = [
+const DEMO_MENUS: Menu[] = [
   {
     id: '1',
     name: 'Основное меню',
@@ -73,17 +77,46 @@ const INITIAL_MENUS: Menu[] = [
 ]
 
 const PLAN_LIMIT = 3
-
 const AVAILABLE_LANGS = ['RU', 'EN', 'HY', 'AR', 'FR', 'DE', 'ZH', 'ES']
 
 type ModalMode = 'create' | 'edit' | 'delete' | null
 
+// ─── Helper: Convert API menu → local Menu format ────────────────────────────
+function apiToLocal(m: ApiMenu): Menu {
+  const catCount = m.categories?.length ?? m._count?.categories ?? 0
+  const dishCount = m._count?.menuDishes ?? 0
+
+  return {
+    id: m.id,
+    name: m.name,
+    status: m.status === 'inactive' ? 'archived' : m.status,
+    isDefault: m.isDefault,
+    categories: catCount,
+    dishes: dishCount,
+    languages: m.languages?.map((l: string) => l.toUpperCase()) ?? ['RU'],
+    updatedAt: new Date(m.updatedAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }),
+    description: m.description ?? undefined,
+  }
+}
+
 export default function MenusPage() {
-  const [menus, setMenus] = useState<Menu[]>(INITIAL_MENUS)
+  const restaurant = useAuthStore(s => s.restaurant)
+  const { toast } = useToast()
+  const {
+    menus: apiMenus,
+    isLoading: apiLoading,
+    createMenu,
+    updateMenu,
+    deleteMenu: apiDeleteMenu,
+    refetch,
+  } = useMenus(restaurant?.id)
+
+  const isUsingRealData = apiMenus.length > 0 || (restaurant?.id && !apiLoading)
+  const [menus, setMenus] = useState<Menu[]>(DEMO_MENUS)
   const [modalMode, setModalMode] = useState<ModalMode>(null)
   const [selectedMenu, setSelectedMenu] = useState<Menu | null>(null)
-  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   // Form state
   const [formName, setFormName] = useState('')
@@ -91,10 +124,12 @@ export default function MenusPage() {
   const [formLangs, setFormLangs] = useState<string[]>(['RU'])
   const [formStatus, setFormStatus] = useState<'active' | 'draft'>('active')
 
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
-    setToast({ msg, type })
-    setTimeout(() => setToast(null), 3000)
-  }
+  // Sync API data
+  useEffect(() => {
+    if (apiMenus.length > 0) {
+      setMenus(apiMenus.map(apiToLocal))
+    }
+  }, [apiMenus])
 
   const openCreate = () => {
     setFormName('')
@@ -126,69 +161,149 @@ export default function MenusPage() {
     setSelectedMenu(null)
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!formName.trim()) return
-    const newMenu: Menu = {
-      id: Date.now().toString(),
-      name: formName.trim(),
-      status: formStatus,
-      isDefault: menus.length === 0,
-      categories: 0,
-      dishes: 0,
-      languages: formLangs,
-      updatedAt: 'только что',
-      description: formDesc.trim(),
+    setIsSaving(true)
+    try {
+      if (restaurant?.id && isUsingRealData) {
+        await createMenu({
+          name: formName.trim(),
+          description: formDesc.trim() || undefined,
+          status: formStatus,
+          languages: formLangs.map(l => l.toLowerCase()),
+        })
+        await refetch()
+      } else {
+        const newMenu: Menu = {
+          id: Date.now().toString(),
+          name: formName.trim(),
+          status: formStatus,
+          isDefault: menus.length === 0,
+          categories: 0,
+          dishes: 0,
+          languages: formLangs,
+          updatedAt: 'только что',
+          description: formDesc.trim(),
+        }
+        setMenus(prev => [...prev, newMenu])
+      }
+      toast(`Меню "${formName.trim()}" создано!`, 'success')
+      closeModal()
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Ошибка создания', 'error')
+    } finally {
+      setIsSaving(false)
     }
-    setMenus([...menus, newMenu])
-    showToast(`Меню «${newMenu.name}» создано!`)
-    closeModal()
   }
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (!selectedMenu || !formName.trim()) return
-    setMenus(menus.map(m =>
-      m.id === selectedMenu.id
-        ? { ...m, name: formName.trim(), description: formDesc.trim(), languages: formLangs, status: formStatus, updatedAt: 'только что' }
-        : m
-    ))
-    showToast(`Меню «${formName.trim()}» обновлено!`)
-    closeModal()
-  }
-
-  const handleDelete = () => {
-    if (!selectedMenu) return
-    setMenus(menus.filter(m => m.id !== selectedMenu.id))
-    showToast(`Меню «${selectedMenu.name}» удалено`, 'error')
-    closeModal()
-  }
-
-  const toggleStatus = (id: string) => {
-    setMenus(menus.map(m => {
-      if (m.id !== id) return m
-      const newStatus = m.status === 'active' ? 'draft' : 'active'
-      showToast(`Меню «${m.name}» ${newStatus === 'active' ? 'активировано' : 'скрыто'}`)
-      return { ...m, status: newStatus, updatedAt: 'только что' }
-    }))
-    setOpenMenuId(null)
-  }
-
-  const setDefault = (id: string) => {
-    setMenus(menus.map(m => ({ ...m, isDefault: m.id === id })))
-    const menu = menus.find(m => m.id === id)
-    showToast(`«${menu?.name}» — теперь меню по умолчанию`)
-    setOpenMenuId(null)
-  }
-
-  const duplicateMenu = (menu: Menu) => {
-    const copy: Menu = {
-      ...menu,
-      id: Date.now().toString(),
-      name: `${menu.name} (копия)`,
-      isDefault: false,
-      updatedAt: 'только что',
+    setIsSaving(true)
+    try {
+      if (restaurant?.id && isUsingRealData && selectedMenu.id.length > 10) {
+        await updateMenu(selectedMenu.id, {
+          name: formName.trim(),
+          description: formDesc.trim() || undefined,
+          status: formStatus,
+          languages: formLangs.map(l => l.toLowerCase()),
+        })
+        await refetch()
+      } else {
+        setMenus(prev => prev.map(m =>
+          m.id === selectedMenu.id
+            ? { ...m, name: formName.trim(), description: formDesc.trim(), languages: formLangs, status: formStatus, updatedAt: 'только что' }
+            : m
+        ))
+      }
+      toast(`Меню "${formName.trim()}" обновлено!`, 'success')
+      closeModal()
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Ошибка обновления', 'error')
+    } finally {
+      setIsSaving(false)
     }
-    setMenus([...menus, copy])
-    showToast(`Меню «${copy.name}» создано`)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedMenu) return
+    setIsSaving(true)
+    try {
+      if (restaurant?.id && isUsingRealData && selectedMenu.id.length > 10) {
+        await apiDeleteMenu(selectedMenu.id)
+        await refetch()
+      } else {
+        setMenus(prev => prev.filter(m => m.id !== selectedMenu.id))
+      }
+      toast(`Меню "${selectedMenu.name}" удалено`, 'error')
+      closeModal()
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Ошибка удаления', 'error')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const toggleStatus = async (id: string) => {
+    const menu = menus.find(m => m.id === id)
+    if (!menu) return
+    const newStatus = menu.status === 'active' ? 'draft' : 'active'
+    try {
+      if (restaurant?.id && isUsingRealData && id.length > 10) {
+        await updateMenu(id, { status: newStatus })
+        await refetch()
+      } else {
+        setMenus(prev => prev.map(m =>
+          m.id === id ? { ...m, status: newStatus, updatedAt: 'только что' } : m
+        ))
+      }
+      toast(`Меню "${menu.name}" ${newStatus === 'active' ? 'активировано' : 'скрыто'}`, 'success')
+    } catch {
+      toast('Ошибка обновления статуса', 'error')
+    }
+    setOpenMenuId(null)
+  }
+
+  const setDefault = async (id: string) => {
+    const menu = menus.find(m => m.id === id)
+    if (!menu) return
+    try {
+      if (restaurant?.id && isUsingRealData && id.length > 10) {
+        await updateMenu(id, { isDefault: true })
+        await refetch()
+      } else {
+        setMenus(prev => prev.map(m => ({ ...m, isDefault: m.id === id })))
+      }
+      toast(`"${menu.name}" -- теперь меню по умолчанию`, 'success')
+    } catch {
+      toast('Ошибка', 'error')
+    }
+    setOpenMenuId(null)
+  }
+
+  const duplicateMenu = async (menu: Menu) => {
+    try {
+      if (restaurant?.id && isUsingRealData) {
+        await createMenu({
+          name: `${menu.name} (копия)`,
+          description: menu.description,
+          status: 'draft',
+          languages: menu.languages.map(l => l.toLowerCase()),
+        })
+        await refetch()
+      } else {
+        const copy: Menu = {
+          ...menu,
+          id: Date.now().toString(),
+          name: `${menu.name} (копия)`,
+          isDefault: false,
+          updatedAt: 'только что',
+        }
+        setMenus(prev => [...prev, copy])
+      }
+      toast(`Меню "${menu.name}" дублировано`, 'success')
+    } catch (err: unknown) {
+      toast(err instanceof Error ? err.message : 'Ошибка', 'error')
+    }
     setOpenMenuId(null)
   }
 
@@ -201,23 +316,25 @@ export default function MenusPage() {
   const used = menus.length
   const limitPct = Math.min((used / PLAN_LIMIT) * 100, 100)
 
+  if (apiLoading && restaurant?.id) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+        <span className="ml-3 text-gray-500">Загрузка меню...</span>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {/* Toast */}
-      {toast && (
-        <div className={`fixed top-4 right-4 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-lg text-sm font-medium text-white transition-all ${
-          toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        }`}>
-          {toast.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
-          {toast.msg}
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Меню</h1>
-          <p className="text-gray-500 mt-1">{used} из {PLAN_LIMIT} меню · Pro план</p>
+          <p className="text-gray-500 mt-1">
+            {used} из {PLAN_LIMIT} меню · Pro план
+            {!isUsingRealData && <span className="text-amber-500 ml-2">(демо-данные)</span>}
+          </p>
         </div>
         <Button
           onClick={openCreate}
@@ -369,7 +486,7 @@ export default function MenusPage() {
                   Редактор
                 </Link>
                 <Link
-                  href={`/menu/araratrest`}
+                  href={restaurant?.slug ? `/menu/${restaurant.slug}` : '/menu/araratrest'}
                   target="_blank"
                   className="flex-1 flex items-center justify-center gap-1.5 h-8 text-xs font-medium text-amber-600 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors"
                 >
@@ -389,7 +506,7 @@ export default function MenusPage() {
             onClick={openCreate}
             className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-gray-400 hover:border-amber-300 hover:text-amber-500 hover:bg-amber-50 transition-all min-h-[200px]"
           >
-            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center group-hover:bg-amber-100">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
               <Plus className="w-6 h-6" />
             </div>
             <span className="text-sm font-medium">Создать новое меню</span>
@@ -403,7 +520,7 @@ export default function MenusPage() {
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-100">
               <h2 className="text-lg font-bold text-gray-900">
-                {modalMode === 'create' ? '✨ Создать меню' : '✏️ Редактировать меню'}
+                {modalMode === 'create' ? '+ Создать меню' : 'Редактировать меню'}
               </h2>
               <button onClick={closeModal} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100">
                 <X className="w-4 h-4 text-gray-500" />
@@ -478,9 +595,10 @@ export default function MenusPage() {
               </Button>
               <Button
                 onClick={modalMode === 'create' ? handleCreate : handleEdit}
-                disabled={!formName.trim()}
+                disabled={!formName.trim() || isSaving}
                 className="flex-1 bg-amber-500 hover:bg-amber-600 text-white"
               >
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : null}
                 {modalMode === 'create' ? 'Создать' : 'Сохранить'}
               </Button>
             </div>
@@ -503,8 +621,8 @@ export default function MenusPage() {
             </div>
             <div className="flex gap-3">
               <Button variant="outline" onClick={closeModal} className="flex-1">Отмена</Button>
-              <Button onClick={handleDelete} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
-                Удалить
+              <Button onClick={handleDelete} disabled={isSaving} className="flex-1 bg-red-500 hover:bg-red-600 text-white">
+                {isSaving ? 'Удаление...' : 'Удалить'}
               </Button>
             </div>
           </div>

@@ -1,6 +1,82 @@
 // TypeScript types for TapMenu Armenia SaaS
 
 export type UserRole = 'owner' | 'admin' | 'superadmin'
+export type MVPRole = 'RESTAURANT_ADMIN' | 'PLATFORM_ADMIN' | 'GUEST'
+
+// MVP Role mapping from existing roles
+export function getMVPRole(role: UserRole | string): MVPRole {
+  if (role === 'superadmin' || role === 'admin') return 'PLATFORM_ADMIN'
+  if (role === 'owner') return 'RESTAURANT_ADMIN'
+  return 'GUEST'
+}
+
+// Dashboard tabs visible to RESTAURANT_ADMIN
+export const RESTAURANT_ADMIN_TABS = [
+  '/dashboard',
+  '/dashboard/menu-generator',
+  '/dashboard/menu-editor',
+  '/dashboard/menus',
+  '/dashboard/tables',
+  '/dashboard/dishes',
+  '/dashboard/translations',
+  '/dashboard/billing',
+  '/dashboard/settings',
+] as const
+
+// All menu generation job statuses
+export type GenerationJobStatus = 'pending' | 'ocr' | 'structuring' | 'translating' | 'generating_images' | 'completed' | 'failed'
+
+export interface GenerationJob {
+  id: string
+  restaurantId: string
+  status: GenerationJobStatus
+  progress: number
+  currentStep: string
+  photos: string[]
+  logo: string
+  result?: GeneratedMenuData
+  error?: string
+  createdAt: Date
+}
+
+export interface GeneratedMenuData {
+  categories: GeneratedCategory[]
+  colorPalette: ColorPalette
+  designTemplates: DesignTemplate[]
+}
+
+export interface GeneratedCategory {
+  id: string
+  name: { ru: string; en: string; hy: string }
+  emoji?: string
+  dishes: GeneratedDish[]
+}
+
+export interface GeneratedDish {
+  id: string
+  name: { ru: string; en: string; hy: string }
+  description: { ru: string; en: string; hy: string }
+  price: number
+  imageUrl?: string
+  aiPrompt?: string
+  generatedByAI: boolean
+}
+
+export interface ColorPalette {
+  primary: string
+  secondary: string
+  accent: string
+  dark: string
+  light: string
+}
+
+export interface DesignTemplate {
+  id: string
+  name: string
+  style: 'elegant' | 'modern' | 'casual' | 'minimalist'
+  preview: string
+  colors: string[]
+}
 export type SubscriptionPlan = 'starter' | 'pro' | 'premium' | 'luxe'
 export type SubscriptionStatus = 'trial' | 'active' | 'grace' | 'blocked' | 'cancelled'
 export type DishStatus = 'active' | 'inactive' | 'archived'
@@ -165,6 +241,74 @@ export interface Lead {
   createdAt: Date
 }
 
+// ─── Phase 01: Guest Ordering ─────────────────────────────────────────────────
+
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered' | 'cancelled'
+
+export interface Order {
+  id: string
+  restaurantId: string
+  tableId?: string
+  status: OrderStatus
+  totalAmount: number // AMD
+  guestName?: string
+  guestPhone?: string
+  notes?: string
+  items?: OrderItem[]
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface OrderItem {
+  id: string
+  orderId: string
+  dishId: string
+  quantity: number
+  price: number // AMD, snapshot at order time
+  specialInstructions?: string
+  dish?: Dish
+  createdAt: Date
+}
+
+// ─── Phase 04: Payments ──────────────────────────────────────────────────────
+
+export type PaymentTransactionStatus = 'pending' | 'succeeded' | 'failed' | 'refunded' | 'cancelled'
+export type PaymentTransactionType = 'subscription_create' | 'subscription_renew' | 'subscription_upgrade' | 'subscription_downgrade' | 'refund'
+
+export interface PaymentTransaction {
+  id: string
+  subscriptionId: string
+  stripePaymentIntentId?: string
+  stripeInvoiceId?: string
+  type: PaymentTransactionType
+  status: PaymentTransactionStatus
+  amount: number // cents
+  currency: string
+  plan: SubscriptionPlan
+  period: string // 'monthly' | 'yearly'
+  description?: string
+  failureReason?: string
+  receiptUrl?: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface SubscriptionWithStripe extends Subscription {
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
+  stripePriceId?: string
+  cancelAtPeriodEnd: boolean
+  hasStripe: boolean
+  daysRemaining: number | null
+}
+
+export interface UsageSummary {
+  menus: { current: number; max: number }
+  dishes: { current: number; max: number }
+  languages: { current: number; max: number }
+  nfcTags: { current: number; max: number }
+}
+
 // Tariff plan limits
 export const PLAN_LIMITS: Record<SubscriptionPlan, {
   maxMenus: number
@@ -272,6 +416,66 @@ export const CURRENCIES = [
   { code: 'RUB', symbol: '₽', name: 'Российский рубль' },
   { code: 'GBP', symbol: '£', name: 'Фунт стерлингов' },
 ]
+
+// ─── Phase 03: Transformer (AI) ─────────────────────────────────────────────
+
+export type TranslationProvider = 'deepl' | 'google' | 'openai' | 'demo'
+export type ImageProvider = 'dalle' | 'demo'
+export type TransformerUsageType = 'translation' | 'description' | 'image' | 'ocr'
+
+export interface TransformerUsage {
+  id: string
+  restaurantId: string
+  type: TransformerUsageType
+  provider: string
+  tokensUsed: number
+  metadata?: Record<string, unknown>
+  createdAt: Date
+}
+
+export interface TranslateResult {
+  translations: Record<string, string>
+  provider: TranslationProvider
+  tokensUsed: number
+  cached: boolean
+}
+
+export interface BatchTranslateResult {
+  translations: Record<string, Record<string, { name: string; description?: string }>>
+  totalTokensUsed: number
+  provider: TranslationProvider
+  dishCount: number
+  langCount: number
+}
+
+export interface OcrExtractedDish {
+  name: string
+  description?: string
+  price?: number
+  category?: string
+}
+
+export interface OcrResult {
+  extractedText: string
+  structuredData?: {
+    categories: Array<{ name: string; dishes: OcrExtractedDish[] }>
+    rawDishes: OcrExtractedDish[]
+  }
+  confidence: number
+  provider: 'google-vision' | 'tesseract' | 'gpt4-vision' | 'azure' | 'demo'
+  tokensUsed: number
+}
+
+export interface TransformerStatusResponse {
+  providers: TranslationProvider[]
+  imageProviders: ImageProvider[]
+  hasDeepL: boolean
+  hasGoogle: boolean
+  hasOpenAI: boolean
+  hasDalle: boolean
+  supportedLanguages: string[]
+  deeplLanguages: string[]
+}
 
 export type ApiResponse<T> = {
   data?: T

@@ -16,23 +16,64 @@ import {
   Menu,
   Bell,
   Crown,
+  Sparkles,
+  Edit3,
+  CreditCard,
+  Languages,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getMVPRole, type MVPRole } from '@/types'
+import { ToastProvider } from '@/components/shared/Toast'
+import { useAuthStore } from '@/stores/auth'
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Обзор', exact: true },
-  { href: '/dashboard/dishes', icon: UtensilsCrossed, label: 'Блюда' },
-  { href: '/dashboard/menus', icon: BookOpen, label: 'Меню' },
-  { href: '/dashboard/tables', icon: Table2, label: 'Столики' },
-  { href: '/dashboard/analytics', icon: BarChart3, label: 'Аналитика' },
-  { href: '/dashboard/ai-assistant', icon: Bot, label: 'AI Ассистент', badge: 'LUXE' },
-  { href: '/dashboard/settings', icon: Settings, label: 'Настройки' },
+// Full nav for PLATFORM_ADMIN
+const allNavItems = [
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Обзор', exact: true, roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/menu-generator', icon: Sparkles, label: 'AI Генерация', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'], badge: 'NEW' },
+  { href: '/dashboard/menu-editor', icon: Edit3, label: 'Редактор меню', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/menus', icon: BookOpen, label: 'Меню', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/tables', icon: Table2, label: 'Столики', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/dishes', icon: UtensilsCrossed, label: 'Блюда', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/translations', icon: Languages, label: 'Переводы', badge: 'NEW', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/analytics', icon: BarChart3, label: 'Аналитика', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/ai-assistant', icon: Bot, label: 'AI Ассистент', badge: 'LUXE', roles: ['PLATFORM_ADMIN'] },
+  { href: '/dashboard/billing', icon: CreditCard, label: 'Биллинг', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
+  { href: '/dashboard/settings', icon: Settings, label: 'Настройки', roles: ['PLATFORM_ADMIN', 'RESTAURANT_ADMIN'] },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [userRole, setUserRole] = useState<MVPRole>('RESTAURANT_ADMIN')
+  const [userName, setUserName] = useState('Ресторатор')
+
+  const { restaurant: authRestaurant, setRestaurant } = useAuthStore()
+
+  useEffect(() => {
+    // Read role from cookie
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+      return match ? decodeURIComponent(match[2]) : null
+    }
+    const role = getCookie('user-role') || 'owner'
+    const name = getCookie('user-name') || 'Ресторатор'
+    setUserRole(getMVPRole(role))
+    setUserName(name)
+
+    // Fetch user's restaurant for sidebar display & child pages
+    fetch('/api/restaurants')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.restaurants?.[0]) {
+          setRestaurant(data.restaurants[0])
+        }
+      })
+      .catch(() => { /* silently fail — demo mode */ })
+  }, [setRestaurant])
+
+  // Filter nav items based on role
+  const navItems = allNavItems.filter(item => item.roles.includes(userRole))
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' })
@@ -62,12 +103,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="p-6 border-b border-gray-100">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">TM</span>
             </div>
             <div>
-              <div className="font-bold text-gray-900 text-sm">TapMenu</div>
-              <div className="text-xs text-gray-400">Armenia</div>
+              <div className="font-bold text-gray-900 text-sm">TapToMenu</div>
+              <div className="text-xs text-gray-400">AI Menu Generator</div>
             </div>
           </Link>
         </div>
@@ -76,11 +117,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-4 border-b border-gray-100">
           <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">
-              А
+              R
             </div>
             <div className="flex-1 text-left min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">Ресторан Арарат</div>
-              <div className="text-xs text-gray-400">Pro план</div>
+              <div className="text-sm font-medium text-gray-900 truncate">{authRestaurant?.name || 'Мой ресторан'}</div>
+              <div className="text-xs text-gray-400">
+                {userRole === 'PLATFORM_ADMIN' ? 'Admin' : 'Ресторатор'}
+              </div>
             </div>
             <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
           </button>
@@ -101,14 +144,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={cn(
                   'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-amber-50 text-amber-600'
+                    ? 'bg-violet-50 text-violet-600'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 )}
               >
                 <item.icon className="w-4 h-4 flex-shrink-0" />
                 <span className="flex-1">{item.label}</span>
                 {item.badge && (
-                  <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">
+                  <span className={cn(
+                    'text-xs px-1.5 py-0.5 rounded-full font-medium',
+                    item.badge === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                  )}>
                     {item.badge}
                   </span>
                 )}
@@ -117,14 +163,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           })}
         </nav>
 
-        {/* Bottom: Subscription plan + logout */}
+        {/* Bottom: role info + logout */}
         <div className="p-4 border-t border-gray-100 space-y-3">
-          {/* Plan badge */}
-          <div className="flex items-center gap-3 px-3 py-2 bg-amber-50 rounded-lg">
-            <Crown className="w-4 h-4 text-amber-600" />
+          <div className="flex items-center gap-3 px-3 py-2 bg-violet-50 rounded-lg">
+            <Crown className="w-4 h-4 text-violet-600" />
             <div className="flex-1">
-              <div className="text-xs font-semibold text-amber-700">Pro план</div>
-              <div className="text-xs text-amber-500">$25/мес · до 100 блюд</div>
+              <div className="text-xs font-semibold text-violet-700">
+                {userRole === 'PLATFORM_ADMIN' ? 'Platform Admin' : 'Ресторатор'}
+              </div>
+              <div className="text-xs text-violet-500">
+                {userRole === 'PLATFORM_ADMIN' ? 'Полный доступ' : 'Меню / Столики / Настройки'}
+              </div>
             </div>
           </div>
 
@@ -159,10 +208,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* User avatar */}
             <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-              <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                А
+              <div className="w-8 h-8 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                {userName.charAt(0)}
               </div>
-              <span className="hidden sm:block text-sm font-medium text-gray-700">Арам</span>
+              <span className="hidden sm:block text-sm font-medium text-gray-700">{userName}</span>
               <ChevronDown className="hidden sm:block w-3 h-3 text-gray-400" />
             </button>
           </div>
@@ -170,7 +219,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* Page content */}
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </main>
       </div>
     </div>
